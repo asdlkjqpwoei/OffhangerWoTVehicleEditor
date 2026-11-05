@@ -1,0 +1,863 @@
+schema: 1
+fallback_zh: "客户端原始参数。完整路径标明使用位置；同名参数可能用于不同物理或模式，修改不会自动联动。"
+fallback_en: "Raw client parameter. The complete path identifies its use; equal names in different physics/modes remain independent."
+fields:
+  level:
+    zh: "等级"
+    en: "Tier"
+    help_zh: "车辆等级；只改等级不自动改变分房、模块身份或注册编号。"
+    help_en: "Vehicle tier; matchmaking and module identities are separate."
+  price:
+    zh: "货币价格"
+    en: "Price"
+    help_zh: "价格数值。金币或银币币种在车辆概要中单独设置，出售收益由客户端另外计算。"
+    help_en: "Currency amount. Select gold or credits separately; sale income is calculated by the client."
+  forward:
+    zh: "最高前进速度"
+    en: "Forward speed"
+    help_zh: "最高前进速度。物理配置中的其他速度限制需要分别检查。"
+    help_en: "Forward speed cap. Inspect the separate physics speed limits too."
+  backward:
+    zh: "最高后退速度"
+    en: "Reverse speed"
+    help_zh: "最高后退速度。不同模式或物理配置的同名限制独立保存。"
+    help_en: "Reverse speed cap; limits for different physics modes are stored separately."
+  moving:
+    zh: "移动隐蔽系数"
+    en: "Moving camouflage"
+    help_zh: "移动时的基础隐蔽系数；越大通常越不容易被发现。"
+    help_en: "Base moving concealment; larger generally reduces detection."
+  still:
+    zh: "静止隐蔽系数"
+    en: "Stationary camouflage"
+    help_zh: "静止时的基础隐蔽系数；最终还受距离、草丛、涂装与装备影响。"
+    help_en: "Base stationary concealment; cover, distance, camouflage and equipment also apply."
+  firePenalty:
+    zh: "开火隐蔽保留系数"
+    en: "Firing camouflage factor"
+    help_zh: "开火后的隐蔽系数因子，通常越小开火时越容易被发现；不是额外隐蔽百分比。"
+    help_en: "Concealment factor after firing; smaller usually means easier detection."
+  camouflageBonus:
+    zh: "涂装隐蔽加成"
+    en: "Camouflage paint bonus"
+    help_zh: "涂装提供的基础隐蔽加成，使用客户端原始系数。"
+    help_en: "Base camouflage paint bonus in the client raw scale."
+  crewXpFactor:
+    zh: "乘员经验倍率"
+    en: "Crew XP multiplier"
+    help_zh: "乘员经验倍率；1.5 表示基础经验的 1.5 倍。"
+    help_en: "Crew XP multiplier; 1.5 means 1.5 times base XP."
+  premiumVehicleXPFactor:
+    zh: "高级车辆经验额外系数"
+    en: "Premium vehicle XP bonus"
+    help_zh: "额外经验系数；0.1 通常表示额外 10%，不是 0.1 倍。"
+    help_en: "Additional XP factor; 0.1 generally means an extra 10%, not a 0.1 multiplier."
+  maxHealth:
+    zh: "模块／车辆生命值"
+    en: "Health"
+    help_zh: "当前路径对应模块或车体的生命值；不同模块独立生效，必须大于零。"
+    help_en: "Health for this module or hull; separate modules have separate values. Must be positive."
+  maxRegenHealth:
+    zh: "模块修复上限"
+    en: "Repaired health limit"
+    help_zh: "模块被修复后可恢复到的生命值上限；与最大生命值区分。"
+    help_en: "Health limit after a damaged module is repaired."
+  repairCost:
+    zh: "维修成本系数"
+    en: "Repair cost"
+    help_zh: "该车辆或模块的维修价格／系数，含义由当前路径决定。"
+    help_en: "Vehicle or module repair cost/factor, depending on the source path."
+  repairTime:
+    zh: "维修时间"
+    en: "Repair time"
+    help_zh: "模块维修耗时，数值越小通常修复越快。"
+    help_en: "Module repair duration; lower generally repairs faster."
+  weight:
+    zh: "重量"
+    en: "Weight"
+    help_zh: "当前部件的质量，通常为千克；会影响推重比、承载与物理响应。"
+    help_en: "Component mass, generally kilograms; affects power-to-weight, load and physics."
+  rotationSpeed:
+    zh: "转动速度"
+    en: "Rotation speed"
+    help_zh: "当前悬挂或炮塔的转动速度；车体与炮塔分别设置。"
+    help_en: "Rotation speed for this chassis or turret; the two are independent."
+  terrainResistance:
+    zh: "地形阻力：硬／中／软"
+    en: "Terrain resistance: hard/medium/soft"
+    help_zh: "三个数依次对应硬、中、软地面；越小通常机动越好。其他物理配置中的对应项也应检查。"
+    help_en: "Hard, medium and soft ground resistance. Smaller generally improves mobility. Inspect other physics copies too."
+  brakeForce:
+    zh: "制动力"
+    en: "Brake force"
+    help_zh: "制动作用力，影响减速与停车，过大会改变车辆物理表现。"
+    help_en: "Braking force; affects deceleration and stopping."
+  maxLoad:
+    zh: "最大承载"
+    en: "Maximum load"
+    help_zh: "悬挂最大承载质量；需要容纳整车配置的总重量。"
+    help_en: "Maximum chassis load; must accommodate the complete vehicle."
+  vehicleMovement:
+    zh: "车体移动扩圈系数"
+    en: "Movement dispersion"
+    help_zh: "移动引起的瞄准圈扩张系数；越小移动射击通常越稳定。"
+    help_en: "Dispersion caused by vehicle movement; lower generally improves firing stability."
+  vehicleRotation:
+    zh: "车体转向扩圈系数"
+    en: "Hull rotation dispersion"
+    help_zh: "车体转向引起的瞄准圈扩张系数。"
+    help_en: "Dispersion caused by hull rotation."
+  turretRotation:
+    zh: "炮塔转向扩圈系数"
+    en: "Turret rotation dispersion"
+    help_zh: "炮塔转向引起的瞄准圈扩张系数。"
+    help_en: "Dispersion caused by turret rotation."
+  power:
+    zh: "发动机功率"
+    en: "Engine power"
+    help_zh: "发动机功率的原始配置值，通常为马力；详细物理中的功率也独立生效。"
+    help_en: "Raw engine power, generally horsepower; detailed physics power is independent."
+  fireProbability:
+    zh: "发动机起火概率"
+    en: "Engine fire probability"
+    help_zh: "发动机受损时起火的概率，范围 0 到 1。"
+    help_en: "Probability of engine fire after damage, between zero and one."
+  smplEnginePower:
+    zh: "详细物理发动机功率"
+    en: "Detailed physics engine power"
+    help_zh: "详细物理／简化驱动所用的功率副本；不会自动随主发动机功率修改。"
+    help_en: "Separate power value used by detailed/simplified drive physics; not automatically linked to the main engine."
+  smplFwMaxSpeed:
+    zh: "详细物理前进极速"
+    en: "Detailed physics forward speed"
+    help_zh: "详细物理中的前进限速副本；应与期望的主速度限制一起检查。"
+    help_en: "Separate forward speed limit in detailed physics."
+  smplBkMaxSpeed:
+    zh: "详细物理后退极速"
+    en: "Detailed physics reverse speed"
+    help_zh: "详细物理中的后退限速副本；按客户端原始值保存。"
+    help_en: "Separate reverse speed limit in detailed physics, stored in the client raw scale."
+  circularVisionRadius:
+    zh: "观察距离"
+    en: "View range"
+    help_zh: "炮塔基础观察距离，通常为米；实际侦察还受视野上限、装备和目标隐蔽影响。"
+    help_en: "Base turret view range, generally meters; spotting limits, equipment and concealment also apply."
+  shotDispersionRadius:
+    zh: "火炮精度／散布半径"
+    en: "Gun dispersion radius"
+    help_zh: "基础瞄准圈散布半径，通常描述 100 米处的精度；越小通常越准。"
+    help_en: "Base dispersion radius, generally specified at 100 meters; smaller is more accurate."
+  aimingTime:
+    zh: "瞄准时间"
+    en: "Aim time"
+    help_zh: "基础瞄准时间参数，数值越小通常收圈越快。"
+    help_en: "Base aiming-time parameter; smaller generally aims faster."
+  reloadTime:
+    zh: "装填时间"
+    en: "Reload time"
+    help_zh: "单次装填或弹匣整体装填耗时；具体取决于原生机制及所在路径。"
+    help_en: "Reload duration for a round or complete magazine, depending on native mechanism and path."
+  afterShot:
+    zh: "开火后扩圈系数"
+    en: "After-shot dispersion"
+    help_zh: "射击后的瞄准圈扩张系数；越小通常更快恢复瞄准。"
+    help_en: "Dispersion increase after firing; lower generally improves follow-up shots."
+  whileGunDamaged:
+    zh: "火炮受损扩圈系数"
+    en: "Damaged gun dispersion"
+    help_zh: "火炮损坏时的散布惩罚系数。"
+    help_en: "Dispersion penalty when the gun is damaged."
+  pitchLimits:
+    zh: "俯角／仰角限制"
+    en: "Gun depression/elevation limits"
+    help_zh: "俯仰范围的原始向量。保持元素数量与次序，不同炮塔方位的限制可能另有条目。"
+    help_en: "Raw gun pitch-limit vector. Keep component count/order; some turret directions have additional limits."
+  minPitch:
+    zh: "原始仰角曲线"
+    en: "Minimum pitch"
+    help_zh: "火炮俯仰角下限，单位和正负方向遵循当前定义。"
+    help_en: "Lower gun pitch limit using the current definition scale and sign."
+  maxPitch:
+    zh: "原始俯角曲线"
+    en: "Maximum pitch"
+    help_zh: "火炮俯仰角上限；勿与俯角边界颠倒。"
+    help_en: "Upper gun pitch limit; keep bounds in order."
+  count:
+    zh: "原生装填机制数量"
+    en: "Native mechanism count"
+    help_zh: "当前弹匣／连发机制的弹数。只允许修改已有机制，不会新增另一种装填方式。"
+    help_en: "Count in the existing magazine/burst mechanism. Does not add or convert mechanisms."
+  rate:
+    zh: "弹匣／连发射速（发／分）"
+    en: "Magazine/burst rate (rounds/min)"
+    help_zh: "已有弹匣／连发机制的每分钟射速；客户端用 60 ÷ rate 换算两发之间的秒数，数值越大间隔越短。"
+    help_en: "Rounds per minute in the native magazine/burst mechanism. The client computes the interval as 60 / rate seconds."
+  reloadTimes:
+    zh: "逐发装填时间"
+    en: "Per-round reload times"
+    help_zh: "现有自动再装填／双管机制的逐发装填时间，保持原有向量长度与顺序。"
+    help_en: "Per-round reload times of the existing autoreload/double-gun mechanism; preserve vector length and order."
+  intraClipReload:
+    zh: "弹匣内射击间隔"
+    en: "Intra-clip reload"
+    help_zh: "弹匣内相邻炮弹之间的间隔。"
+    help_en: "Interval between rounds within a magazine."
+  burstShellCount:
+    zh: "连发炮弹数量"
+    en: "Burst shell count"
+    help_zh: "已有连发机制的炮弹数量，不会添加连发机制。"
+    help_en: "Round count for an existing burst mechanism."
+  clipShellCount:
+    zh: "弹匣炮弹数量"
+    en: "Magazine shell count"
+    help_zh: "已有弹匣机制的弹量，不会将单发炮转换为弹匣炮。"
+    help_en: "Round count for an existing magazine; does not convert single-shot guns."
+  maxAmmo:
+    zh: "携带弹药上限"
+    en: "Ammunition capacity"
+    help_zh: "车辆可携带的总炮弹数量；与弹匣内弹数不同。"
+    help_en: "Total ammunition capacity, separate from magazine capacity."
+  piercingPower:
+    zh: "穿透力"
+    en: "Penetration"
+    help_zh: "炮弹穿透力或距离衰减向量；保持原有元素数及顺序。"
+    help_en: "Penetration or distance-falloff vector; preserve its component count and order."
+  speed:
+    zh: "炮弹／物理初速度"
+    en: "Projectile/physics speed"
+    help_zh: "当前路径的速度值；炮弹路径通常为初速度（米／秒），其他路径按原始单位解释。"
+    help_en: "Speed at this path; projectile entries generally use meters per second."
+  gravity:
+    zh: "炮弹／物理重力参数"
+    en: "Projectile/physics gravity"
+    help_zh: "当前炮弹或物理模型使用的重力值；会影响弹道或物理表现。"
+    help_en: "Gravity used by this projectile or physics model; affects trajectory or behavior."
+  armor:
+    zh: "平均生命伤害"
+    en: "Average hitpoint damage"
+    help_zh: "damage/armor 是对车辆生命值的平均伤害，不是装甲厚度。"
+    help_en: "damage/armor is average hitpoint damage, not armor thickness."
+  devices:
+    zh: "模块伤害"
+    en: "Module damage"
+    help_zh: "炮弹对内部模块的基础平均伤害。"
+    help_en: "Base average damage to internal modules."
+  normalizationAngle:
+    zh: "转正角度"
+    en: "Normalization angle"
+    help_zh: "炮弹命中装甲后的转正角度；角度越大通常越容易穿透斜面。"
+    help_en: "Shell normalization angle after impact; larger generally helps against sloped armor."
+  ricochetAngle:
+    zh: "跳弹角度"
+    en: "Ricochet angle"
+    help_zh: "触发跳弹判定的入射角阈值，仍受炮弹类型与口径规则影响。"
+    help_en: "Ricochet angle threshold; shell type and caliber rules also apply."
+  explosionRadius:
+    zh: "爆炸范围"
+    en: "Explosion radius"
+    help_zh: "高爆弹的爆炸半径，通常为米；不会自动改变伤害。"
+    help_en: "Explosion radius, generally meters; does not automatically change damage."
+  stunDuration:
+    zh: "弹震持续时间"
+    en: "Stun duration"
+    help_zh: "弹震持续时间的基础参数或范围；仅对已有弹震机制的炮弹有效。"
+    help_en: "Base stun duration or range for shells that already support stun."
+  duration:
+    zh: "持续时间"
+    en: "Duration"
+    help_zh: "当前机制的持续时间；参见完整路径确定是弹震还是其他效果。"
+    help_en: "Effect duration; inspect the complete path to distinguish stun from other effects."
+  damageFactor:
+    zh: "伤害系数"
+    en: "Damage factor"
+    help_zh: "当前机制对伤害的比例系数，按原始尺度保存。"
+    help_en: "Damage multiplier for this effect in the original scale."
+  stun:
+    zh: "弹震参数"
+    en: "Stun parameter"
+    help_zh: "已有弹震机制参数；不新增原本不存在的弹震结构。"
+    help_en: "Parameter of an existing stun mechanism; does not add missing stun structures."
+  isStun:
+    zh: "是否启用已有弹震"
+    en: "Existing stun enabled"
+    help_zh: "启用／禁用客户端已有的弹震标记。"
+    help_en: "Enables/disables the stun flag already present in the client definition."
+  caliber:
+    zh: "口径"
+    en: "Caliber"
+    help_zh: "炮弹口径，通常为毫米；影响部分穿透与跳弹规则。"
+    help_en: "Shell caliber, generally millimeters; affects some penetration and ricochet rules."
+  shotDispersionAngle:
+    zh: "火炮精度／散布半径"
+    en: "Gun dispersion radius"
+    help_zh: "基础瞄准圈散布半径，通常描述 100 米处的精度；越小通常越准。"
+    help_en: "Base dispersion radius, generally specified at 100 meters; smaller is more accurate."
+  enginePower:
+    zh: "发动机功率"
+    en: "Engine power"
+    help_zh: "发动机功率的原始配置值，通常为马力；详细物理中的功率也独立生效。"
+    help_en: "Raw engine power, generally horsepower; detailed physics power is independent."
+  forwardSpeed:
+    zh: "最高前进速度"
+    en: "Forward speed"
+    help_zh: "最高前进速度。物理配置中的其他速度限制需要分别检查。"
+    help_en: "Forward speed cap. Inspect the separate physics speed limits too."
+  backwardSpeed:
+    zh: "最高后退速度"
+    en: "Reverse speed"
+    help_zh: "最高后退速度。不同模式或物理配置的同名限制独立保存。"
+    help_en: "Reverse speed cap; limits for different physics modes are stored separately."
+  maxSpeed:
+    zh: "最高前进速度"
+    en: "Forward speed"
+    help_zh: "最高前进速度。物理配置中的其他速度限制需要分别检查。"
+    help_en: "Forward speed cap. Inspect the separate physics speed limits too."
+  minSpeed:
+    zh: "最高后退速度"
+    en: "Reverse speed"
+    help_zh: "最高后退速度。不同模式或物理配置的同名限制独立保存。"
+    help_en: "Reverse speed cap; limits for different physics modes are stored separately."
+  rotationSpeedLimit:
+    zh: "转动速度"
+    en: "Rotation speed"
+    help_zh: "当前悬挂或炮塔的转动速度；车体与炮塔分别设置。"
+    help_en: "Rotation speed for this chassis or turret; the two are independent."
+  terrainResistanceFactors:
+    zh: "地形阻力：硬／中／软"
+    en: "Terrain resistance: hard/medium/soft"
+    help_zh: "三个数依次对应硬、中、软地面；越小通常机动越好。其他物理配置中的对应项也应检查。"
+    help_en: "Hard, medium and soft ground resistance. Smaller generally improves mobility. Inspect other physics copies too."
+  autoreloadTimes:
+    zh: "逐发装填时间"
+    en: "Per-round reload times"
+    help_zh: "现有自动再装填／双管机制的逐发装填时间，保持原有向量长度与顺序。"
+    help_en: "Per-round reload times of the existing autoreload/double-gun mechanism; preserve vector length and order."
+  intraBurstReload:
+    zh: "弹匣内射击间隔"
+    en: "Intra-clip reload"
+    help_zh: "弹匣内相邻炮弹之间的间隔。"
+    help_en: "Interval between rounds within a magazine."
+  stunDurationFactor:
+    zh: "弹震持续时间"
+    en: "Stun duration"
+    help_zh: "弹震持续时间的基础参数或范围；仅对已有弹震机制的炮弹有效。"
+    help_en: "Base stun duration or range for shells that already support stun."
+  stunDurationDamageFactor:
+    zh: "伤害系数"
+    en: "Damage factor"
+    help_zh: "当前机制对伤害的比例系数，按原始尺度保存。"
+    help_en: "Damage multiplier for this effect in the original scale."
+  stunDurationRandomFactor:
+    zh: "弹震持续时间"
+    en: "Stun duration"
+    help_zh: "弹震持续时间的基础参数或范围；仅对已有弹震机制的炮弹有效。"
+    help_en: "Base stun duration or range for shells that already support stun."
+  stunStartTime:
+    zh: "持续时间"
+    en: "Duration"
+    help_zh: "当前机制的持续时间；参见完整路径确定是弹震还是其他效果。"
+    help_en: "Effect duration; inspect the complete path to distinguish stun from other effects."
+  gunPitchLimits:
+    zh: "俯角／仰角限制"
+    en: "Gun depression/elevation limits"
+    help_zh: "俯仰范围的原始向量。保持元素数量与次序，不同炮塔方位的限制可能另有条目。"
+    help_en: "Raw gun pitch-limit vector. Keep component count/order; some turret directions have additional limits."
+  vehicleDamageFactor:
+    zh: "伤害系数"
+    en: "Damage factor"
+    help_zh: "当前机制对伤害的比例系数，按原始尺度保存。"
+    help_en: "Damage multiplier for this effect in the original scale."
+  explosionRadiusFactor:
+    zh: "爆炸范围"
+    en: "Explosion radius"
+    help_zh: "高爆弹的爆炸半径，通常为米；不会自动改变伤害。"
+    help_en: "Explosion radius, generally meters; does not automatically change damage."
+  fireStartingChance:
+    zh: "发动机起火概率"
+    en: "Engine fire chance"
+    help_zh: "发动机受损后的起火概率，范围 0 到 1。"
+    help_en: "Engine fire chance after damage, between zero and one."
+  rollingFriction:
+    zh: "详细物理滚动阻力"
+    en: "Detailed physics rolling friction"
+    help_zh: "该种地面在详细物理中的滚动阻力；越小通常滚阻越低。与主地形阻力独立。"
+    help_en: "Rolling resistance for this ground type in detailed physics; lower generally reduces resistance. Independent of main terrain resistance."
+  bulkHealthFactor:
+    zh: "模块整体血量系数"
+    en: "Module bulk-health factor"
+    help_zh: "模块整体生命值计算所用的倍率；按当前客户端原始尺度保存。"
+    help_en: "Multiplier used by the client for bulk module health."
+  invisibilityFactorAtShot:
+    zh: "该火炮开火隐蔽因子"
+    en: "Gun firing concealment factor"
+    help_zh: "当前火炮开火时使用的隐蔽因子；与车辆自身开火惩罚共同生效。"
+    help_en: "Concealment factor for this gun when firing; combines with vehicle firing penalties."
+  maxClimbAngle:
+    zh: "最大爬坡角度"
+    en: "Maximum climb angle"
+    help_zh: "车辆可攀爬坡度限制；实际仍受动力、地形和详细物理影响。"
+    help_en: "Climb-angle limit; power, ground and detailed physics still matter."
+  turretYawLimits:
+    zh: "炮塔／火炮水平射界"
+    en: "Turret/gun yaw limits"
+    help_zh: "水平转动射界的原始限制向量，保持元素数量与顺序。"
+    help_en: "Raw horizontal arc limits; preserve component count and order."
+  rpm_min:
+    zh: "发动机最低转速"
+    en: "Minimum engine RPM"
+    help_zh: "发动机最低转速，需与最高转速保持合理顺序。"
+    help_en: "Minimum engine RPM; keep it below the maximum."
+  rpm_max:
+    zh: "发动机最高转速"
+    en: "Maximum engine RPM"
+    help_zh: "发动机最高转速，影响驱动和发动机工作范围。"
+    help_en: "Maximum engine RPM, affecting the drive working range."
+  invisibilityBonus:
+    zh: "装备隐蔽加成"
+    en: "Equipment concealment bonus"
+    help_zh: "当前装备对本车的隐蔽加成配置，可能是多等级向量。"
+    help_en: "Concealment bonus overridden for this vehicle/equipment; can be a multi-grade vector."
+  maxDistance:
+    zh: "炮弹最大飞行距离"
+    en: "Maximum projectile distance"
+    help_zh: "炮弹最大有效飞行距离，超过后由客户端结束飞行。"
+    help_en: "Maximum projectile travel distance before the client ends its flight."
+  impactRadius:
+    zh: "破片／冲击影响半径"
+    en: "Spall/impact radius"
+    help_zh: "该炮弹破片或冲击效果的影响半径。"
+    help_en: "Impact radius for this shell spall/effect definition."
+  coneAngle:
+    zh: "破片锥角"
+    en: "Spall cone angle"
+    help_zh: "破片影响锥体的角度参数。"
+    help_en: "Angle of the spall effect cone."
+  minStunDuration:
+    zh: "最短弹震时间"
+    en: "Minimum stun duration"
+    help_zh: "弹震持续时间的下限。"
+    help_en: "Lower bound of stun duration."
+  maxStunDuration:
+    zh: "最长弹震时间"
+    en: "Maximum stun duration"
+    help_zh: "弹震持续时间的上限。"
+    help_en: "Upper bound of stun duration."
+  damageDurationRatio:
+    zh: "伤害与弹震时间系数"
+    en: "Damage/stun duration ratio"
+    help_zh: "按造成伤害计算弹震时间的系数。"
+    help_en: "Factor linking inflicted damage to stun duration."
+  guaranteedStunDuration:
+    zh: "固定弹震时长比例"
+    en: "Guaranteed stun duration fraction"
+    help_zh: "基础弹震时长中固定部分的比例，范围 0 到 1；0.4 表示 40%，不是 0.4 秒。"
+    help_en: "Guaranteed fraction of base stun duration, from zero to one; 0.4 means 40%, not 0.4 seconds."
+  dualGunChargeTime:
+    zh: "双管齐射准备时间"
+    en: "Double-gun salvo charge"
+    help_zh: "原生双管齐射的准备时间，不会将单发炮转换为双管。"
+    help_en: "Salvo charge duration for an existing double-gun mechanism."
+  dualGunReloadCooldown:
+    zh: "双管齐射装填冷却"
+    en: "Double-gun reload cooldown"
+    help_zh: "原生双管齐射后的装填冷却时间。"
+    help_en: "Reload cooldown after a native double-gun salvo."
+  dualGunSwitchTime:
+    zh: "双管切炮时间"
+    en: "Double-gun switching time"
+    help_zh: "已有双管机制在两个炮管之间切换的时间。"
+    help_en: "Switching duration between barrels of an existing double-gun mechanism."
+  chargeTime:
+    zh: "双管齐射准备时间"
+    en: "Salvo charge time"
+    help_zh: "原生双管齐射的准备时长，减小后更快完成蓄力。"
+    help_en: "Charge duration of an existing double-gun salvo; lower charges faster."
+  shootImpulse:
+    zh: "双管射击冲量"
+    en: "Salvo firing impulse"
+    help_zh: "双管齐射产生的物理冲量；影响射击时的车体反应。"
+    help_en: "Physical firing impulse of the native double-gun mechanism."
+  reloadLockTime:
+    zh: "齐射后装填锁定时间"
+    en: "Post-salvo reload lock"
+    help_zh: "双管齐射后不能开始装填的时长。"
+    help_en: "Delay before reload can begin after a double-gun salvo."
+  rateTime:
+    zh: "双管射击切换间隔"
+    en: "Double-gun firing interval"
+    help_zh: "原生双管机制两次射击之间的间隔。"
+    help_en: "Interval between shots of the native double-gun mechanism."
+  chargeThreshold:
+    zh: "双管蓄力触发阈值"
+    en: "Double-gun charge threshold"
+    help_zh: "双管蓄力判定使用的原始阈值；按当前客户端尺度保存。"
+    help_en: "Raw threshold used by the existing double-gun charge logic."
+  afterShotDelay:
+    zh: "齐射后延迟"
+    en: "Post-shot delay"
+    help_zh: "原生机制在齐射后的延迟参数。"
+    help_en: "Native mechanism delay following a salvo."
+  preChargeIndication:
+    zh: "蓄力预提示参数"
+    en: "Pre-charge indication"
+    help_zh: "双管蓄力预提示的原始时间／阈值参数。"
+    help_en: "Raw timing/threshold parameter for pre-charge indication."
+  hasStun:
+    zh: "是否启用已有弹震"
+    en: "Existing stun enabled"
+    help_zh: "切换当前炮弹已有的弹震布尔标记，不添加弹震节点。"
+    help_en: "Toggles the existing shell stun flag without adding nodes."
+  damageDurationCoeff:
+    zh: "伤害相关弹震时长系数"
+    en: "Damage-dependent stun duration fraction"
+    help_zh: "弹震持续时间中随造成伤害变化的比例系数，范围 0 到 1。"
+    help_en: "Fraction of stun duration that depends on inflicted damage, from zero to one."
+  stunRadius:
+    zh: "弹震影响半径"
+    en: "Stun radius"
+    help_zh: "已有弹震效果的作用半径，按客户端原始距离单位保存。"
+    help_en: "Radius of the existing stun effect in client distance units."
+  stunFactor:
+    zh: "弹震强度系数"
+    en: "Stun factor"
+    help_zh: "已有弹震效果的倍率，客户端要求不超过 1。"
+    help_en: "Native stun-effect factor; the client requires it to be at most one."
+  guaranteedStunEffect:
+    zh: "固定弹震效果比例"
+    en: "Guaranteed stun effect fraction"
+    help_zh: "固定弹震效果的比例系数，范围 0 到 1。"
+    help_en: "Guaranteed stun-effect fraction, from zero to one."
+  damageEffectCoeff:
+    zh: "伤害相关弹震效果系数"
+    en: "Damage-dependent stun effect fraction"
+    help_zh: "随伤害变化的弹震效果比例，范围 0 到 1。"
+    help_en: "Damage-dependent stun-effect fraction, from zero to one."
+  boostStartTime:
+    zh: "再装填加速开始时间"
+    en: "Autoreload boost start"
+    help_zh: "原生改进型再装填开始计算加速的时间阈值。"
+    help_en: "Time threshold for the existing autoreload boost to begin."
+  boostResidueTime:
+    zh: "再装填加速剩余时间"
+    en: "Autoreload boost residue"
+    help_zh: "原生再装填加速逻辑的剩余时间参数，不能为负数。"
+    help_en: "Residual time parameter of the existing autoreload boost; nonnegative."
+  boostFraction:
+    zh: "再装填加速比例"
+    en: "Autoreload boost fraction"
+    help_zh: "原生再装填加速的比例系数，范围 0 到 1。"
+    help_en: "Boost fraction for the existing autoreload mechanism, from zero to one."
+  speedThreshold:
+    zh: 直驱增压速度阈值
+    en: Direct-drive speed threshold
+    help_zh: 客户端判定直驱增压条件所用的速度阈值，按原始单位保存。
+    help_en: Speed threshold used by the native direct-drive mechanic, in client units.
+  modeThreshold:
+    zh: 直驱模式激活阈值
+    en: Direct-drive activation threshold
+    help_zh: 当前直驱模式的激活阈值，保留客户端原始尺度。
+    help_en: Activation threshold for the existing direct-drive mechanic in its original scale.
+  modeDuration:
+    zh: 直驱模式持续参数
+    en: Direct-drive duration
+    help_zh: 原生直驱模式的持续时间参数。
+    help_en: Native duration parameter of the direct-drive mechanic.
+  accelerationFactor:
+    zh: 直驱模式累积倍率
+    en: Direct-drive accumulation factor
+    help_zh: 原生直驱模式的累积系数，按当前客户端定义保存。
+    help_en: Native accumulation factor for the direct-drive mechanic.
+  attenuationFactor:
+    zh: 直驱模式衰减倍率
+    en: Direct-drive attenuation factor
+    help_zh: 原生直驱模式的衰减系数，按当前客户端定义保存。
+    help_en: Native attenuation factor for the direct-drive mechanic.
+  vehicleSpeed:
+    zh: 机制车速倍率
+    en: Mechanic vehicle-speed multiplier
+    help_zh: 模式启用时的车速倍率；1.35 表示基础值的 1.35 倍。
+    help_en: Vehicle-speed multiplier while the mode is active; 1.35 means 1.35 times the base value.
+  dispersion:
+    zh: 机制散布倍率
+    en: Mechanic dispersion multiplier
+    help_zh: 模式启用时的火炮散布倍率，越大通常散布越大。
+    help_en: Gun dispersion multiplier while the mode is active; larger generally worsens dispersion.
+taxonomy:
+  rental:
+    name_suffixes: [_rental, _r]
+    tag_contains: [rental]
+    display_prefixes: ['(r)']
+  other:
+    name_suffixes: [_bob]
+    name_contains: [_igr, _training, _test, _bot]
+    tag_contains: [testvehicle, bob]
+
+
+field_overrides:
+  - field: enginePower
+    contains: /mechanics/
+    zh: 机制发动机功率倍率
+    en: Mechanic engine-power multiplier
+    help_zh: 当前机制启用时对基础发动机功率施加的倍率，1.36 表示基础功率的 1.36 倍，不是 1.36 马力。
+    help_en: Base engine-power multiplier while the mechanic is active; 1.36 means 1.36 times power, not horsepower.
+  - field: rotationSpeed
+    contains: /mechanics/
+    zh: 机制车体转向倍率
+    en: Mechanic hull-rotation multiplier
+    help_zh: 当前机制启用时的车体转向速度倍率，0.7 表示基础转速的 70%。
+    help_en: Hull-rotation speed multiplier while the mechanic is active; 0.7 means 70% of the base speed.
+  - field: maxHealth
+    suffix: /hull/maxHealth
+    zh: "车体基础生命值"
+    en: "Hull base hitpoints"
+    help_zh: "车辆生命值的车体贡献部分；最终生命值还可能加上所装炮塔的 maxHealth。"
+    help_en: "Hull contribution to vehicle hitpoints; the installed turret can contribute additional maxHealth."
+  - field: maxHealth
+    contains: /ammoBayHealth/
+    zh: "弹药架模块血量"
+    en: "Ammo-rack module health"
+    help_zh: "弹药架模块的最大生命值，影响该模块被击伤或击毁的判定。"
+    help_en: "Maximum ammo-rack module health, affecting damage and destruction thresholds."
+  - field: maxHealth
+    contains: /turretRotatorHealth/
+    zh: "炮塔座圈模块血量"
+    en: "Turret-ring module health"
+    help_zh: "炮塔旋转机构的模块生命值，不是整车生命值贡献。"
+    help_en: "Health of the turret rotation mechanism, separate from vehicle hitpoints."
+  - field: maxHealth
+    contains: /surveyingDeviceHealth/
+    zh: "观察装置模块血量"
+    en: "Observation-device module health"
+    help_zh: "观察装置被击伤或损毁前的模块生命值。"
+    help_en: "Observation-device module health before damage or destruction."
+  - field: maxHealth
+    category: chassis
+    zh: "悬挂模块血量"
+    en: "Suspension module health"
+    help_zh: "当前悬挂的模块生命值，影响断履带及悬挂损伤判定。"
+    help_en: "Health of the current suspension module, affecting track damage."
+  - field: maxHealth
+    category: turret
+    zh: "炮塔生命值贡献"
+    en: "Turret hitpoint contribution"
+    help_zh: "所装炮塔对整车生命值的贡献，需与车体基础生命值一起检查。"
+    help_en: "Installed turret contribution to vehicle hitpoints; inspect the hull base hitpoints too."
+  - field: maxHealth
+    category: engine
+    zh: "发动机模块血量"
+    en: "Engine module health"
+    help_zh: "发动机模块的最大生命值，影响受损和损毁判定。"
+    help_en: "Maximum engine module health, affecting damage and destruction thresholds."
+  - field: maxHealth
+    category: gun
+    zh: "火炮模块血量"
+    en: "Gun module health"
+    help_zh: "火炮模块的最大生命值，影响火炮受损和损毁判定。"
+    help_en: "Maximum gun module health, affecting gun damage and destruction."
+  - field: reloadTime
+    contains: /autoreload/
+    zh: "自动再装填逐发时间"
+    en: "Autoreload per-round times"
+    help_zh: "各发炮弹对应的装填时长向量，必须保持原有长度与顺序。"
+    help_en: "Per-round reload-duration vector; preserve its original length and order."
+  - field: level
+    category: chassis
+    zh: "悬挂模块等级"
+    en: "Suspension module tier"
+    help_zh: "模块的研发／技术等级，不会改变车辆分房等级。"
+    help_en: "Research/technical tier of this module, separate from vehicle matchmaking tier."
+  - field: level
+    category: gun
+    zh: "火炮模块等级"
+    en: "Gun module tier"
+    help_zh: "火炮模块的技术等级，不会改变车辆等级。"
+    help_en: "Technical tier of the gun module, separate from vehicle tier."
+  - field: level
+    category: engine
+    zh: "发动机模块等级"
+    en: "Engine module tier"
+    help_zh: "发动机模块的技术等级，不会改变车辆等级。"
+    help_en: "Technical tier of the engine module, separate from vehicle tier."
+  - field: level
+    category: turret
+    zh: "炮塔模块等级"
+    en: "Turret module tier"
+    help_zh: "炮塔模块的技术等级，不会改变车辆等级。"
+    help_en: "Technical tier of the turret module, separate from vehicle tier."
+
+presentation:
+  modifier_multiplier:
+    zh: 倍率
+    en: ' multiplier'
+    help_zh: 现有特殊机制对该属性施加的倍率。1 表示不变，1.4 表示基础值的 140%。原始属性地址见下方路径；不改变机制结构。
+    help_en: Multiplier applied by the existing mechanic; 1 leaves the base value unchanged and 1.4 means 140% of it. The native attribute is identified by its source path.
+  modifier_addition:
+    zh: 增量
+    en: ' addition'
+    help_zh: 现有特殊机制对该属性施加的原始增量。0 表示不额外增加；单位沿用客户端该属性，不改变机制结构。
+    help_en: Raw additive adjustment applied by the existing mechanic. Zero adds nothing; units follow the native attribute.
+  angle_nodes:
+    zh: ' 个方向节点'
+    en: ' direction nodes'
+  shot_interval:
+    zh: 短装填时间（秒）
+    en: Intra-magazine interval (s)
+    help_zh: 弹匣或连发机制相邻两发之间的时间。编辑器自动换算原始 rate，数值越小射击越快。
+    help_en: Time between rounds in the existing magazine or burst. Converted automatically to the client rate; lower fires faster.
+  magazine_reload:
+    zh: 长装填时间（秒）
+    en: Full magazine reload (s)
+  total_autoreload:
+    zh: 补满弹匣总时间（秒）
+    en: Total sequential reload (s)
+    help_zh: 当前逐发装填时间之和。修改时按比例调整各发时间，保留数量和顺序；下方仍可单独修改原始逐发时间。
+    help_en: Sum of existing per-round reload times. Editing scales those times proportionally while preserving count and order.
+  elevation:
+    zh: 仰角（度）
+    en: Gun elevation (degrees)
+    help_zh: 通常填写正数仰角；特殊受限区段可能是负值。编辑器反转 minPitch 的原始符号，只修改对应角度组，保持方位坐标及其他区段不变。
+    help_en: Elevation is normally positive; restricted regions can be negative. Reverses the native minPitch sign and updates only this angle group, preserving direction coordinates.
+  depression:
+    zh: 俯角（度）
+    en: Gun depression (degrees)
+    help_zh: 只修改 maxPitch 的对应角度组，保持方位坐标和其他区段不变。多个 5 度可一次改为 7 度；负俯角表示该区段炮口必须抬高，负号会原样保留。
+    help_en: Updates this maxPitch angle group while preserving coordinates and other regions. Negative depression means the gun must point upward in that region; its sign is preserved.
+mechanic_categories:
+  accuracyStacks: gun
+  battleFury: gun
+  chargeShot: gun
+  improvedRamming: chassis
+  overheatStacks: gun
+  pillboxSiegeMode: chassis
+  reactiveDebuffs: gun
+  rechargeableNitro: engine
+  stanceDance: engine
+  supportWeapon: gun
+  targetDesignator: turret
+  wheeledDash: engine
+  powerMode: engine
+  rocketAcceleration: engine
+  stagedJetBoosters: engine
+  turboshaftEngine: engine
+  hydraulicChassis: chassis
+  reserveTracks: chassis
+  thermalVision: turret
+  twinGun: gun
+  dualGun: gun
+  overheatGun: gun
+  concentrationMode: gun
+mechanic_field_categories:
+  passiveturboaccuracydebuff: gun
+  passiveturboaimspeeddebuff: gun
+  passiveturbostabilizedebuff: gun
+  passiveturboaftershotdispersiondebuff: gun
+  activeturborotationspeeddebuff: chassis
+  activeturborammingdmgbonus: chassis
+  passivefightenergybonusperhit: gun
+  activefightcost: gun
+  activefightduration: gun
+  activefightaccuracybonus: gun
+  activefightaimspeedbonus: gun
+  activefightstabilizebonus: gun
+  activefightaftershotdispersionbonus: gun
+  activefightreloadspdbonus: gun
+  enginepower: engine
+  vehiclespeed: engine
+  rotationspeed: chassis
+  dispersion: gun
+  turretrotationspeed: turret
+  visionradius: turret
+
+mechanic_names:
+  accuracyStacks: {zh: 精度积累机制, en: Accuracy accumulation}
+  battleFury: {zh: 命中装填增益机制, en: Hit-based reload boost}
+  chargeShot: {zh: 蓄力射击机制, en: Charged shot}
+  concentrationMode: {zh: 专注模式, en: Concentration mode}
+  improvedRamming: {zh: 撞击强化机制, en: Improved ramming}
+  overheatStacks: {zh: 发射药温控机制, en: Propellant heating}
+  pillboxSiegeMode: {zh: 堡垒攻城模式, en: Pillbox siege mode}
+  powerMode: {zh: 直驱增压机制, en: Direct drive boost}
+  reactiveDebuffs: {zh: 自动炮状态惩罚, en: Autocannon condition penalties}
+  rechargeableNitro: {zh: 可再充能推进机制, en: Rechargeable boosters}
+  stagedJetBoosters: {zh: 分级喷射推进机制, en: Sequential jet boosters}
+  stanceDance: {zh: 动力与战斗双模式, en: Mobility and combat stances}
+  supportWeapon: {zh: 辅助武器机制, en: Support weapon}
+  targetDesignator: {zh: 目标指示机制, en: Target designator}
+  wheeledDash: {zh: 轮式涡轮增压, en: Wheeled turbocharger assist}
+
+mechanic_modifiers:
+  dynAttrs/engine/power: {category: engine, zh: 机制发动机功率, en: Mechanic engine-power}
+  dynAttrs/vehicle/maxSpeed/forward: {category: engine, zh: 机制前进极速, en: Mechanic forward-speed}
+  dynAttrs/vehicle/maxSpeed/backward: {category: engine, zh: 机制倒车极速, en: Mechanic reverse-speed}
+  dynAttrs/vehicle/rotationSpeed: {category: chassis, zh: 机制车体转向, en: Mechanic hull-rotation}
+  dynAttrs/hull_aiming/pitch/wheelsCorrectionSpeedFactor: {category: chassis, zh: 机制车体俯仰修正, en: Mechanic hull-aiming correction}
+  dynAttrs/gun/reloadTime: {category: gun, zh: 机制火炮装填时间, en: Mechanic gun-reload-time}
+  dynAttrs/gun/aimingTime: {category: gun, zh: 机制瞄准时间, en: Mechanic aiming-time}
+  dynAttrs/multShotDispersionFactor: {category: gun, zh: 机制火炮散布, en: Mechanic gun-dispersion}
+  dynAttrs/gun/shotDispersionFactors/turretRotation: {category: gun, zh: 机制炮塔转动扩圈, en: Mechanic turret-traverse dispersion}
+  dynAttrs/chassis/shotDispersionFactors/rotation: {category: chassis, zh: 机制车体转向扩圈, en: Mechanic hull-traverse dispersion}
+  dynAttrs/chassis/shotDispersionFactors/movement: {category: chassis, zh: 机制移动扩圈, en: Mechanic movement dispersion}
+  autoShootAttrs/shotIntervalMultFactor: {category: gun, zh: 自动炮发射间隔, en: Autocannon shot-interval}
+  vehicleEnginePower: {category: engine, zh: 界面发动机功率, en: Displayed engine-power}
+  vehicleAllGroundRotationSpeed: {category: chassis, zh: 界面地形转向, en: Displayed terrain traverse}
+
+mechanic_fields:
+  deployTime: {zh: 机制准备时间（秒）, en: Mechanic preparation time (s)}
+  reloadTime: {zh: 机制再次就绪时间（秒）, en: Mechanic recharge time (s)}
+  duration: {zh: 机制持续时间（秒）, en: Mechanic duration (s)}
+  cooldown: {zh: 机制冷却时间（秒）, en: Mechanic cooldown (s)}
+  cooldownTime: {zh: 机制冷却时间（秒）, en: Mechanic cooldown (s)}
+  reuseCount: {zh: 可用次数, en: Available activations}
+  levelMax: {zh: 最大积累层数, en: Maximum accumulated levels}
+  levelInitial: {zh: 初始积累层数, en: Initial accumulated levels}
+  levelAfterShot: {zh: 开火后剩余层数, en: Remaining levels after firing}
+  aimLevelBonus: {zh: 每层精度增益, en: Accuracy bonus per level}
+  aimBonusCap: {zh: 精度增益上限, en: Accuracy bonus limit}
+  gainMaxSpd: {zh: 积累增益的速度上限, en: Maximum speed for accumulation}
+  gainTime: {zh: 增益积累时间（秒）, en: Bonus accumulation time (s)}
+  stabilizeBonus: {zh: 稳定性增益系数, en: Stabilization bonus factor}
+  heatingTime: {zh: 加热时间（秒）, en: Heating time (s)}
+  coolingTime: {zh: 冷却时间（秒）, en: Cooling time (s)}
+  dmgBonus: {zh: 机制伤害倍率, en: Mechanic damage multiplier}
+  aimBonus: {zh: 机制精度倍率, en: Mechanic accuracy multiplier}
+  delayTimerDuration: {zh: 机制延迟时间（秒）, en: Mechanic delay (s)}
+  maxLevel: {zh: 最大增益层数, en: Maximum bonus levels}
+  reloadSpdBonus: {zh: 每层装填速度增益, en: Reload-speed bonus per level}
+  gainPerHit: {zh: 每次命中增加层数, en: Levels gained per hit}
+  gainPerKill: {zh: 每次击毁增加层数, en: Levels gained per kill}
+  timePerLevel: {zh: 各蓄力等级所需时间, en: Charge time per level}
+  damageFactorsPerLevel: {zh: 各蓄力等级伤害倍率, en: Damage factors per charge level}
+  shotBlockTime: {zh: 射击锁定时间（秒）, en: Firing lockout (s)}
+  timeSwitchStance: {zh: 双模式切换时间（秒）, en: Stance switching time (s)}
+  maxEnergy: {zh: 模式能量上限, en: Maximum mode energy}
+  gainFightEnergyPoints: {zh: 战斗模式基础充能, en: Base combat energy gain}
+  gainTurboEnergyPoints: {zh: 动力模式基础充能, en: Base mobility energy gain}
+  gainEnergyTime: {zh: 充能间隔（秒）, en: Energy gain interval (s)}
+  gainTurboEnergyBonusPoints: {zh: 高速额外充能, en: Additional high-speed energy gain}
+  gainTurboEnergySpdLimitKmh: {zh: 高速充能速度阈值（公里／时）, en: High-speed energy threshold (km/h)}
+  passiveTurboFwdSpdBonusKmh: {zh: 动力模式前进极速增量（公里／时）, en: Mobility stance forward-speed addition (km/h)}
+  passiveTurboBkwdSpdBonusKmh: {zh: 动力模式倒车极速增量（公里／时）, en: Mobility stance reverse-speed addition (km/h)}
+  passiveTurboEnginePowerBonus: {zh: 动力模式功率加成系数, en: Mobility stance engine-power bonus}
+  passiveTurboAccuracyDebuff: {zh: 动力模式精度惩罚系数, en: Mobility stance accuracy penalty}
+  passiveTurboAimSpeedDebuff: {zh: 动力模式瞄准速度惩罚, en: Mobility stance aiming-speed penalty}
+  passiveTurboStabilizeDebuff: {zh: 动力模式稳定性惩罚, en: Mobility stance stabilization penalty}
+  passiveTurboAfterShotDispersionDebuff: {zh: 动力模式开火扩圈惩罚, en: Mobility stance firing dispersion penalty}
+  activeTurboCost: {zh: 动力爆发能量消耗, en: Mobility boost energy cost}
+  activeTurboDuration: {zh: 动力爆发持续时间（秒）, en: Mobility boost duration (s)}
+  activeTurboFwdSpdBonusKmh: {zh: 动力爆发前进极速增量（公里／时）, en: Mobility boost forward-speed addition (km/h)}
+  activeTurboBkwdSpdBonusKmh: {zh: 动力爆发倒车极速增量（公里／时）, en: Mobility boost reverse-speed addition (km/h)}
+  activeTurboRammingDmgBonus: {zh: 动力爆发撞击伤害加成, en: Mobility boost ramming-damage bonus}
+  activeTurboEnginePowerBonus: {zh: 动力爆发功率加成系数, en: Mobility boost engine-power bonus}
+  activeTurboRotationSpeedDebuff: {zh: 动力爆发转向惩罚, en: Mobility boost traverse penalty}
+  passiveFightEnergyBonusPerHit: {zh: 战斗模式每次命中充能, en: Combat energy gained per hit}
+  activeFightCost: {zh: 战斗爆发能量消耗, en: Combat boost energy cost}
+  activeFightDuration: {zh: 战斗爆发持续时间（秒）, en: Combat boost duration (s)}
+  activeFightAccuracyBonus: {zh: 战斗爆发精度加成, en: Combat boost accuracy bonus}
+  activeFightAimSpeedBonus: {zh: 战斗爆发瞄准速度加成, en: Combat boost aiming-speed bonus}
+  activeFightStabilizeBonus: {zh: 战斗爆发稳定性加成, en: Combat boost stabilization bonus}
+  activeFightAfterShotDispersionBonus: {zh: 战斗爆发开火扩圈加成, en: Combat boost firing-dispersion bonus}
+  activeFightReloadSpdBonus: {zh: 战斗爆发装填速度加成, en: Combat boost reload-speed bonus}
+
+
+
+

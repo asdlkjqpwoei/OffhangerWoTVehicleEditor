@@ -1,0 +1,614 @@
+schema: 1
+strings:
+  Currency.Credits:
+    zh: 银币
+    en: Credits
+  Currency.Gold:
+    zh: 金币
+    en: Gold
+  Game.ReadOnly:
+    zh: 游戏正在运行：所有写入已禁用。退出游戏后自动恢复。
+    en: The game is running. All writes are disabled until it exits.
+  Availability.available:
+    zh: 官方公开车型
+    en: Officially published vehicle
+  Availability.base_variant:
+    zh: 源车型（独立获取待确认）
+    en: Base variant (release unconfirmed)
+  Availability.unverified:
+    zh: 获取状态待核实（默认显示）
+    en: Acquisition unverified (shown by default)
+  Availability.rental:
+    zh: 租用副本
+    en: Rental copy
+  Availability.copy:
+    zh: 模式／其他副本
+    en: Mode or other copy
+  Availability.test:
+    zh: 已确认测试车
+    en: Confirmed test vehicle
+  Baseline.Title:
+    zh: 首次使用：设置原生默认基准
+    en: First launch - provide original client defaults
+  Baseline.Description:
+    zh: 请选择未经修改的原生 scripts.pkg，也可以选择游戏根目录，由程序从 res/packages 中取得副本。车辆默认值重置将使用这份独立基准。
+    en: Select an unmodified original scripts.pkg, or choose the game root to copy it from res/packages. Vehicle default resets use this independent baseline.
+  Baseline.File:
+    zh: 选择原生脚本包…
+    en: Select original package…
+  Baseline.Game:
+    zh: 从游戏目录获取…
+    en: Copy from game folder…
+  Baseline.Location:
+    zh: '基准副本位置：'
+    en: 'Baseline copy: '
+  Baseline.NotFound:
+    zh: 选择的目录中未找到 res/packages/scripts.pkg 或 script.pkg。
+    en: No res/packages/scripts.pkg or script.pkg was found in the selected folder.
+  Baseline.Importing:
+    zh: 正在校验并复制原生基准…
+    en: Validating and copying original defaults…
+  Baseline.Ready:
+    zh: 原生基准已就绪，请在侧边栏加载游戏数据。
+    en: Original defaults are ready. Load game data from the sidebar.
+  Save.UnknownVehicle:
+    zh: '未识别车辆／数据保留'
+    en: 'Unknown vehicle / data preserved'
+  Save.LocateActiveSave:
+    zh: "定位当前存档"
+    en: "Locate active save"
+  Save.Open:
+    zh: "指定存档目录…"
+    en: "Choose save folder…"
+  Save.Save:
+    zh: "保存"
+    en: "Save"
+  Save.SaveAs:
+    zh: "另存为…"
+    en: "Save as…"
+  Save.CloseSave:
+    zh: "关闭存档"
+    en: "Close save"
+  Save.UpdateAccountValues:
+    zh: "更新账户数值"
+    en: "Update account values"
+  Save.Garage:
+    zh: "车库"
+    en: "Garage"
+  Save.AddVehicles:
+    zh: "添加车辆"
+    en: "Add vehicles"
+  Save.UniqueAndThemedCrew:
+    zh: "专属与主题乘员"
+    en: "Unique and themed crew"
+  Save.AllSaveFields:
+    zh: "完整存档字段"
+    en: "All save fields"
+  Save.FilterGarageVehicles:
+    zh: "筛选车库中的车辆"
+    en: "Filter garage vehicles"
+  Save.InventoryId:
+    zh: "库存 ID"
+    en: "Inventory ID"
+  Save.VehicleName:
+    zh: "车辆名称"
+    en: "Vehicle name"
+  Save.TierDescending:
+    zh: "等级从高到低"
+    en: "Tier descending"
+  Save.DeleteSelected:
+    zh: "删除选中车辆"
+    en: "Delete selected"
+  Save.CloneVehicleAndCrew:
+    zh: "复制车辆与乘员"
+    en: "Clone vehicle and crew"
+  Save.VehicleXp:
+    zh: "车辆经验"
+    en: "Vehicle XP"
+  Save.UpdateVehicleXp:
+    zh: "更新车辆经验"
+    en: "Update vehicle XP"
+  Save.PreviewDeduplication:
+    zh: "预览去重"
+    en: "Preview deduplication"
+  Save.PreviewInvalidVehicles:
+    zh: "预览无效车辆"
+    en: "Preview invalid vehicles"
+  Save.PreviewSpecialModeVehicles:
+    zh: "预览非标准车辆"
+    en: "Preview special mode vehicles"
+  Save.PreviewRentalDemo:
+    zh: "预览租赁 / 演示车"
+    en: "Preview rental / demo"
+  Save.VehicleNameCodeOrTags:
+    zh: "车辆名称、代号或标签"
+    en: "Vehicle name, code or tags"
+  Save.AllNations:
+    zh: "全部国家"
+    en: "All nations"
+  Save.AllTiers:
+    zh: "全部等级"
+    en: "All tiers"
+  Save.AllClasses:
+    zh: "全部车型"
+    en: "All classes"
+  Save.AllVehicles:
+    zh: "全部车辆"
+    en: "All vehicles"
+  Save.NotOwned:
+    zh: "未拥有"
+    en: "Not owned"
+  Save.Owned:
+    zh: "已拥有"
+    en: "Owned"
+  Save.Hidden:
+    zh: "隐藏车辆"
+    en: "Hidden"
+  Save.GarageAvailable:
+    zh: "车库可用"
+    en: "Garage available"
+  Save.ExtensionsMods:
+    zh: "扩展 / Mod"
+    en: "Extensions / Mods"
+  Save.IncludeCrew:
+    zh: "同时添加乘员"
+    en: "Include crew"
+  Save.SelectFiltered:
+    zh: "全选筛选结果"
+    en: "Select filtered"
+  Save.AddSelectedVehicles:
+    zh: "添加选中车辆"
+    en: "Add selected vehicles"
+  Save.FilterByNationThemeOrTags:
+    zh: "按国家、主题名称或标签筛选"
+    en: "Filter by nation, theme or tags"
+  Save.AssignToSelectedVehiclesGarage:
+    zh: "指配到选中车辆 / 全车库"
+    en: "Assign to selected vehicles / garage"
+  Save.RestoreVehicleSpecificCrew:
+    zh: "恢复车辆专属车组"
+    en: "Restore vehicle-specific crew"
+  Save.RecruitsPerGroup0All:
+    zh: "每组招募人数（0 = 全部）"
+    en: "Recruits per group (0 = all)"
+  Save.RecruitSelectedGroups:
+    zh: "招募选中组到兵营"
+    en: "Recruit selected groups"
+  Save.RecruitAllThemes:
+    zh: "招募全部主题组"
+    en: "Recruit all themes"
+  Save.CombineMultipleThemesWithNoVehicleSelectionAssignment:
+    zh: "可多选主题进行组合。未选车时指配到全车库的在车乘员，保留技能与经验。招募时跳过存档中已有的成员。"
+    en: "Combine multiple themes. With no vehicle selection, assignment covers mounted garage crew and preserves skills and XP. Recruitment skips members already in the account."
+  Save.SearchAllSaveFieldPaths:
+    zh: "搜索完整存档字段路径"
+    en: "Search all save field paths"
+  Save.UpdateField:
+    zh: "更新字段"
+    en: "Update field"
+  Save.NoSaveOpen:
+    zh: "未打开存档"
+    en: "No save open"
+  Save.UnsavedChanges:
+    zh: "未保存的修改"
+    en: "Unsaved changes"
+  Save.OpeningAFileDiscardsUnsavedChangesContinue:
+    zh: "打开文件将放弃当前未保存修改。继续？"
+    en: "Opening a file discards unsaved changes. Continue?"
+  Save.SaveLoaded:
+    zh: "存档已载入"
+    en: "Save loaded"
+  Save.DiscardUnsavedAccountChangesAndClose:
+    zh: "放弃未保存的存档修改并关闭？"
+    en: "Discard unsaved account changes and close?"
+  Save.SaveWritten:
+    zh: "存档已保存"
+    en: "Save written"
+  Save.DeleteVehicles:
+    zh: "删除车辆"
+    en: "Delete vehicles"
+  Save.VehiclesWillLeaveTheGarageCrewMoveTo:
+    zh: " 辆车将从车库移除，乘员转入兵营。"
+    en: " vehicles will leave the garage; crew move to the barracks. "
+  Save.CleanupPreview:
+    zh: "清理预览"
+    en: "Cleanup preview"
+  Save.NoMatchingVehicles:
+    zh: "没有符合条件的车辆"
+    en: "No matching vehicles"
+  Save.CleanupPreviewDeleteTheseVehicles:
+    zh: "清理预览：删除以下车辆"
+    en: "Cleanup preview: delete these vehicles"
+  Save.SkippedOwnedUnregisteredOrConflictingVehicles:
+    zh: "已跳过已拥有、未注册或有冲突的车辆："
+    en: "Skipped owned, unregistered or conflicting vehicles: "
+  Save.AddVehiclesPreview:
+    zh: "添加车辆预览"
+    en: "Add vehicles preview"
+  Save.VehiclesAddedToTheOpenAccountNotSaved:
+    zh: "车辆已加入当前编辑中的存档，尚未保存"
+    en: "Vehicles added to the open account; not saved yet"
+  Save.ThemedCrewAssignmentPreview:
+    zh: "主题乘员指配预览"
+    en: "Themed crew assignment preview"
+  Save.CrewIdentitiesWillChangeExistingSkillsAndXp:
+    zh: " 名乘员将更新身份，原有技能与经验保留。"
+    en: " crew identities will change; existing skills and XP are preserved."
+  Save.RecruitThemedCrew:
+    zh: "主题乘员招募"
+    en: "Recruit themed crew"
+  Save.GroupsWillBeRecruitedToTheBarracksExisting:
+    zh: " 个组将发往兵营。已有成员会跳过，"
+    en: " groups will be recruited to the barracks. Existing members are skipped. "
+  Save.NewCrewAddedToTheBarracksNotSaved:
+    zh: " 名新成员已加入兵营，尚未保存"
+    en: " new crew added to the barracks; not saved yet"
+  Save.VehicleWillBeAddedFirst:
+    zh: "（会先添加车辆）"
+    en: " (vehicle will be added first)"
+  Save.SelectVehiclesExistingCrewRetainSkillsAndXp:
+    zh: "选择车辆。已在库的乘员保留技能与经验，未拥有的车辆将连同乘员一起加入。"
+    en: "Select vehicles. Existing crew retain skills and XP. Missing vehicles are added with crew."
+  Save.ApplyToOpenAccount:
+    zh: "应用到当前存档"
+    en: "Apply to open account"
+  Save.Cancel:
+    zh: "取消"
+    en: "Cancel"
+  Save.Currency.credits:
+    zh: "银币"
+    en: "Credits"
+  Save.Currency.gold:
+    zh: "金币"
+    en: "Gold"
+  Save.Currency.crystal:
+    zh: "债券"
+    en: "Bonds"
+  Save.Currency.freeXP:
+    zh: "全局经验"
+    en: "Free XP"
+  Save.Currency.equipCoin:
+    zh: "零件"
+    en: "Components"
+  Save.Currency.bpcoin:
+    zh: "战令代币"
+    en: "Battle Pass tokens"
+  Save.Currency.slots:
+    zh: "车位"
+    en: "Garage slots"
+  Editor.Name:
+    zh: "OffHanger WoT Offline Vehicle Editor"
+    en: "OffHanger WoT Offline Vehicle Editor"
+  Navigation.Vehicle:
+    zh: "车辆参数"
+    en: "Vehicle editor"
+  Navigation.Save:
+    zh: "玩家存档"
+    en: "Player save"
+  Navigation.Settings:
+    zh: "设置"
+    en: "Settings"
+  General.Failed:
+    zh: "操作失败"
+    en: "Operation failed"
+  General.Close:
+    zh: "关闭"
+    en: "Close"
+  General.Continue:
+    zh: "继续"
+    en: "Continue"
+  General.Cancel:
+    zh: "取消"
+    en: "Cancel"
+  General.Finishing:
+    zh: "正在结束操作，完成后可关闭窗口。"
+    en: "Finishing the current operation. Close again when it completes."
+  General.Ready:
+    zh: "选择车辆后编辑；应用前先退出游戏，退出编辑器会丢弃未应用修改。"
+    en: "Select a vehicle to edit. Exit the game before applying; closing this editor discards unapplied edits."
+  General.Unsaved:
+    zh: "尚未保存的修改"
+    en: "Unsaved changes"
+  General.CloseWarning:
+    zh: "尚有未保存的玩家存档或未应用的 XML 草稿。继续关闭会放弃它们。已经缓存的车辆参数会保留。"
+    en: "An account or XML draft has unsaved changes. Closing discards those drafts. Cached vehicle parameters are retained."
+  Vehicle.GameFolder:
+    zh: "游戏目录"
+    en: "Game folder"
+  Vehicle.GameFolderHint:
+    zh: "选择包含 paths.xml 的游戏根目录"
+    en: "Select the game root containing paths.xml"
+  Vehicle.Browse:
+    zh: "浏览…"
+    en: "Browse…"
+  Vehicle.Load:
+    zh: "加载数据"
+    en: "Load data"
+  Vehicle.Search:
+    zh: "搜索车辆名称、代号或标签"
+    en: "Search name, code or tags"
+  Vehicle.InvalidGame:
+    zh: "请选择包含 paths.xml 的游戏根目录。"
+    en: "Choose a game root containing paths.xml."
+  Vehicle.LoadedCount:
+    zh: " 辆车的数据已加载"
+    en: " vehicles loaded"
+  Vehicle.SelectFirst:
+    zh: "请选择车辆"
+    en: "Select a vehicle"
+  Vehicle.LoadFirst:
+    zh: "请先加载游戏数据。"
+    en: "Load game data first."
+  Vehicle.Save:
+    zh: "应用所有改动至游戏"
+    en: "Apply all changes to game"
+  Vehicle.ResetAll:
+    zh: "重置回到默认"
+    en: "Reset to defaults"
+  Vehicle.ExportAll:
+    zh: "导出已修改的所有车辆数据"
+    en: "Export all modified vehicle data"
+  Vehicle.ImportAll:
+    zh: "导入已修改的所有车辆数据"
+    en: "Import all modified vehicle data"
+  Vehicle.ImportSelected:
+    zh: "导入当前选中的车辆数据"
+    en: "Import data for selected vehicle"
+  Vehicle.ExportSelected:
+    zh: "导出当前选中已修改的车辆数据"
+    en: "Export modified data for selected vehicle"
+  Vehicle.ExportAllCaption:
+    zh: "导出已修改的\n所有车辆数据"
+    en: "Export all modified\nvehicle data"
+  Vehicle.ImportAllCaption:
+    zh: "导入已修改的\n所有车辆数据"
+    en: "Import all modified\nvehicle data"
+  Vehicle.ImportSelectedCaption:
+    zh: "导入当前选中的\n车辆数据"
+    en: "Import data for\nselected vehicle"
+  Vehicle.ExportSelectedCaption:
+    zh: "导出当前选中\n已修改的车辆数据"
+    en: "Export modified data\nfor selected vehicle"
+  Vehicle.Exported:
+    zh: "已导出可分发的车辆差异数据。"
+    en: "Portable vehicle changes exported."
+  Vehicle.Imported:
+    zh: "车辆身份、字段与基准值校验通过，已导入缓存；全局保存后写入游戏。"
+    en: "Vehicle identities, fields and baselines validated. Changes are cached; Save writes them to the game."
+  Vehicle.NothingToSave:
+    zh: "没有尚未写入游戏的车辆改动。"
+    en: "There are no pending vehicle changes to save."
+  Vehicle.Saved:
+    zh: "车辆改动已保存，重置所需的写入前文件已保留。"
+    en: "Vehicle changes saved. Pre-edit files are retained for reset."
+  Vehicle.ResetAllWarning:
+    zh: "这会清除本编辑器的所有车辆改动，包括已保存到游戏的改动。已写入文件将恢复编辑前的原始字节，或移除编辑器新建的覆盖文件；不会整份覆盖原生包。若其他工具修改过这些文件，将拒绝回滚。已跟踪文件数量："
+    en: "This clears every vehicle change tracked by this editor, including changes already saved to the game. It restores exact pre-edit files or removes editor-created overrides. Native packages are not replaced. External file changes block rollback. Tracked files: "
+  Vehicle.ResetDone:
+    zh: "本编辑器跟踪的缓存及已应用改动均已恢复。"
+    en: "Tracked cached and applied changes have been restored."
+  Vehicle.ResetSelected:
+    zh: "将当前选中载具参数重置回默认值"
+    en: "Reset selected vehicle parameters to defaults"
+  Vehicle.ResetSelectedWarning:
+    zh: "匹配原生默认参数，并保留当前客户端的节点、车辆身份和装填机制。Mod 独有字段使用编辑前的值。共享组件仍会影响共同使用它的车辆。结果先存入缓存，再跟随全局保存。"
+    en: "Restore matching native scalar defaults while preserving client structure, identities and loading mechanisms. Mod-only fields use pre-edit values. Shared components affect their listed users. Changes are cached before global Save."
+  Vehicle.Cached:
+    zh: "修改已缓存；尚未应用，退出时会丢弃。"
+    en: "Changes cached in memory; unapplied edits are discarded on exit."
+  Tab.Parameters:
+    zh: "车辆参数"
+    en: "Vehicle parameters"
+  Tab.Xml:
+    zh: "XML 编辑"
+    en: "XML editor"
+  Tab.Armor:
+    zh: "装甲编辑"
+    en: "Armor editor"
+  Filter.AllNations:
+    zh: "全部国家"
+    en: "All nations"
+  Filter.AllTiers:
+    zh: "全部等级"
+    en: "All tiers"
+  Filter.AllClasses:
+    zh: "全部车型"
+    en: "All classes"
+  Filter.Light:
+    zh: "轻型坦克"
+    en: "Light tank"
+  Filter.Medium:
+    zh: "中型坦克"
+    en: "Medium tank"
+  Filter.Heavy:
+    zh: "重型坦克"
+    en: "Heavy tank"
+  Filter.Td:
+    zh: "坦克歼击车"
+    en: "Tank destroyer"
+  Filter.Spg:
+    zh: "自行火炮"
+    en: "SPG"
+  Filter.Regular:
+    zh: "默认（隐藏副本）"
+    en: "Default (hide copies)"
+  Filter.All:
+    zh: "全部（含副本／测试）"
+    en: "All, including copies/tests"
+  Filter.Gold:
+    zh: "金币车"
+    en: "Gold-priced vehicles"
+  Filter.Silver:
+    zh: "银币车"
+    en: "Credit-priced vehicles"
+  Filter.Reward:
+    zh: "特种奖励车"
+    en: "Reward vehicles"
+  Filter.Rental:
+    zh: "租用／R 副本"
+    en: "Rental / R copies"
+  Filter.Other:
+    zh: "其他／模式与测试副本"
+    en: "Other / mode and test copies"
+  Filter.Name:
+    zh: "按名称排序"
+    en: "Sort by name"
+  Filter.TierAscending:
+    zh: "等级从低到高"
+    en: "Tier ascending"
+  Filter.TierDescending:
+    zh: "等级从高到低"
+    en: "Tier descending"
+  Parameters.Immediate:
+    zh: "有效修改立即缓存并同步 XML；退出会丢弃未应用的修改。参数名上可查看说明。"
+    en: "Valid edits cache immediately and update XML. Unapplied edits are discarded on exit; hover labels for help."
+  Parameters.Currency:
+    zh: "价格币种"
+    en: "Price currency"
+  Parameters.CurrencyTip:
+    zh: "只受控切换价格的金币标记；不转换装填机制，不自动增加高级车经验加成。"
+    en: "Only changes the price currency marker. It does not convert loading mechanisms or automatically add premium XP benefits."
+  Parameters.NoPrice:
+    zh: "该车没有可编辑的注册价格"
+    en: "This vehicle has no editable registered price"
+  Parameters.Copies:
+    zh: "同名参数在普通／详细物理及不同模式中可能各有一份；下方按完整来源分别列出，不会只改车库显示值。"
+    en: "Equal names can have independent normal/detailed physics or mode copies. Each source is listed separately."
+  Parameters.NativeMechanism:
+    zh: "仅调整原生装填机制已有的字段；不提供单发、弹匣、弹鼓或双管之间的转换。"
+    en: "Only fields of the existing native loading mechanism can be edited. Mechanism conversion is unavailable."
+  Parameters.Shared:
+    zh: "该共享模块同时影响以下车辆，数量："
+    en: "This shared module also affects these vehicles: "
+  Parameters.Empty:
+    zh: "当前车辆未声明这类可编辑参数。"
+    en: "No editable parameters of this category are declared by this vehicle."
+  Category.vehicle:
+    zh: "车辆自身"
+    en: "Vehicle"
+  Category.gun:
+    zh: "火炮参数"
+    en: "Gun"
+  Category.mechanics:
+    zh: "火炮机制"
+    en: "Gun mechanics"
+  Category.chassis:
+    zh: "车体与悬挂"
+    en: "Hull and chassis"
+  Category.engine:
+    zh: "发动机"
+    en: "Engine"
+  Category.turret:
+    zh: "炮塔"
+    en: "Turret"
+  Category.shell:
+    zh: "炮弹"
+    en: "Shells"
+  Xml.Apply:
+    zh: "应用 XML 修改到缓存"
+    en: "Apply XML changes to cache"
+  Xml.Reset:
+    zh: "将 XML 文件重置回最初状态"
+    en: "Reset XML file to its initial state"
+  Xml.Workflow:
+    zh: "修改值 → 应用到缓存 → 全局保存；树中不能增删节点。"
+    en: "Edit value → Apply to cache → global Save. Nodes cannot be added or removed."
+  Xml.ChooseNode:
+    zh: "选择树中的节点查看或修改其值。"
+    en: "Select a tree node to view or edit its value."
+  Xml.Pending:
+    zh: "待应用的 XML 值数量："
+    en: "XML values pending Apply: "
+  Xml.ReadOnly:
+    zh: "结构、身份或原始空标记只读。"
+    en: "Structure, identity and original empty markers are read-only."
+  Xml.ValueOnly:
+    zh: "此处只修改草稿；应用后才写入缓存。"
+    en: "This edits a draft. Apply commits it to the cache."
+  Xml.ConcurrentChange:
+    zh: "这个字段已被参数编辑修改，请重新核对后编辑。"
+    en: "This field changed through parameter editing. Review it before editing again."
+  Xml.Applied:
+    zh: "XML 修改已存入内存缓存；应用至游戏前退出会丢弃。"
+    en: "XML changes entered the memory cache; apply to game before exiting to keep them."
+  Xml.ResetWarning:
+    zh: "该文件将恢复为本编辑器首次修改前的状态；共享文件中本编辑器的其他车辆改动也会恢复。保留离线补丁原有结构，结果先进入缓存。"
+    en: "Restore this file to its state before the first editor change. Editor changes to other vehicles in a shared file are also reset. The original offline patch structure is retained. The result is cached first."
+  Xml.ApplyBeforeReload:
+    zh: "请先应用 XML 草稿，再重新加载数据。"
+    en: "Apply XML drafts before reloading data."
+  Xml.ApplyBeforeSave:
+    zh: "存在尚未应用的 XML 草稿，请在 XML 编辑页应用后再执行全局保存或导入。"
+    en: "Apply outstanding XML drafts in the XML editor before global Save or import."
+  Armor.Loading:
+    zh: "正在加载当前车辆的装甲／碰撞模型…"
+    en: "Loading the selected vehicle armor/collision model…"
+  Armor.Zones:
+    zh: "装甲区域"
+    en: "Armor zones"
+  Armor.Thickness:
+    zh: "装甲厚度（毫米）"
+    en: "Armor thickness (mm)"
+  Armor.Controls:
+    zh: "拖动旋转，右键平移，滚轮缩放，点击装甲块高亮。厚度修改立即缓存。"
+    en: "Drag to orbit, right-drag to pan, scroll to zoom, click armor to highlight. Thickness edits cache immediately."
+  Armor.Unmapped:
+    zh: "该碰撞区域没有可安全编辑的厚度定义。"
+    en: "This collision region has no safely mapped editable thickness."
+  Armor.Triangles:
+    zh: "个碰撞三角形"
+    en: "collision triangles"
+  Settings.Language:
+    zh: "界面语言"
+    en: "Interface language"
+  Settings.System:
+    zh: "跟随系统"
+    en: "System"
+  Settings.Light:
+    zh: "浅色"
+    en: "Light"
+  Settings.Dark:
+    zh: "深色"
+    en: "Dark"
+  Settings.Theme:
+    zh: "主题"
+    en: "Theme"
+  Settings.Accent:
+    zh: "强调色（RRGGBB）"
+    en: "Accent color (RRGGBB)"
+  Settings.Save:
+    zh: "保存并应用设置"
+    en: "Save and apply settings"
+  Settings.CacheLocation:
+    zh: "缓存固定在程序目录："
+    en: "Cache is fixed beside the application: "
+  Settings.Baseline:
+    zh: "原生默认参数基准："
+    en: "Native default baseline: "
+  Settings.ResetPolicy:
+    zh: "全局重置用于回滚本编辑器跟踪的改动，保留其他离线补丁和 Mod。单车默认值重置不删除客户端必需的节点。"
+    en: "Global reset rolls back editor-tracked changes while preserving other patches and Mods. Per-vehicle defaults never delete required client nodes."
+  Parameters.Mechanism:
+    zh: "现有原生装填："
+    en: "Existing native loading: "
+  Mechanism.single:
+    zh: "单发"
+    en: "Single shot"
+  Mechanism.magazine:
+    zh: "弹夹／弹鼓"
+    en: "Magazine"
+  Mechanism.burst:
+    zh: "连发"
+    en: "Burst"
+  Mechanism.autoreload:
+    zh: "自动再装填"
+    en: "Autoreloader"
+  Mechanism.double:
+    zh: "双管"
+    en: "Double gun"
+  Vehicle.Loading:
+    zh: "正在加载客户端、Mod 与车辆引用数据…"
+    en: "Loading client, Mods and vehicle references…"
+
+
+

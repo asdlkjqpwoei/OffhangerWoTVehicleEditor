@@ -1,0 +1,12 @@
+/build/
+/bin/
+/.vs/
+*.user
+/assets/Defaults/*.pkg
+/script.pkg
+/defaults.yaml
+/settings.yaml
+/Cache/
+*.ohcache
+*.ohvehicles
+*.md

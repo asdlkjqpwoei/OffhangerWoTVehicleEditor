@@ -1,0 +1,3540 @@
+schema: 1
+verified_at: 2026-11-04
+sources:
+  official_eu: https://worldoftanks.eu/en/tankopedia/
+  official_lesta: https://tanki.su/ru/tankopedia/
+  rambo_event: https://worldoftanks.eu/en/news/general-news/battle-pass-special-jan-2025/
+  frontline_rental: https://worldoftanks.com/en/news/general-news/frontline-2021-rental-guide/
+  dravec: https://worldoftanks.com/en/tankopedia/7281-Cz21_Vz_60S_Dravec/
+vehicles:
+  "china:Ch01_Type59":
+    status: available
+    source: official_eu
+  "china:Ch01_Type59_Gold":
+    status: available
+    source: official_eu
+  "china:Ch02_Type62":
+    status: available
+    source: official_eu
+  "china:Ch03_WZ_111_A":
+    status: available
+    source: official_eu
+  "china:Ch03_WZ-111":
+    status: available
+    source: official_eu
+  "china:Ch04_T34_1":
+    status: available
+    source: official_eu
+  "china:Ch05_T34_2":
+    status: available
+    source: official_eu
+  "china:Ch06_Renault_NC31":
+    status: available
+    source: official_eu
+  "china:Ch07_Vickers_MkE_Type_BT26":
+    status: available
+    source: official_eu
+  "china:Ch08_Type97_Chi_Ha":
+    status: available
+    source: official_eu
+  "china:Ch09_M5":
+    status: available
+    source: official_eu
+  "china:Ch10_IS2":
+    status: available
+    source: official_eu
+  "china:Ch11_110":
+    status: available
+    source: official_eu
+  "china:Ch12_111_1_2_3":
+    status: available
+    source: official_eu
+  "china:Ch14_T34_3":
+    status: available
+    source: official_eu
+  "china:Ch15_59_16":
+    status: available
+    source: official_eu
+  "china:Ch16_WZ_131":
+    status: available
+    source: official_eu
+  "china:Ch17_WZ131_1_WZ132":
+    status: available
+    source: official_eu
+  "china:Ch18_WZ-120":
+    status: available
+    source: official_eu
+  "china:Ch19_121":
+    status: available
+    source: official_eu
+  "china:Ch20_Type58":
+    status: available
+    source: official_eu
+  "china:Ch21_T34":
+    status: available
+    source: official_eu
+  "china:Ch22_113":
+    status: available
+    source: official_eu
+  "china:Ch22_113_Beijing_Opera":
+    status: available
+    source: official_eu
+  "china:Ch23_112":
+    status: available
+    source: official_eu
+  "china:Ch24_Type64":
+    status: available
+    source: official_eu
+  "china:Ch25_121_mod_1971B":
+    status: available
+    source: official_eu
+  "china:Ch25_121_mod_1971B_MK":
+    status: available
+    source: official_eu
+  "china:Ch26_59_Patton":
+    status: available
+    source: official_eu
+  "china:Ch28_WZ_132A":
+    status: available
+    source: official_eu
+  "china:Ch29_Type_62C_prot":
+    status: available
+    source: official_eu
+  "china:Ch30_T-26G_FT":
+    status: available
+    source: official_eu
+  "china:Ch31_M3G_FT":
+    status: available
+    source: official_eu
+  "china:Ch32_SU-76G_FT":
+    status: available
+    source: official_eu
+  "china:Ch33_60G_FT":
+    status: available
+    source: official_eu
+  "china:Ch34_WZ131G_FT":
+    status: available
+    source: official_eu
+  "china:Ch35_T-34-2G_FT":
+    status: available
+    source: official_eu
+  "china:Ch36_WZ111_1G_FT":
+    status: available
+    source: official_eu
+  "china:Ch37_WZ111G_FT":
+    status: available
+    source: official_eu
+  "china:Ch38_WZ113G_FT":
+    status: available
+    source: official_eu
+  "china:Ch39_WZ120_1G_FT":
+    status: available
+    source: official_eu
+  "china:Ch40_WZ120G_FT":
+    status: available
+    source: official_eu
+  "china:Ch41_WZ_111_5A":
+    status: available
+    source: official_eu
+  "china:Ch41_WZ_111_QL":
+    status: available
+    source: official_eu
+  "china:Ch42_WalkerBulldog_M41D":
+    status: available
+    source: official_eu
+  "china:Ch43_WZ_122_2":
+    status: available
+    source: official_eu
+  "china:Ch44_114_SP2":
+    status: available
+    source: official_eu
+  "china:Ch45_WZ_114":
+    status: available
+    source: official_eu
+  "china:Ch46_113_140":
+    status: available
+    source: official_lesta
+  "china:Ch47_BZ_176":
+    status: available
+    source: official_eu
+  "china:Ch47_BZ_176_CFE_B":
+    status: available
+    source: official_eu
+  "china:Ch48_BZ_75":
+    status: available
+    source: official_eu
+  "china:Ch48_BZ_75_CFE_F":
+    status: available
+    source: official_eu
+  "china:Ch49_BZ_68":
+    status: available
+    source: official_eu
+  "china:Ch50_BZ_166":
+    status: available
+    source: official_eu
+  "china:Ch51_BZ_58":
+    status: available
+    source: official_eu
+  "china:Ch52_WZ_122_6_F3":
+    status: available
+    source: official_eu
+  "china:Ch54_BZ_72_1":
+    status: available
+    source: official_eu
+  "china:Ch56_BZ_74_1":
+    status: available
+    source: official_eu
+  "china:Ch57_BZT_70":
+    status: available
+    source: official_eu
+  "china:Ch57_BZT_70_Lesta":
+    status: available
+    source: official_eu
+  "china:Ch58_111_Vz51":
+    status: available
+    source: official_eu
+  "china:Ch59_BZ58_2":
+    status: available
+    source: official_eu
+  "china:Ch60_Vickers_TypeB":
+    status: available
+    source: official_eu
+  "china:Ch61_DZT_159":
+    status: available
+    source: official_eu
+  "china:Ch61_DZT_159_CFE_A":
+    status: available
+    source: official_eu
+  "china:Ch62_BZ_75_M":
+    status: available
+    source: official_eu
+  "china:Ch62_ZZT_58":
+    status: available
+    source: official_lesta
+  "china:Ch63_STT_617Q":
+    status: available
+    source: official_lesta
+  "china:Ch63_Yong_Bing":
+    status: available
+    source: official_eu
+  "china:Ch65_Type59_IC4_3DSt":
+    status: available
+    source: official_eu
+  "china:Ch67_BZ_79":
+    status: available
+    source: official_eu
+  "china:Ch70_GPT_58":
+    status: available
+    source: official_lesta
+  "china:Ch70_PTZ_78":
+    status: available
+    source: official_eu
+  "china:Ch71_GPT_166":
+    status: available
+    source: official_lesta
+  "china:Ch71_WZ_219":
+    status: available
+    source: official_eu
+  "china:Ch72_GPT_68":
+    status: available
+    source: official_lesta
+  "china:Ch73_GPT_75":
+    status: available
+    source: official_lesta
+  "china:Ch74_Waffentrager_15":
+    status: available
+    source: official_eu
+  "china:Ch74_WZ_57_I":
+    status: available
+    source: official_lesta
+  "china:Ch76_HSD_1":
+    status: available
+    source: official_lesta
+  "czech:Cz01_Skoda_T40":
+    status: available
+    source: official_eu
+  "czech:Cz02_TVP_T50":
+    status: available
+    source: official_eu
+  "czech:Cz03_LT_vz35":
+    status: available
+    source: official_eu
+  "czech:Cz04_T50_51":
+    status: available
+    source: official_eu
+  "czech:Cz05_T34_100":
+    status: available
+    source: official_eu
+  "czech:Cz06_Kolohousenka":
+    status: available
+    source: official_eu
+  "czech:Cz07_TVP_46":
+    status: available
+    source: official_eu
+  "czech:Cz08_T_25":
+    status: available
+    source: official_eu
+  "czech:Cz09_T_24":
+    status: available
+    source: official_eu
+  "czech:Cz10_LT_vz38":
+    status: available
+    source: official_eu
+  "czech:Cz11_V_8_H":
+    status: available
+    source: official_eu
+  "czech:Cz13_T_27":
+    status: available
+    source: official_eu
+  "czech:Cz14_Skoda_T-56":
+    status: available
+    source: official_eu
+  "czech:Cz14_Skoda_T-56_WT24_3Dst":
+    status: available
+    source: official_eu
+  "czech:Cz15_Skoda_T-45_Prem":
+    status: available
+    source: official_eu
+  "czech:Cz16_TNH_T_vz51":
+    status: available
+    source: official_eu
+  "czech:Cz17_Vz_55":
+    status: available
+    source: official_eu
+  "czech:Cz17_Vz_55_CN":
+    status: available
+    source: official_eu
+  "czech:Cz18_TNH_105_1000":
+    status: available
+    source: official_eu
+  "czech:Cz19_Vz_44_1":
+    status: available
+    source: official_eu
+  "czech:Cz20_ShPTK_TVP_100_mm":
+    status: available
+    source: official_eu
+  "czech:Cz20_ShPTK_TVP_100_mm_CO":
+    status: available
+    source: official_eu
+  "czech:Cz21_TST":
+    status: available
+    source: official_lesta
+  "czech:Cz21_Vz_60S_Dravec":
+    status: available
+    source: official_eu
+  "czech:Cz22_Skoda_T_15A":
+    status: available
+    source: official_eu
+  "czech:Cz23_Skoda_T_17":
+    status: available
+    source: official_eu
+  "czech:Cz24_Vz_64_Blesk":
+    status: available
+    source: official_eu
+  "czech:Cz28_LPT_67_Selma":
+    status: available
+    source: official_eu
+  "czech:Cz29_Pzw_39":
+    status: available
+    source: official_eu
+  "czech:Cz30_TBT":
+    status: available
+    source: official_eu
+  "czech:Cz31_Tatra_T_III":
+    status: available
+    source: official_lesta
+  "czech:Cz32_Vz_58_Koncept":
+    status: available
+    source: official_eu
+  "czech:Cz33_Vz_68_Squall":
+    status: available
+    source: official_eu
+  "czech:Cz34_Vz_71_Tesak":
+    status: available
+    source: official_eu
+  "czech:Cz35_Klevets":
+    status: available
+    source: official_lesta
+  "czech:Cz35_T56_G":
+    status: available
+    source: official_eu
+  "czech:Cz36_Lisak_v2":
+    status: available
+    source: official_lesta
+  "czech:Cz37_SDT_58_Vlkodav":
+    status: available
+    source: official_eu
+  "czech:Cz37_Vz_59_Dravec":
+    status: available
+    source: official_lesta
+  "czech:Cz38_Projekt_SAT":
+    status: available
+    source: official_lesta
+  "czech:Cz38_SZDV_vz50":
+    status: available
+    source: official_eu
+  "czech:Cz39_SD_122_49_Sekera":
+    status: available
+    source: official_lesta
+  "czech:Cz39_STMP_Vz_62_Jasan":
+    status: available
+    source: official_eu
+  "czech:Cz40_DBV_152":
+    status: available
+    source: official_eu
+  "czech:Cz43_Ogar":
+    status: available
+    source: official_eu
+  "czech:Cz46_Vz_63P":
+    status: available
+    source: official_eu
+  "france:F01_RenaultFT":
+    status: available
+    source: official_eu
+  "france:F02_D1":
+    status: available
+    source: official_eu
+  "france:F03_D2":
+    status: available
+    source: official_eu
+  "france:F04_B1":
+    status: available
+    source: official_eu
+  "france:F05_BDR_G1B":
+    status: available
+    source: official_eu
+  "france:F06_ARL_44":
+    status: available
+    source: official_eu
+  "france:F07_AMX_M4_1945":
+    status: available
+    source: official_eu
+  "france:F08_AMX_50_100":
+    status: available
+    source: official_eu
+  "france:F08_AMX_50_100_FL":
+    status: available
+    source: official_lesta
+  "france:F09_AMX_50_120":
+    status: available
+    source: official_eu
+  "france:F10_AMX_50B":
+    status: available
+    source: official_eu
+  "france:F100_Panhard_EBR_90":
+    status: available
+    source: official_eu
+  "france:F106_Panhard_EBR_75_Mle1954":
+    status: available
+    source: official_eu
+  "france:F107_Hotchkiss_EBR":
+    status: available
+    source: official_eu
+  "france:F108_Panhard_EBR_105":
+    status: available
+    source: official_eu
+  "france:F109_AMD_Panhard_178B":
+    status: available
+    source: official_eu
+  "france:F11_Renault_G1R":
+    status: available
+    source: official_eu
+  "france:F110_Lynx_6x6":
+    status: available
+    source: official_eu
+  "france:F110_Lynx_6x6_FL":
+    status: available
+    source: official_lesta
+  "france:F111_AM39_Gendron_Somua":
+    status: available
+    source: official_eu
+  "france:F112_M10_RBFM":
+    status: available
+    source: official_eu
+  "france:F113_Bretagne_Panther":
+    status: available
+    source: official_eu
+  "france:F114_Projet_4_1":
+    status: available
+    source: official_eu
+  "france:F115_Lorraine_50t":
+    status: available
+    source: official_eu
+  "france:F116_Bat_Chatillon_Bourrasque":
+    status: available
+    source: official_eu
+  "france:F116_Bat_Chatillon_Bourrasque_02":
+    status: available
+    source: official_lesta
+  "france:F116_Bat_Chatillon_Bourrasque_DV":
+    status: available
+    source: official_eu
+  "france:F117_Alt_Proto_AMX_30":
+    status: available
+    source: official_eu
+  "france:F118_Char_Mle_75":
+    status: available
+    source: official_eu
+  "france:F119_Char_Murat":
+    status: available
+    source: official_eu
+  "france:F119_Projet_Murat":
+    status: available
+    source: official_lesta
+  "france:F12_Hotchkiss_H35":
+    status: available
+    source: official_eu
+  "france:F120_Projet_Louis":
+    status: available
+    source: official_eu
+  "france:F122_VCS_6x6_TS90":
+    status: available
+    source: official_eu
+  "france:F123_ERAC_105_Proto":
+    status: available
+    source: official_eu
+  "france:F124_AMX_13FL11":
+    status: available
+    source: official_eu
+  "france:F126_Char_Lourd_AP58":
+    status: available
+    source: official_lesta
+  "france:F127_AMX_ELC_901":
+    status: available
+    source: official_eu
+  "france:F128_Schneider_90_105_DCA_Oie":
+    status: available
+    source: official_lesta
+  "france:F128_SFAC_105":
+    status: available
+    source: official_eu
+  "france:F129_ARL_44_BPXIV":
+    status: available
+    source: official_eu
+  "france:F129_Schneider_120_AC_Gendarme":
+    status: available
+    source: official_lesta
+  "france:F13_AMX38":
+    status: available
+    source: official_eu
+  "france:F130_AMX_Tracteur_D":
+    status: available
+    source: official_lesta
+  "france:F130_Sentinelle":
+    status: available
+    source: official_eu
+  "france:F131_Brennos":
+    status: available
+    source: official_eu
+  "france:F131_Coutelas":
+    status: available
+    source: official_lesta
+  "france:F132_Vercingetorix":
+    status: available
+    source: official_eu
+  "france:F133_Projet_57":
+    status: available
+    source: official_lesta
+  "france:F133_Projet_57_Ampere":
+    status: available
+    source: official_lesta
+  "france:F134_ARL_Projet_F":
+    status: available
+    source: official_lesta
+  "france:F134_Lorraine_120_Alby":
+    status: available
+    source: official_eu
+  "france:F135_AS_XX_40_t":
+    status: available
+    source: official_eu
+  "france:F135_Schneider_120_AC_Gendarme_02":
+    status: available
+    source: official_lesta
+  "france:F136_AMX_67_Imbattable":
+    status: available
+    source: official_eu
+  "france:F137_LEOX":
+    status: available
+    source: official_eu
+  "france:F137_Tornade":
+    status: available
+    source: official_lesta
+  "france:F138_Renault_R35_FCM_36":
+    status: available
+    source: official_eu
+  "france:F139_Terrifiant":
+    status: available
+    source: official_eu
+  "france:F14_AMX40":
+    status: available
+    source: official_eu
+  "france:F140_Fantome":
+    status: available
+    source: official_eu
+  "france:F141_Durendal":
+    status: available
+    source: official_eu
+  "france:F142_Projet_Louis_FL10_90":
+    status: available
+    source: official_lesta
+  "france:F143_Fauteur":
+    status: available
+    source: official_eu
+  "france:F15_AMX_12t":
+    status: available
+    source: official_eu
+  "france:F16_AMX_13_75":
+    status: available
+    source: official_eu
+  "france:F17_AMX_13_90":
+    status: available
+    source: official_eu
+  "france:F18_Bat_Chatillon25t":
+    status: available
+    source: official_eu
+  "france:F19_Lorraine40t":
+    status: available
+    source: official_eu
+  "france:F19_Lorraine40t_02":
+    status: available
+    source: official_lesta
+  "france:F20_RenaultBS":
+    status: available
+    source: official_eu
+  "france:F21_Lorraine39_L_AM":
+    status: available
+    source: official_eu
+  "france:F22_AMX_105AM":
+    status: available
+    source: official_eu
+  "france:F23_AMX_13F3AM":
+    status: available
+    source: official_eu
+  "france:F24_Lorraine155_50":
+    status: available
+    source: official_eu
+  "france:F25_Lorraine155_51":
+    status: available
+    source: official_eu
+  "france:F27_FCM_36Pak40":
+    status: available
+    source: official_eu
+  "france:F28_105_leFH18B2":
+    status: available
+    source: official_eu
+  "france:F30_RenaultFT_AC":
+    status: available
+    source: official_eu
+  "france:F32_Somua_Sau_40":
+    status: available
+    source: official_eu
+  "france:F33_S_35CA":
+    status: available
+    source: official_eu
+  "france:F34_ARL_V39":
+    status: available
+    source: official_eu
+  "france:F35_AMX_AC_Mle1946":
+    status: available
+    source: official_eu
+  "france:F36_AMX_AC_Mle1948":
+    status: available
+    source: official_eu
+  "france:F36_AMX_AC_Mle1948_FL":
+    status: available
+    source: official_lesta
+  "france:F37_AMX50_Foch":
+    status: available
+    source: official_eu
+  "france:F38_Bat_Chatillon155_58":
+    status: available
+    source: official_eu
+  "france:F39_AMR_P103":
+    status: available
+    source: official_eu
+  "france:F42_AMR_35":
+    status: available
+    source: official_eu
+  "france:F44_Somua_S35":
+    status: available
+    source: official_eu
+  "france:F49_RenaultR35":
+    status: available
+    source: official_eu
+  "france:F50_FCM36_20t":
+    status: available
+    source: official_eu
+  "france:F52_RenaultUE57":
+    status: available
+    source: official_eu
+  "france:F62_ELC_AMX":
+    status: available
+    source: official_eu
+  "france:F64_AMX_50Fosh_155":
+    status: available
+    source: official_eu
+  "france:F64_AMX_50Fosh_B":
+    status: available
+    source: official_eu
+  "france:F65_FCM_50t":
+    status: available
+    source: official_eu
+  "france:F66_AMX_Ob_Am105":
+    status: available
+    source: official_eu
+  "france:F67_Bat_Chatillon155_55":
+    status: available
+    source: official_eu
+  "france:F68_AMX_Chasseur_de_char_46":
+    status: available
+    source: official_eu
+  "france:F68_AMX_Chasseur_de_char_46_02":
+    status: available
+    source: official_lesta
+  "france:F69_AMX13_57_100":
+    status: available
+    source: official_eu
+  "france:F69_AMX13_57_100_GrandFinal":
+    status: available
+    source: official_eu
+  "france:F70_SARL42":
+    status: available
+    source: official_eu
+  "france:F71_AMX_30_prototype":
+    status: available
+    source: official_eu
+  "france:F72_AMX_30":
+    status: available
+    source: official_eu
+  "france:F73_M4A1_Revalorise":
+    status: available
+    source: official_eu
+  "france:F74_AMX_M4_1949":
+    status: available
+    source: official_eu
+  "france:F74_AMX_M4_1949_Liberte":
+    status: available
+    source: official_eu
+  "france:F75_Char_de_25t":
+    status: available
+    source: official_eu
+  "france:F77_FCM_2C":
+    status: available
+    source: official_eu
+  "france:F81_Char_de_65t":
+    status: available
+    source: official_eu
+  "france:F82_AMX_M4_Mle1949_Ter":
+    status: available
+    source: official_eu
+  "france:F83_AMX_M4_Mle1949_Bis":
+    status: available
+    source: official_eu
+  "france:F84_Somua_SM":
+    status: available
+    source: official_eu
+  "france:F85_M4A1_FL10":
+    status: available
+    source: official_eu
+  "france:F87_Batignolles-Chatillon_12t":
+    status: available
+    source: official_eu
+  "france:F87_Batignolles-Chatillon_12t_FL":
+    status: available
+    source: official_lesta
+  "france:F88_AMX_13_105":
+    status: available
+    source: official_eu
+  "france:F89_Canon_dassaut_de_105":
+    status: available
+    source: official_eu
+  "france:F97_ELC_EVEN_90":
+    status: available
+    source: official_eu
+  "germany:G02_Hummel":
+    status: available
+    source: official_eu
+  "germany:G03_PzV_Panther":
+    status: available
+    source: official_eu
+  "germany:G04_PzVI_Tiger_I":
+    status: available
+    source: official_eu
+  "germany:G05_StuG_40_AusfG":
+    status: available
+    source: official_eu
+  "germany:G06_PzII":
+    status: available
+    source: official_eu
+  "germany:G07_Pz35t":
+    status: available
+    source: official_eu
+  "germany:G08_Pz38t":
+    status: available
+    source: official_eu
+  "germany:G09_Hetzer":
+    status: available
+    source: official_eu
+  "germany:G10_PzIII_AusfJ":
+    status: available
+    source: official_eu
+  "germany:G100_Gtraktor_Krupp":
+    status: available
+    source: official_eu
+  "germany:G101_StuG_III":
+    status: available
+    source: official_eu
+  "germany:G102_Pz_III":
+    status: available
+    source: official_eu
+  "germany:G103_RU_251":
+    status: available
+    source: official_eu
+  "germany:G104_Stug_IV":
+    status: available
+    source: official_eu
+  "germany:G105_T-55_NVA_DDR":
+    status: available
+    source: official_eu
+  "germany:G106_PzKpfwPanther_AusfF":
+    status: available
+    source: official_eu
+  "germany:G107_PzKpfwIII_AusfK":
+    status: available
+    source: official_eu
+  "germany:G108_PzKpfwII_AusfD":
+    status: available
+    source: official_eu
+  "germany:G109_Steyr_WT":
+    status: available
+    source: official_eu
+  "germany:G11_Bison_I":
+    status: available
+    source: official_eu
+  "germany:G110_Typ_205":
+    status: available
+    source: official_eu
+  "germany:G112_KanonenJagdPanzer":
+    status: available
+    source: official_eu
+  "germany:G112_KanonenJagdPanzer_105":
+    status: available
+    source: official_eu
+  "germany:G113_SP_I_C":
+    status: available
+    source: official_eu
+  "germany:G114_Rheinmetall_Skorpian":
+    status: available
+    source: official_eu
+  "germany:G114_Skorpian":
+    status: available
+    source: official_eu
+  "germany:G115_Typ_205B":
+    status: available
+    source: official_eu
+  "germany:G116_Turan_III_prot":
+    status: available
+    source: official_eu
+  "germany:G117_Toldi_III":
+    status: available
+    source: official_eu
+  "germany:G118_VK4503":
+    status: available
+    source: official_eu
+  "germany:G119_Panzer58":
+    status: available
+    source: official_eu
+  "germany:G119_Panzer58_BF":
+    status: available
+    source: official_eu
+  "germany:G119_Pz58_Mutz":
+    status: available
+    source: official_eu
+  "germany:G12_Ltraktor":
+    status: available
+    source: official_eu
+  "germany:G120_M41_90":
+    status: available
+    source: official_eu
+  "germany:G120_M41_90_GrandFinal":
+    status: available
+    source: official_eu
+  "germany:G121_Grille_15_L63":
+    status: available
+    source: official_eu
+  "germany:G124_Pz_Kpfw_38_K":
+    status: available
+    source: official_eu
+  "germany:G125_Spz_57_Rh":
+    status: available
+    source: official_eu
+  "germany:G126_HWK_12":
+    status: available
+    source: official_eu
+  "germany:G126_HWK_12_FL":
+    status: available
+    source: official_lesta
+  "germany:G13_VK3001H":
+    status: available
+    source: official_eu
+  "germany:G134_PzKpfw_VII":
+    status: available
+    source: official_eu
+  "germany:G136_Tiger_131":
+    status: available
+    source: official_eu
+  "germany:G138_VK168_02":
+    status: available
+    source: official_eu
+  "germany:G138_VK168_02_Mauerbrecher":
+    status: available
+    source: official_eu
+  "germany:G139_MKA":
+    status: available
+    source: official_eu
+  "germany:G140_HWK_30":
+    status: available
+    source: official_eu
+  "germany:G141_VK7501K":
+    status: available
+    source: official_eu
+  "germany:G142_M48RPz":
+    status: available
+    source: official_eu
+  "germany:G143_E75_TS":
+    status: available
+    source: official_eu
+  "germany:G144_Kpz_50t":
+    status: available
+    source: official_eu
+  "germany:G147_Kunze_Panzer":
+    status: available
+    source: official_eu
+  "germany:G15_VK3601H":
+    status: available
+    source: official_eu
+  "germany:G15_VK3601H_C":
+    status: available
+    source: official_lesta
+  "germany:G151_Pz_Sfl_IC":
+    status: available
+    source: official_eu
+  "germany:G154_Kpz_07_RH":
+    status: available
+    source: official_eu
+  "germany:G154_Kpz_07_RH_LN":
+    status: available
+    source: official_eu
+  "germany:G158_VK2801_105_SPXXI":
+    status: available
+    source: official_eu
+  "germany:G159_KPZ_3_Project_07_HK":
+    status: available
+    source: official_eu
+  "germany:G16_PzVIB_Tiger_II":
+    status: available
+    source: official_eu
+  "germany:G160_Pz_Kpfw_35_R_mit_T_26_Turm":
+    status: available
+    source: official_eu
+  "germany:G161_Pz_Kpfw_M15_38_t":
+    status: available
+    source: official_eu
+  "germany:G162_Project_Kpz_07P_E":
+    status: available
+    source: official_eu
+  "germany:G163_Pz_Kpfw_KW_Ir_mit_75mm_kwk40":
+    status: available
+    source: official_eu
+  "germany:G164_Kpz_Pr_68_P":
+    status: available
+    source: official_eu
+  "germany:G165_Erich_Konzept_I":
+    status: available
+    source: official_eu
+  "germany:G166_LKpz_70_K":
+    status: available
+    source: official_eu
+  "germany:G167_Tiger_Maus_120t":
+    status: available
+    source: official_eu
+  "germany:G168_KJpz_T_III":
+    status: available
+    source: official_eu
+  "germany:G169_T_54D":
+    status: available
+    source: official_eu
+  "germany:G17_JagdPzIV":
+    status: available
+    source: official_eu
+  "germany:G170_PzKpfwIV_Ausf_F2":
+    status: available
+    source: official_eu
+  "germany:G171_E77":
+    status: available
+    source: official_eu
+  "germany:G171_E77_02":
+    status: available
+    source: official_lesta
+  "germany:G172_PzVIB_Tiger_II_DIT":
+    status: available
+    source: official_eu
+  "germany:G173_BT42_DIT":
+    status: available
+    source: official_eu
+  "germany:G174_Kpz3_GST_Turm":
+    status: available
+    source: official_eu
+  "germany:G175_Rheinmetall_Begleitwagen":
+    status: available
+    source: official_eu
+  "germany:G176_Jagdpanzer_E90":
+    status: available
+    source: official_eu
+  "germany:G177_E65_Zwilling":
+    status: available
+    source: official_eu
+  "germany:G178_KanJpz_2":
+    status: available
+    source: official_eu
+  "germany:G178_Sturmtiger_V1":
+    status: available
+    source: official_lesta
+  "germany:G178_Sturmtiger_V1_Lesta":
+    status: available
+    source: official_lesta
+  "germany:G179_Straussler_V4":
+    status: available
+    source: official_eu
+  "germany:G18_JagdPanther":
+    status: available
+    source: official_eu
+  "germany:G181_StuG_Maus_17cm":
+    status: available
+    source: official_lesta
+  "germany:G182_Mausekonig":
+    status: available
+    source: official_lesta
+  "germany:G183_Fossa_VM_68":
+    status: available
+    source: official_eu
+  "germany:G184_EisBaer":
+    status: available
+    source: official_lesta
+  "germany:G184_Windhund":
+    status: available
+    source: official_eu
+  "germany:G185_Leopard_120_Verbessert":
+    status: available
+    source: official_eu
+  "germany:G186_Schwertwal":
+    status: available
+    source: official_eu
+  "germany:G187_Taschenratte":
+    status: available
+    source: official_eu
+  "germany:G188_LeKpz_Borkenkafer":
+    status: available
+    source: official_eu
+  "germany:G189_E100_02":
+    status: available
+    source: official_lesta
+  "germany:G189_Hirschkafer":
+    status: available
+    source: official_eu
+  "germany:G19_Wespe":
+    status: available
+    source: official_eu
+  "germany:G191_StuG_IIIF_CFE_A":
+    status: available
+    source: official_eu
+  "germany:G193_Aufgabe_57":
+    status: available
+    source: official_lesta
+  "germany:G193_Pz_Kpfw_55":
+    status: available
+    source: official_eu
+  "germany:G194_E_50_GT_Alkett_Prod":
+    status: available
+    source: official_lesta
+  "germany:G194_E_50_GT_Alkett_Prod_02":
+    status: available
+    source: official_lesta
+  "germany:G196_E_75_Ausf_B_Doppel":
+    status: available
+    source: official_lesta
+  "germany:G196_Versuchspanzer_57":
+    status: available
+    source: official_eu
+  "germany:G197_Pz_Kpfw_Neu":
+    status: available
+    source: official_eu
+  "germany:G198_Kampfpanzer_67":
+    status: available
+    source: official_eu
+  "germany:G20_Marder_II":
+    status: available
+    source: official_eu
+  "germany:G200_Chi_Go":
+    status: available
+    source: official_eu
+  "germany:G204_PzVI_Tiger_P_CFE_A":
+    status: available
+    source: official_eu
+  "germany:G21_PanzerJager_I":
+    status: available
+    source: official_eu
+  "germany:G22_Sturmpanzer_II":
+    status: available
+    source: official_eu
+  "germany:G23_Grille":
+    status: available
+    source: official_eu
+  "germany:G24_VK3002DB":
+    status: available
+    source: official_eu
+  "germany:G25_PzII_Luchs":
+    status: available
+    source: official_eu
+  "germany:G26_VK1602":
+    status: available
+    source: official_eu
+  "germany:G27_VK3001P":
+    status: available
+    source: official_eu
+  "germany:G28_PzIII_IV":
+    status: available
+    source: official_eu
+  "germany:G32_PzV_PzIV":
+    status: available
+    source: official_eu
+  "germany:G32_PzV_PzIV_ausf_Alfa":
+    status: available
+    source: official_eu
+  "germany:G33_H39_captured":
+    status: available
+    source: official_eu
+  "germany:G34_S35_captured":
+    status: available
+    source: official_eu
+  "germany:G35_B-1bis_captured":
+    status: available
+    source: official_eu
+  "germany:G36_PzII_J":
+    status: available
+    source: official_eu
+  "germany:G37_Ferdinand":
+    status: available
+    source: official_eu
+  "germany:G37_Ferdinand_FL":
+    status: available
+    source: official_lesta
+  "germany:G39_Marder_III":
+    status: available
+    source: official_eu
+  "germany:G40_Nashorn":
+    status: available
+    source: official_eu
+  "germany:G41_DickerMax":
+    status: available
+    source: official_eu
+  "germany:G42_Maus":
+    status: available
+    source: official_eu
+  "germany:G43_Sturer_Emil":
+    status: available
+    source: official_eu
+  "germany:G44_JagdTiger":
+    status: available
+    source: official_eu
+  "germany:G44_JagdTigerH":
+    status: available
+    source: official_eu
+  "germany:G45_G_Tiger":
+    status: available
+    source: official_eu
+  "germany:G46_T-25":
+    status: available
+    source: official_eu
+  "germany:G48_E-25":
+    status: available
+    source: official_eu
+  "germany:G49_G_Panther":
+    status: available
+    source: official_eu
+  "germany:G50_T-15":
+    status: available
+    source: official_eu
+  "germany:G51_Lowe":
+    status: available
+    source: official_eu
+  "germany:G52_Pz38_NA":
+    status: available
+    source: official_eu
+  "germany:G53_PzI":
+    status: available
+    source: official_eu
+  "germany:G54_E-50":
+    status: available
+    source: official_eu
+  "germany:G55_E-75":
+    status: available
+    source: official_eu
+  "germany:G56_E-100":
+    status: available
+    source: official_eu
+  "germany:G57_PzVI_Tiger_P":
+    status: available
+    source: official_eu
+  "germany:G58_VK4502P":
+    status: available
+    source: official_eu
+  "germany:G58_VK4502P7":
+    status: available
+    source: official_eu
+  "germany:G61_G_E":
+    status: available
+    source: official_eu
+  "germany:G63_PzI_ausf_C":
+    status: available
+    source: official_eu
+  "germany:G64_Panther_II":
+    status: available
+    source: official_eu
+  "germany:G64_Panther_II_FL":
+    status: available
+    source: official_lesta
+  "germany:G65_JagdTiger_SdKfz_185":
+    status: available
+    source: official_eu
+  "germany:G66_VK2801":
+    status: available
+    source: official_eu
+  "germany:G67_VK4502A":
+    status: available
+    source: official_eu
+  "germany:G70_PzIV_Hydro":
+    status: available
+    source: official_eu
+  "germany:G71_JagdPantherII":
+    status: available
+    source: official_eu
+  "germany:G72_JagdPz_E100":
+    status: available
+    source: official_eu
+  "germany:G73_E50_Ausf_M":
+    status: available
+    source: official_eu
+  "germany:G76_Pz_Sfl_IVc":
+    status: available
+    source: official_eu
+  "germany:G77_PzIV_Schmalturm":
+    status: available
+    source: official_eu
+  "germany:G78_Panther_M10":
+    status: available
+    source: official_eu
+  "germany:G80_Pz_IV_AusfD":
+    status: available
+    source: official_eu
+  "germany:G81_Pz_IV_AusfH":
+    status: available
+    source: official_eu
+  "germany:G81_Pz_IV_AusfH_GuP":
+    status: available
+    source: official_eu
+  "germany:G82_Pz_II_AusfG":
+    status: available
+    source: official_eu
+  "germany:G83_Pz_IV_AusfA":
+    status: available
+    source: official_eu
+  "germany:G85_Auf_Panther":
+    status: available
+    source: official_eu
+  "germany:G86_VK2001DB":
+    status: available
+    source: official_eu
+  "germany:G87_VK3002DB_V1":
+    status: available
+    source: official_eu
+  "germany:G88_Indien_Panzer":
+    status: available
+    source: official_eu
+  "germany:G89_Leopard1":
+    status: available
+    source: official_eu
+  "germany:G89_Leopard1_CFE_A":
+    status: available
+    source: official_eu
+  "germany:G90_DW_II":
+    status: available
+    source: official_eu
+  "germany:G91_Pro_Ag_A":
+    status: available
+    source: official_eu
+  "germany:G92_VK7201":
+    status: available
+    source: official_eu
+  "germany:G93_GW_Mk_VIe":
+    status: available
+    source: official_eu
+  "germany:G94_GW_Tiger_P":
+    status: available
+    source: official_eu
+  "germany:G95_Pz_Sfl_IVb":
+    status: available
+    source: official_eu
+  "germany:G96_VK3002M":
+    status: available
+    source: official_eu
+  "germany:G97_Waffentrager_IV":
+    status: available
+    source: official_eu
+  "germany:G98_Waffentrager_E100":
+    status: available
+    source: official_lesta
+  "germany:G98_WT_auf_E_100_Phonix":
+    status: available
+    source: official_eu
+  "germany:G99_RhB_Waffentrager":
+    status: available
+    source: official_eu
+  "intunion:Un01_Cromwell_VII":
+    status: available
+    source: official_lesta
+  "intunion:Un02_Merkava_LP":
+    status: available
+    source: official_lesta
+  "intunion:Un03_Degem_Yud":
+    status: available
+    source: official_lesta
+  "intunion:Un04_Vickers_MBT_EXP":
+    status: available
+    source: official_lesta
+  "intunion:Un04_Vickers_MBT_EXP_FL":
+    status: available
+    source: official_lesta
+  "intunion:Un05_Shot_Kal_Alef":
+    status: available
+    source: official_lesta
+  "intunion:Un06_M47_Romach":
+    status: available
+    source: official_lesta
+  "intunion:Un07_Renault_R35":
+    status: available
+    source: official_lesta
+  "intunion:Un08_Hotchkiss_H_39_IDF":
+    status: available
+    source: official_lesta
+  "intunion:Un09_Locust":
+    status: available
+    source: official_lesta
+  "intunion:Un10_Sherman_Krupp_IDF":
+    status: available
+    source: official_lesta
+  "intunion:Un11_Sherman_M3_IDF":
+    status: available
+    source: official_lesta
+  "intunion:Un12_Merkava_M48":
+    status: available
+    source: official_lesta
+  "intunion:Un13_T-54":
+    status: available
+    source: official_lesta
+  "intunion:Un14_T54D":
+    status: available
+    source: official_lesta
+  "intunion:Un15_SBM_44":
+    status: available
+    source: official_lesta
+  "intunion:Un16_TDM_54":
+    status: available
+    source: official_lesta
+  "intunion:Un17_RDT_62":
+    status: available
+    source: official_lesta
+  "intunion:Un18_VT_49":
+    status: available
+    source: official_lesta
+  "intunion:Un24_Vz_68_2_Britva":
+    status: available
+    source: official_lesta
+  "italy:It03_M15_42":
+    status: available
+    source: official_eu
+  "italy:It04_Fiat_3000":
+    status: available
+    source: official_eu
+  "italy:It05_Carro_L6_40":
+    status: available
+    source: official_eu
+  "italy:It06_M14_41":
+    status: available
+    source: official_eu
+  "italy:It07_P26_40":
+    status: available
+    source: official_eu
+  "italy:It08_Progetto_M40_mod_65":
+    status: available
+    source: official_eu
+  "italy:It09_P43_ter":
+    status: available
+    source: official_eu
+  "italy:It10_P43_bis":
+    status: available
+    source: official_eu
+  "italy:It11_P43":
+    status: available
+    source: official_eu
+  "italy:It12_Prototipo_Standard_B":
+    status: available
+    source: official_eu
+  "italy:It13_Progetto_M35_mod_46":
+    status: available
+    source: official_eu
+  "italy:It13_Progetto_M35_mod_46_LE":
+    status: available
+    source: official_eu
+  "italy:It14_P44_Pantera":
+    status: available
+    source: official_eu
+  "italy:It15_Rinoceronte":
+    status: available
+    source: official_eu
+  "italy:It16_Carro_d_assalto_P88":
+    status: available
+    source: official_eu
+  "italy:It17_Progetto_CC55_mod_54":
+    status: available
+    source: official_eu
+  "italy:It18_Progetto_C45_mod_71":
+    status: available
+    source: official_eu
+  "italy:It19_Progetto_C50_mod_66":
+    status: available
+    source: official_eu
+  "italy:It20_Carro_Combattimento_45t":
+    status: available
+    source: official_eu
+  "italy:It21_Lion":
+    status: available
+    source: official_eu
+  "italy:It23_CC_3":
+    status: available
+    source: official_eu
+  "italy:It24_Controcarro_1_Mk2":
+    status: available
+    source: official_eu
+  "italy:It26_CC_56":
+    status: available
+    source: official_eu
+  "italy:It27_M43_da_105_25_Bassoto":
+    status: available
+    source: official_eu
+  "italy:It28_Semovente_M41_Da_75_18":
+    status: available
+    source: official_eu
+  "italy:It29_Carro_Celere_Sahariano":
+    status: available
+    source: official_eu
+  "italy:It30_CC_mod_64_Prem":
+    status: available
+    source: official_eu
+  "italy:It31_CC_67_B":
+    status: available
+    source: official_eu
+  "italy:It32_Prototipo_6":
+    status: available
+    source: official_lesta
+  "italy:It33_Orso":
+    status: available
+    source: official_lesta
+  "italy:It33_Prototipo_6":
+    status: available
+    source: official_eu
+  "italy:It34_Toro":
+    status: available
+    source: official_eu
+  "italy:It35_Felice":
+    status: available
+    source: official_eu
+  "italy:It35_Gladiatore":
+    status: available
+    source: official_lesta
+  "italy:It36_Gasta":
+    status: available
+    source: official_lesta
+  "italy:It36_Progetto_C45_mod_71_M":
+    status: available
+    source: official_eu
+  "italy:It37_Serpente":
+    status: available
+    source: official_eu
+  "italy:It39_Coccodrillo":
+    status: available
+    source: official_eu
+  "italy:It40_Predatore":
+    status: available
+    source: official_eu
+  "italy:It43_CAV_mod_71":
+    status: available
+    source: official_eu
+  "japan:J01_NC27":
+    status: available
+    source: official_eu
+  "japan:J02_Te_Ke":
+    status: available
+    source: official_eu
+  "japan:J03_Ha_Go":
+    status: available
+    source: official_eu
+  "japan:J04_Ke_Ni":
+    status: available
+    source: official_eu
+  "japan:J06_Ke_Ho":
+    status: available
+    source: official_eu
+  "japan:J07_Chi_Ha":
+    status: available
+    source: official_eu
+  "japan:J08_Chi_Nu":
+    status: available
+    source: official_eu
+  "japan:J09_Chi_He":
+    status: available
+    source: official_eu
+  "japan:J10_Chi_To":
+    status: available
+    source: official_eu
+  "japan:J11_Chi_Ri":
+    status: available
+    source: official_eu
+  "japan:J12_Chi_Nu_Kai":
+    status: available
+    source: official_eu
+  "japan:J13_STA_1":
+    status: available
+    source: official_eu
+  "japan:J14_Type_61":
+    status: available
+    source: official_eu
+  "japan:J15_Chi_Ni":
+    status: available
+    source: official_eu
+  "japan:J16_ST_B1":
+    status: available
+    source: official_eu
+  "japan:J18_STA_2_3":
+    status: available
+    source: official_eu
+  "japan:J19_Tiger_I_Jpn":
+    status: available
+    source: official_eu
+  "japan:J20_Type_2605":
+    status: available
+    source: official_eu
+  "japan:J21_Type_91":
+    status: available
+    source: official_eu
+  "japan:J22_Type_95":
+    status: available
+    source: official_eu
+  "japan:J23_Mi_To":
+    status: available
+    source: official_eu
+  "japan:J24_Mi_To_130_tons":
+    status: available
+    source: official_eu
+  "japan:J25_Type_4":
+    status: available
+    source: official_eu
+  "japan:J26_Type_89":
+    status: available
+    source: official_eu
+  "japan:J27_O_I_120":
+    status: available
+    source: official_eu
+  "japan:J27_O_I_120_BP":
+    status: available
+    source: official_lesta
+  "japan:J28_O_I_100":
+    status: available
+    source: official_eu
+  "japan:J31_Type_5_KaRi":
+    status: available
+    source: official_eu
+  "japan:J32_Chi_To_SPG":
+    status: available
+    source: official_eu
+  "japan:J33_Ho_Ri_2":
+    status: available
+    source: official_eu
+  "japan:J34_Ho_Ri_1":
+    status: available
+    source: official_eu
+  "japan:J35_Ho_Ri_3":
+    status: available
+    source: official_eu
+  "japan:J36_Type_63_HT":
+    status: available
+    source: official_eu
+  "japan:J36_Type_63_HT_02":
+    status: available
+    source: official_lesta
+  "japan:J37_Type_3_Ho_Ni_III":
+    status: available
+    source: official_eu
+  "japan:J38_Type_95_Ji_Ro":
+    status: available
+    source: official_eu
+  "japan:J39_Type_57":
+    status: available
+    source: official_eu
+  "japan:J39_Type_57_FL":
+    status: available
+    source: official_lesta
+  "japan:J40_Type_71":
+    status: available
+    source: official_eu
+  "japan:J41_Type_68":
+    status: available
+    source: official_eu
+  "japan:J42_Chi_Se_CFE_A":
+    status: available
+    source: official_eu
+  "japan:J43_Type_4_Ju-To":
+    status: available
+    source: official_eu
+  "japan:J44_Type_3_Ju_Nu":
+    status: available
+    source: official_eu
+  "japan:J45_Mitsu_108":
+    status: available
+    source: official_eu
+  "japan:J48_Saryuda":
+    status: available
+    source: official_eu
+  "japan:J49_Kame":
+    status: available
+    source: official_eu
+  "japan:J49_Type_60_Proto_4":
+    status: available
+    source: official_lesta
+  "japan:J50_Type_1_Ho_Ni_II":
+    status: available
+    source: official_eu
+  "japan:J51_Ashigaru":
+    status: available
+    source: official_eu
+  "japan:J52_STK_2":
+    status: available
+    source: official_eu
+  "japan:J53_Ho_Ri_Shugo":
+    status: available
+    source: official_eu
+  "poland:Pl01_TKS_20mm":
+    status: available
+    source: official_eu
+  "poland:Pl03_PzV_Poland":
+    status: available
+    source: official_eu
+  "poland:Pl05_50TP_Tyszkiewicza":
+    status: available
+    source: official_eu
+  "poland:Pl06_10TP":
+    status: available
+    source: official_eu
+  "poland:Pl07_14TP":
+    status: available
+    source: official_eu
+  "poland:Pl08_50TP_prototyp":
+    status: available
+    source: official_eu
+  "poland:Pl08_50TP_Prototyp_Resilient":
+    status: available
+    source: official_eu
+  "poland:Pl09_7TP":
+    status: available
+    source: official_eu
+  "poland:Pl10_40TP_Habicha":
+    status: available
+    source: official_eu
+  "poland:Pl11_45TP_Habicha":
+    status: available
+    source: official_eu
+  "poland:Pl12_25TP_KSUST_II":
+    status: available
+    source: official_eu
+  "poland:Pl13_53TP_Markowskiego":
+    status: available
+    source: official_eu
+  "poland:Pl14_4TP":
+    status: available
+    source: official_eu
+  "poland:Pl15_60TP_Lewandowskiego":
+    status: available
+    source: official_eu
+  "poland:Pl15_60TP_Lewandowskiego_CFE_A":
+    status: available
+    source: official_eu
+  "poland:Pl16_T34_85_Rudy":
+    status: available
+    source: official_eu
+  "poland:Pl17_DS_PZlnz":
+    status: available
+    source: official_eu
+  "poland:Pl18_BUGI":
+    status: available
+    source: official_eu
+  "poland:Pl19_CS_52_LIS":
+    status: available
+    source: official_eu
+  "poland:Pl20_CS_44":
+    status: available
+    source: official_eu
+  "poland:Pl209_ULAN":
+    status: available
+    source: official_lesta
+  "poland:Pl21_CS_63":
+    status: available
+    source: official_eu
+  "poland:Pl21_CS_63_OSP3":
+    status: available
+    source: official_eu
+  "poland:Pl22_CS_59":
+    status: available
+    source: official_eu
+  "poland:Pl23_CS_53":
+    status: available
+    source: official_eu
+  "poland:Pl24_56TP":
+    status: available
+    source: official_eu
+  "poland:Pl25_CS_52_C":
+    status: available
+    source: official_eu
+  "poland:Pl26_Czolg_P_Wz_46":
+    status: available
+    source: official_eu
+  "poland:Pl26_Czolg_P_Wz_46_Verbesserter":
+    status: available
+    source: official_lesta
+  "poland:Pl27_SDP_Wz_66T":
+    status: available
+    source: official_eu
+  "poland:Pl27_SDP_Wz_66T_CFE_D":
+    status: available
+    source: official_eu
+  "poland:Pl28_SDP_Wz_60":
+    status: available
+    source: official_eu
+  "poland:Pl29_NC_Wz_70T":
+    status: available
+    source: official_eu
+  "poland:Pl30_SDP_Wz58T":
+    status: available
+    source: official_eu
+  "poland:Pl30_SDP_Wz58T_FL":
+    status: available
+    source: official_lesta
+  "poland:Pl31_SDP_Wz_57D":
+    status: available
+    source: official_eu
+  "poland:Pl32_SDP_Wz_44":
+    status: available
+    source: official_eu
+  "poland:Pl33_SDP_Wz_40":
+    status: available
+    source: official_eu
+  "poland:Pl34_CS_63_02":
+    status: available
+    source: official_lesta
+  "poland:Pl34_Cs53_56_Woitek":
+    status: available
+    source: official_eu
+  "poland:Pl35_CS_57_Sokol":
+    status: available
+    source: official_lesta
+  "poland:Pl36_Bobr":
+    status: available
+    source: official_lesta
+  "poland:Pl36_Wz_64GC_Bzyg":
+    status: available
+    source: official_eu
+  "poland:Pl37_CS_67_Szakal":
+    status: available
+    source: official_eu
+  "poland:Pl39_Husarz":
+    status: available
+    source: official_eu
+  "sweden:S01_Strv_74_A2":
+    status: available
+    source: official_eu
+  "sweden:S02_Strv_M42":
+    status: available
+    source: official_eu
+  "sweden:S03_Strv_M38":
+    status: available
+    source: official_eu
+  "sweden:S04_Lago_I":
+    status: available
+    source: official_eu
+  "sweden:S05_Strv_M21_29":
+    status: available
+    source: official_eu
+  "sweden:S06_Ikv_90_Typ_B_Bofors":
+    status: available
+    source: official_eu
+  "sweden:S07_Strv_74":
+    status: available
+    source: official_eu
+  "sweden:S08_Ikv_65_Alt_2":
+    status: available
+    source: official_eu
+  "sweden:S09_L_120_TD":
+    status: available
+    source: official_eu
+  "sweden:S10_Strv_103_0_Series":
+    status: available
+    source: official_eu
+  "sweden:S11_Strv_103B":
+    status: available
+    source: official_eu
+  "sweden:S12_Strv_M40":
+    status: available
+    source: official_eu
+  "sweden:S13_Leo":
+    status: available
+    source: official_eu
+  "sweden:S14_Ikv_103":
+    status: available
+    source: official_eu
+  "sweden:S15_L_60":
+    status: available
+    source: official_eu
+  "sweden:S16_Kranvagn":
+    status: available
+    source: official_eu
+  "sweden:S17_EMIL_1952_E2":
+    status: available
+    source: official_eu
+  "sweden:S18_EMIL_1951_E1":
+    status: available
+    source: official_eu
+  "sweden:S19_Sav_M43":
+    status: available
+    source: official_eu
+  "sweden:S20_Ikv_72":
+    status: available
+    source: official_eu
+  "sweden:S21_UDES_03":
+    status: available
+    source: official_eu
+  "sweden:S22_Strv_S1":
+    status: available
+    source: official_eu
+  "sweden:S23_Strv_81":
+    status: available
+    source: official_eu
+  "sweden:S23_Strv_81_sabaton":
+    status: available
+    source: official_eu
+  "sweden:S25_EMIL_51":
+    status: available
+    source: official_eu
+  "sweden:S26_Lansen_C":
+    status: available
+    source: official_eu
+  "sweden:S27_UDES_16":
+    status: available
+    source: official_eu
+  "sweden:S28_UDES_15_16":
+    status: available
+    source: official_eu
+  "sweden:S28_UDES_15_16_7x7":
+    status: available
+    source: official_eu
+  "sweden:S29_UDES_14_5":
+    status: available
+    source: official_eu
+  "sweden:S30_UDES_03_Alt_3":
+    status: available
+    source: official_eu
+  "sweden:S31_Strv_K":
+    status: available
+    source: official_eu
+  "sweden:S32_Bofors_Tornvagn":
+    status: available
+    source: official_eu
+  "sweden:S32_Bofors_Tornvagn_MT_BF":
+    status: available
+    source: official_lesta
+  "sweden:S33_Latt_Stridsfordon_120":
+    status: available
+    source: official_eu
+  "sweden:S34_Lago_M38":
+    status: available
+    source: official_eu
+  "sweden:S35_Stridsyxa":
+    status: available
+    source: official_eu
+  "sweden:S36_Strv_107_12":
+    status: available
+    source: official_eu
+  "sweden:S36_VK_155_Projekt":
+    status: available
+    source: official_lesta
+  "sweden:S37_AKV_151":
+    status: available
+    source: official_lesta
+  "sweden:S37_Ambassador":
+    status: available
+    source: official_eu
+  "sweden:S39_15cm_AKV60_Utkast_1":
+    status: available
+    source: official_lesta
+  "sweden:S39_Strv_m31":
+    status: available
+    source: official_eu
+  "sweden:S40_Sav_LS_46":
+    status: available
+    source: official_lesta
+  "sweden:S41_Bofors_Pagod_TK105":
+    status: available
+    source: official_lesta
+  "sweden:S41_BV_111":
+    status: available
+    source: official_eu
+  "sweden:S42_Kanonvagn_fm_49":
+    status: available
+    source: official_lesta
+  "uk:GB01_Medium_Mark_I":
+    status: available
+    source: official_eu
+  "uk:GB03_Cruiser_Mk_I":
+    status: available
+    source: official_eu
+  "uk:GB04_Valentine":
+    status: available
+    source: official_eu
+  "uk:GB05_Vickers_Medium_Mk_II":
+    status: available
+    source: official_eu
+  "uk:GB06_Vickers_Medium_Mk_III":
+    status: available
+    source: official_eu
+  "uk:GB07_Matilda":
+    status: available
+    source: official_eu
+  "uk:GB08_Churchill_I":
+    status: available
+    source: official_eu
+  "uk:GB09_Churchill_VII":
+    status: available
+    source: official_eu
+  "uk:GB10_Black_Prince":
+    status: available
+    source: official_eu
+  "uk:GB100_Manticore":
+    status: available
+    source: official_eu
+  "uk:GB101_FV1066_Senlac":
+    status: available
+    source: official_eu
+  "uk:GB102_LHMTV":
+    status: available
+    source: official_eu
+  "uk:GB103_GSOR3301_AVR_FS":
+    status: available
+    source: official_eu
+  "uk:GB104_GSR_3301_Setter":
+    status: available
+    source: official_eu
+  "uk:GB105_Black_Prince_2019":
+    status: available
+    source: official_eu
+  "uk:GB106_Cobra":
+    status: available
+    source: official_eu
+  "uk:GB107_Cavalier":
+    status: available
+    source: official_eu
+  "uk:GB108_A46":
+    status: available
+    source: official_eu
+  "uk:GB109_GSOR_1008":
+    status: available
+    source: official_eu
+  "uk:GB109_GSOR_1008_CFE_J":
+    status: available
+    source: official_eu
+  "uk:GB11_Caernarvon":
+    status: available
+    source: official_eu
+  "uk:GB110_FV4201_Chieftain_Prototype":
+    status: available
+    source: official_eu
+  "uk:GB110_FV4201_Chieftain_Prototype_B":
+    status: available
+    source: official_lesta
+  "uk:GB111_Charlemagne":
+    status: available
+    source: official_eu
+  "uk:GB112_Caliban":
+    status: available
+    source: official_eu
+  "uk:GB112_Caliban_02":
+    status: available
+    source: official_lesta
+  "uk:GB113_Matilda_LVT":
+    status: available
+    source: official_eu
+  "uk:GB114_Vickers_MBT_Mk3":
+    status: available
+    source: official_eu
+  "uk:GB115_Gonsalo":
+    status: available
+    source: official_eu
+  "uk:GB116_Harry_Hopkins_I":
+    status: available
+    source: official_eu
+  "uk:GB118_Taurus_CA":
+    status: available
+    source: official_lesta
+  "uk:GB12_Conqueror":
+    status: available
+    source: official_eu
+  "uk:GB120_Concept_No_5":
+    status: available
+    source: official_eu
+  "uk:GB121_GSOR_1010_FB":
+    status: available
+    source: official_eu
+  "uk:GB122_Staghound_Mk_III":
+    status: available
+    source: official_eu
+  "uk:GB123_GSOR_1006_v7":
+    status: available
+    source: official_eu
+  "uk:GB124_AEC_Armoured_Car":
+    status: available
+    source: official_eu
+  "uk:GB125_Saladin":
+    status: available
+    source: official_eu
+  "uk:GB126_FSV_Scheme_A":
+    status: available
+    source: official_eu
+  "uk:GB127_A7E3":
+    status: available
+    source: official_eu
+  "uk:GB128_Nemesis":
+    status: available
+    source: official_eu
+  "uk:GB129_FV205b_Alligator":
+    status: available
+    source: official_lesta
+  "uk:GB13_FV215b":
+    status: available
+    source: official_eu
+  "uk:GB130_FV225_Collector":
+    status: available
+    source: official_eu
+  "uk:GB131_Crusher":
+    status: available
+    source: official_eu
+  "uk:GB133_Charioteer_MkVII":
+    status: available
+    source: official_eu
+  "uk:GB133_Cyclone_Mk_2":
+    status: available
+    source: official_lesta
+  "uk:GB134_FV242B_Condor":
+    status: available
+    source: official_lesta
+  "uk:GB134_Gryphon":
+    status: available
+    source: official_eu
+  "uk:GB135_FV240":
+    status: available
+    source: official_lesta
+  "uk:GB136_Churchill_BPXIV":
+    status: available
+    source: official_eu
+  "uk:GB136_FV245":
+    status: available
+    source: official_lesta
+  "uk:GB137_Cromwell_Applique":
+    status: available
+    source: official_eu
+  "uk:GB137_CVT_Spider":
+    status: available
+    source: official_lesta
+  "uk:GB139_FV226_Contradictious":
+    status: available
+    source: official_eu
+  "uk:GB139_Vulcan":
+    status: available
+    source: official_lesta
+  "uk:GB14_M2":
+    status: available
+    source: official_eu
+  "uk:GB140_Champion":
+    status: available
+    source: official_lesta
+  "uk:GB140_FV224_Chopper":
+    status: available
+    source: official_eu
+  "uk:GB141_Celestial_2_51":
+    status: available
+    source: official_lesta
+  "uk:GB141_GSOR_the_TANK":
+    status: available
+    source: official_eu
+  "uk:GB142_FV230_Canopener":
+    status: available
+    source: official_eu
+  "uk:GB142_FV230_Canopener_CFE_G":
+    status: available
+    source: official_eu
+  "uk:GB142_FV249_Castle":
+    status: available
+    source: official_lesta
+  "uk:GB143_Captain":
+    status: available
+    source: official_lesta
+  "uk:GB143_FV229_Contender":
+    status: available
+    source: official_eu
+  "uk:GB145_Crusher_ASE_4":
+    status: available
+    source: official_eu
+  "uk:GB146_Gabler_s_Destroyer":
+    status: available
+    source: official_eu
+  "uk:GB147_FV4025_Contriver":
+    status: available
+    source: official_eu
+  "uk:GB148_FV227_Conceiver":
+    status: available
+    source: official_eu
+  "uk:GB149_Centurion_MkI_A":
+    status: available
+    source: official_eu
+  "uk:GB15_Stuart_I":
+    status: available
+    source: official_eu
+  "uk:GB150_Churchill_VII_A":
+    status: available
+    source: official_eu
+  "uk:GB152_AT_FV230_Breaker":
+    status: available
+    source: official_eu
+  "uk:GB156_Black_Prince_II":
+    status: available
+    source: official_eu
+  "uk:GB158_Executor":
+    status: available
+    source: official_eu
+  "uk:GB17_Grant_I":
+    status: available
+    source: official_eu
+  "uk:GB19_Sherman_Firefly":
+    status: available
+    source: official_eu
+  "uk:GB20_Crusader":
+    status: available
+    source: official_eu
+  "uk:GB21_Cromwell":
+    status: available
+    source: official_eu
+  "uk:GB22_Comet":
+    status: available
+    source: official_eu
+  "uk:GB23_Centurion":
+    status: available
+    source: official_eu
+  "uk:GB24_Centurion_Mk3":
+    status: available
+    source: official_eu
+  "uk:GB25_Loyd_Gun_Carriage":
+    status: available
+    source: official_eu
+  "uk:GB26_Birch_Gun":
+    status: available
+    source: official_eu
+  "uk:GB27_Sexton":
+    status: available
+    source: official_eu
+  "uk:GB28_Bishop":
+    status: available
+    source: official_eu
+  "uk:GB29_Crusader_5inch":
+    status: available
+    source: official_eu
+  "uk:GB30_FV3805":
+    status: available
+    source: official_eu
+  "uk:GB31_Conqueror_Gun":
+    status: available
+    source: official_eu
+  "uk:GB32_Tortoise":
+    status: available
+    source: official_eu
+  "uk:GB33_Sentinel_AC_I":
+    status: available
+    source: official_eu
+  "uk:GB35_Sentinel_AC_IV":
+    status: available
+    source: official_eu
+  "uk:GB37_Valliant":
+    status: available
+    source: official_eu
+  "uk:GB39_Universal_CarrierQF2":
+    status: available
+    source: official_eu
+  "uk:GB40_Gun_Carrier_Churchill":
+    status: available
+    source: official_eu
+  "uk:GB41_Challenger":
+    status: available
+    source: official_eu
+  "uk:GB42_Valentine_AT":
+    status: available
+    source: official_eu
+  "uk:GB44_Archer":
+    status: available
+    source: official_eu
+  "uk:GB45_Achilles_IIC":
+    status: available
+    source: official_eu
+  "uk:GB48_FV215b_183":
+    status: available
+    source: official_eu
+  "uk:GB50_Sherman_III":
+    status: available
+    source: official_eu
+  "uk:GB51_Excelsior":
+    status: available
+    source: official_eu
+  "uk:GB52_A45":
+    status: available
+    source: official_eu
+  "uk:GB57_Alecto":
+    status: available
+    source: official_eu
+  "uk:GB58_Cruiser_Mk_III":
+    status: available
+    source: official_eu
+  "uk:GB59_Cruiser_Mk_IV":
+    status: available
+    source: official_eu
+  "uk:GB60_Covenanter":
+    status: available
+    source: official_eu
+  "uk:GB63_TOG_II":
+    status: available
+    source: official_eu
+  "uk:GB68_Matilda_Black_Prince":
+    status: available
+    source: official_eu
+  "uk:GB69_Cruiser_Mk_II":
+    status: available
+    source: official_eu
+  "uk:GB70_N_FV4202_105":
+    status: available
+    source: official_eu
+  "uk:GB71_AT_15A":
+    status: available
+    source: official_eu
+  "uk:GB72_AT15":
+    status: available
+    source: official_eu
+  "uk:GB73_AT2":
+    status: available
+    source: official_eu
+  "uk:GB74_AT8":
+    status: available
+    source: official_eu
+  "uk:GB75_AT7":
+    status: available
+    source: official_eu
+  "uk:GB76_Mk_VIC":
+    status: available
+    source: official_eu
+  "uk:GB77_FV304":
+    status: available
+    source: official_eu
+  "uk:GB78_Sexton_I":
+    status: available
+    source: official_eu
+  "uk:GB79_FV206":
+    status: available
+    source: official_eu
+  "uk:GB80_Charioteer":
+    status: available
+    source: official_eu
+  "uk:GB81_FV4004":
+    status: available
+    source: official_eu
+  "uk:GB83_FV4005":
+    status: available
+    source: official_eu
+  "uk:GB84_Chieftain_Mk6":
+    status: available
+    source: official_eu
+  "uk:GB85_Cromwell_Berlin":
+    status: available
+    source: official_eu
+  "uk:GB86_Centurion_Action_X":
+    status: available
+    source: official_eu
+  "uk:GB86_Centurion_Action_X_CFE_A":
+    status: available
+    source: official_eu
+  "uk:GB87_Chieftain_T95_turret":
+    status: available
+    source: official_eu
+  "uk:GB88_T95_Chieftain_turret":
+    status: available
+    source: official_lesta
+  "uk:GB91_Super_Conqueror":
+    status: available
+    source: official_eu
+  "uk:GB92_FV217":
+    status: available
+    source: official_eu
+  "uk:GB93_Caernarvon_AX":
+    status: available
+    source: official_eu
+  "uk:GB94_Centurion_Mk5-1_RAAC":
+    status: available
+    source: official_eu
+  "uk:GB95_Ekins_Firefly_M4A4":
+    status: available
+    source: official_eu
+  "uk:GB96_Excalibur":
+    status: available
+    source: official_eu
+  "uk:GB97_Chimera":
+    status: available
+    source: official_eu
+  "uk:GB98_T95_FV4201_Chieftain":
+    status: available
+    source: official_eu
+  "uk:GB99_Turtle_Mk1":
+    status: available
+    source: official_eu
+  "usa:A01_T1_Cunningham":
+    status: available
+    source: official_eu
+  "usa:A02_M2_lt":
+    status: available
+    source: official_eu
+  "usa:A03_M3_Stuart":
+    status: available
+    source: official_eu
+  "usa:A04_M3_Grant":
+    status: available
+    source: official_eu
+  "usa:A05_M4_Sherman":
+    status: available
+    source: official_eu
+  "usa:A06_M4A3E8_Sherman":
+    status: available
+    source: official_eu
+  "usa:A07_T20":
+    status: available
+    source: official_eu
+  "usa:A09_T1_hvy":
+    status: available
+    source: official_eu
+  "usa:A10_M6":
+    status: available
+    source: official_eu
+  "usa:A100_T49":
+    status: available
+    source: official_eu
+  "usa:A101_M56":
+    status: available
+    source: official_eu
+  "usa:A102_T28_concept":
+    status: available
+    source: official_eu
+  "usa:A103_T71E1":
+    status: available
+    source: official_eu
+  "usa:A104_M4A3E8A":
+    status: available
+    source: official_eu
+  "usa:A107_T1_HMC":
+    status: available
+    source: official_eu
+  "usa:A108_T18_HMC":
+    status: available
+    source: official_eu
+  "usa:A109_T56_GMC":
+    status: available
+    source: official_eu
+  "usa:A11_T29":
+    status: available
+    source: official_eu
+  "usa:A111_T25_Pilot":
+    status: available
+    source: official_eu
+  "usa:A112_T71E2":
+    status: available
+    source: official_eu
+  "usa:A112_T71E2R":
+    status: available
+    source: official_eu
+  "usa:A115_Chrysler_K":
+    status: available
+    source: official_eu
+  "usa:A115_Chrysler_K_GF":
+    status: available
+    source: official_eu
+  "usa:A116_XM551":
+    status: available
+    source: official_eu
+  "usa:A117_T26E5":
+    status: available
+    source: official_eu
+  "usa:A117_T26E5_Patriot":
+    status: available
+    source: official_eu
+  "usa:A118_M4_Thunderbolt":
+    status: available
+    source: official_eu
+  "usa:A12_T32":
+    status: available
+    source: official_eu
+  "usa:A12_T32_FL":
+    status: available
+    source: official_lesta
+  "usa:A12_T32_M":
+    status: available
+    source: official_lesta
+  "usa:A120_M48A5":
+    status: available
+    source: official_eu
+  "usa:A121_M26_Cologne":
+    status: available
+    source: official_eu
+  "usa:A122_TS-5":
+    status: available
+    source: official_eu
+  "usa:A123_T78":
+    status: available
+    source: official_eu
+  "usa:A124_T54E2":
+    status: available
+    source: official_eu
+  "usa:A125_AEP_1":
+    status: available
+    source: official_eu
+  "usa:A126_PzVI_Tiger_II_capt":
+    status: available
+    source: official_eu
+  "usa:A127_TL_1_LPC":
+    status: available
+    source: official_eu
+  "usa:A128_concept_1b":
+    status: available
+    source: official_eu
+  "usa:A129_T6_medium":
+    status: available
+    source: official_eu
+  "usa:A13_T34_hvy":
+    status: available
+    source: official_eu
+  "usa:A13_T34_hvy_BF":
+    status: available
+    source: official_eu
+  "usa:A130_Super_Hellcat":
+    status: available
+    source: official_eu
+  "usa:A132_T77":
+    status: available
+    source: official_eu
+  "usa:A134_M24E2_SuperChaffee":
+    status: available
+    source: official_eu
+  "usa:A136_T42":
+    status: available
+    source: official_eu
+  "usa:A139_M_III_Y":
+    status: available
+    source: official_eu
+  "usa:A14_T30":
+    status: available
+    source: official_eu
+  "usa:A140_ASTRON_REX_105mm":
+    status: available
+    source: official_eu
+  "usa:A140_ASTRON_REX_105mm_SPD":
+    status: available
+    source: official_eu
+  "usa:A141_M_IV_Y":
+    status: available
+    source: official_eu
+  "usa:A141_M_IV_Y_MT_BF":
+    status: available
+    source: official_lesta
+  "usa:A142_Pawlack_Tank":
+    status: available
+    source: official_eu
+  "usa:A143_M_V_Y":
+    status: available
+    source: official_eu
+  "usa:A144_M_VI_Y":
+    status: available
+    source: official_eu
+  "usa:A144_M_VI_Y_CFE_R":
+    status: available
+    source: official_eu
+  "usa:A144_M_VI_Y_CFE_RC":
+    status: available
+    source: official_eu
+  "usa:A145_TS_54":
+    status: available
+    source: official_eu
+  "usa:A146_TL_7_120":
+    status: available
+    source: official_eu
+  "usa:A147_M_II_Y":
+    status: available
+    source: official_eu
+  "usa:A148_Convertible_Medium_Tank_T3":
+    status: available
+    source: official_eu
+  "usa:A149_AMBT":
+    status: available
+    source: official_eu
+  "usa:A150_MBT_B":
+    status: available
+    source: official_eu
+  "usa:A151_TS_60":
+    status: available
+    source: official_eu
+  "usa:A152_M_Project":
+    status: available
+    source: official_eu
+  "usa:A152_M_Project_2":
+    status: available
+    source: official_lesta
+  "usa:A153_XM66F":
+    status: available
+    source: official_eu
+  "usa:A154_Convertible_Medium_Tank_T3E2":
+    status: available
+    source: official_eu
+  "usa:A155_AAT60":
+    status: available
+    source: official_eu
+  "usa:A156_T54_2022":
+    status: available
+    source: official_eu
+  "usa:A157_M_VII_Y":
+    status: available
+    source: official_lesta
+  "usa:A158_T832":
+    status: available
+    source: official_eu
+  "usa:A159_Chrysler_MTC_2":
+    status: available
+    source: official_eu
+  "usa:A16_M7_Priest":
+    status: available
+    source: official_eu
+  "usa:A160_M24_594":
+    status: available
+    source: official_eu
+  "usa:A161_ARMT":
+    status: available
+    source: official_eu
+  "usa:A161_ARMT_Lesta":
+    status: available
+    source: official_eu
+  "usa:A162_ATAC_II":
+    status: available
+    source: official_lesta
+  "usa:A163_H_3":
+    status: available
+    source: official_lesta
+  "usa:A163_H_3_2":
+    status: available
+    source: official_lesta
+  "usa:A165_XM57":
+    status: available
+    source: official_lesta
+  "usa:A166_H_3":
+    status: available
+    source: official_eu
+  "usa:A167_TS_6":
+    status: available
+    source: official_eu
+  "usa:A168_XM_57":
+    status: available
+    source: official_eu
+  "usa:A168_XM_57_CFE_I":
+    status: available
+    source: official_eu
+  "usa:A169_PattonIII_120":
+    status: available
+    source: official_eu
+  "usa:A169_TF_3":
+    status: available
+    source: official_lesta
+  "usa:A17_M37":
+    status: available
+    source: official_eu
+  "usa:A170_M_VII_Y":
+    status: available
+    source: official_eu
+  "usa:A170_M4A3FL":
+    status: available
+    source: official_lesta
+  "usa:A171_IMT":
+    status: available
+    source: official_eu
+  "usa:A171_TF_4":
+    status: available
+    source: official_lesta
+  "usa:A172_ASTRON_FL":
+    status: available
+    source: official_lesta
+  "usa:A172_M4A3E8_Sherman_BPXIV":
+    status: available
+    source: official_eu
+  "usa:A173_TF_2_CLARK":
+    status: available
+    source: official_lesta
+  "usa:A174_M36B1_GMC":
+    status: available
+    source: official_lesta
+  "usa:A174_T57_58_Rush_Ep1":
+    status: available
+    source: official_eu
+  "usa:A175_LTC_II":
+    status: available
+    source: official_eu
+  "usa:A175_OTAC_MT_58":
+    status: available
+    source: official_lesta
+  "usa:A175_OTAC_MT_58_02":
+    status: available
+    source: official_lesta
+  "usa:A176_M103_110":
+    status: available
+    source: official_eu
+  "usa:A176_M103_110_CFE_R":
+    status: available
+    source: rambo_event
+  "usa:A176_OTAC_LK_7605":
+    status: available
+    source: official_lesta
+  "usa:A178_SPHT":
+    status: available
+    source: official_eu
+  "usa:A179_Black_Rock":
+    status: available
+    source: official_eu
+  "usa:A179_MBT_59":
+    status: available
+    source: official_lesta
+  "usa:A18_M41":
+    status: available
+    source: official_eu
+  "usa:A182_ALRS_M6":
+    status: available
+    source: official_lesta
+  "usa:A182_T803":
+    status: available
+    source: official_eu
+  "usa:A183_XM69_Hacker":
+    status: available
+    source: official_eu
+  "usa:A184_HTPC":
+    status: available
+    source: official_lesta
+  "usa:A187_Ares_75":
+    status: available
+    source: official_eu
+  "usa:A189_Ares_90":
+    status: available
+    source: official_eu
+  "usa:A19_T2_lt":
+    status: available
+    source: official_eu
+  "usa:A190_Ares_85":
+    status: available
+    source: official_eu
+  "usa:A191_Ares_90_C":
+    status: available
+    source: official_eu
+  "usa:A192_M4A4_Firefly_CFE_A":
+    status: available
+    source: official_eu
+  "usa:A195_Gorilla":
+    status: available
+    source: official_eu
+  "usa:A197_Jezevec":
+    status: available
+    source: official_eu
+  "usa:A21_T14":
+    status: available
+    source: official_eu
+  "usa:A22_M5_Stuart":
+    status: available
+    source: official_eu
+  "usa:A23_M7_med":
+    status: available
+    source: official_eu
+  "usa:A23_M7_med_02":
+    status: available
+    source: official_lesta
+  "usa:A24_T2_med":
+    status: available
+    source: official_eu
+  "usa:A25_M2_med":
+    status: available
+    source: official_eu
+  "usa:A27_T82":
+    status: available
+    source: official_eu
+  "usa:A29_T40":
+    status: available
+    source: official_eu
+  "usa:A30_M10_Wolverine":
+    status: available
+    source: official_eu
+  "usa:A31_M36_Slagger":
+    status: available
+    source: official_eu
+  "usa:A32_M12":
+    status: available
+    source: official_eu
+  "usa:A33_MTLS-1G14":
+    status: available
+    source: official_eu
+  "usa:A34_M24_Chaffee":
+    status: available
+    source: official_eu
+  "usa:A34_M24_Chaffee_CFE_V":
+    status: available
+    source: official_eu
+  "usa:A35_Pershing":
+    status: available
+    source: official_eu
+  "usa:A35_Pershing_FL":
+    status: available
+    source: official_lesta
+  "usa:A36_Sherman_Jumbo":
+    status: available
+    source: official_eu
+  "usa:A37_M40M43":
+    status: available
+    source: official_eu
+  "usa:A38_T92":
+    status: available
+    source: official_eu
+  "usa:A39_T28":
+    status: available
+    source: official_eu
+  "usa:A40_T95":
+    status: available
+    source: official_eu
+  "usa:A41_M18_Hellcat":
+    status: available
+    source: official_eu
+  "usa:A43_M22_Locust":
+    status: available
+    source: official_eu
+  "usa:A44_M4A2E4":
+    status: available
+    source: official_eu
+  "usa:A45_M6A2E1":
+    status: available
+    source: official_eu
+  "usa:A46_T3":
+    status: available
+    source: official_eu
+  "usa:A57_M8A1":
+    status: available
+    source: official_eu
+  "usa:A58_T67":
+    status: available
+    source: official_eu
+  "usa:A62_Ram-II":
+    status: available
+    source: official_eu
+  "usa:A63_M46_Patton":
+    status: available
+    source: official_eu
+  "usa:A63_M46_Patton_KR":
+    status: available
+    source: official_eu
+  "usa:A64_T25_AT":
+    status: available
+    source: official_eu
+  "usa:A66_M103":
+    status: available
+    source: official_eu
+  "usa:A67_T57_58":
+    status: available
+    source: official_eu
+  "usa:A68_T28_Prototype":
+    status: available
+    source: official_eu
+  "usa:A68_T28_Prototype_FL":
+    status: available
+    source: official_lesta
+  "usa:A69_T110E5":
+    status: available
+    source: official_eu
+  "usa:A71_T21":
+    status: available
+    source: official_eu
+  "usa:A72_T25_2":
+    status: available
+    source: official_eu
+  "usa:A74_T1_E6":
+    status: available
+    source: official_eu
+  "usa:A76_M3_A3":
+    status: available
+    source: official_eu
+  "usa:A78_M4_Improved":
+    status: available
+    source: official_eu
+  "usa:A80_T26_E4_SuperPershing":
+    status: available
+    source: official_eu
+  "usa:A81_T95_E2":
+    status: available
+    source: official_eu
+  "usa:A83_T110E4":
+    status: available
+    source: official_eu
+  "usa:A85_T110E3":
+    status: available
+    source: official_eu
+  "usa:A86_T23E3":
+    status: available
+    source: official_eu
+  "usa:A87_M44":
+    status: available
+    source: official_eu
+  "usa:A88_M53_55":
+    status: available
+    source: official_eu
+  "usa:A89_T54E1":
+    status: available
+    source: official_eu
+  "usa:A90_T69":
+    status: available
+    source: official_eu
+  "usa:A92_M60":
+    status: available
+    source: official_eu
+  "usa:A93_T7_Combat_Car":
+    status: available
+    source: official_eu
+  "usa:A94_T37":
+    status: available
+    source: official_eu
+  "usa:A95_T95_E6":
+    status: available
+    source: official_eu
+  "usa:A97_M41_Bulldog":
+    status: available
+    source: official_eu
+  "usa:A99_T92_LT":
+    status: available
+    source: official_eu
+  "ussr:R01_IS":
+    status: available
+    source: official_eu
+  "ussr:R02_SU-85":
+    status: available
+    source: official_eu
+  "ussr:R03_BT-7":
+    status: available
+    source: official_eu
+  "ussr:R04_T-34":
+    status: available
+    source: official_eu
+  "ussr:R06_T-28":
+    status: available
+    source: official_eu
+  "ussr:R07_T-34-85":
+    status: available
+    source: official_eu
+  "ussr:R08_BT-2":
+    status: available
+    source: official_eu
+  "ussr:R09_T-26":
+    status: available
+    source: official_eu
+  "ussr:R10_AT-1":
+    status: available
+    source: official_eu
+  "ussr:R100_SU122A":
+    status: available
+    source: official_eu
+  "ussr:R101_MT25":
+    status: available
+    source: official_eu
+  "ussr:R104_Object_430_II":
+    status: available
+    source: official_eu
+  "ussr:R105_BT_7A":
+    status: available
+    source: official_eu
+  "ussr:R106_KV85":
+    status: available
+    source: official_eu
+  "ussr:R107_LTB":
+    status: available
+    source: official_eu
+  "ussr:R108_T34_85M":
+    status: available
+    source: official_eu
+  "ussr:R109_T54S":
+    status: available
+    source: official_eu
+  "ussr:R11_MS-1":
+    status: available
+    source: official_eu
+  "ussr:R110_Object_260":
+    status: available
+    source: official_eu
+  "ussr:R111_ISU130":
+    status: available
+    source: official_eu
+  "ussr:R112_T54_45":
+    status: available
+    source: official_eu
+  "ussr:R112_T54_45_02":
+    status: available
+    source: official_lesta
+  "ussr:R113_Object_730":
+    status: available
+    source: official_eu
+  "ussr:R114_Object_244":
+    status: available
+    source: official_eu
+  "ussr:R115_IS-3_auto":
+    status: available
+    source: official_eu
+  "ussr:R115_IS-3_auto_S":
+    status: available
+    source: official_eu
+  "ussr:R116_ISU122C_Berlin":
+    status: available
+    source: official_eu
+  "ussr:R118_T28_F30":
+    status: available
+    source: official_eu
+  "ussr:R119_Object_777":
+    status: available
+    source: official_eu
+  "ussr:R12_A-20":
+    status: available
+    source: official_eu
+  "ussr:R120_T22SR_A22":
+    status: available
+    source: official_eu
+  "ussr:R121_KV4_KTT":
+    status: available
+    source: official_eu
+  "ussr:R122_T44_100":
+    status: available
+    source: official_eu
+  "ussr:R123_Kirovets_1":
+    status: available
+    source: official_eu
+  "ussr:R124_Object_279":
+    status: available
+    source: official_lesta
+  "ussr:R125_T_45":
+    status: available
+    source: official_eu
+  "ussr:R126_Object_730_5":
+    status: available
+    source: official_eu
+  "ussr:R127_T44_100_I":
+    status: available
+    source: official_lesta
+  "ussr:R128_KV4_Kreslavskiy":
+    status: available
+    source: official_eu
+  "ussr:R13_KV-1s":
+    status: available
+    source: official_eu
+  "ussr:R130_KV4_Mikhailov":
+    status: available
+    source: official_lesta
+  "ussr:R131_Tank_Gavalov":
+    status: available
+    source: official_eu
+  "ussr:R132_VNII_100LT":
+    status: available
+    source: official_eu
+  "ussr:R133_KV_122":
+    status: available
+    source: official_eu
+  "ussr:R134_Object_252K":
+    status: available
+    source: official_eu
+  "ussr:R134_Object_252U":
+    status: available
+    source: official_eu
+  "ussr:R135_T_103":
+    status: available
+    source: official_eu
+  "ussr:R139_IS_M":
+    status: available
+    source: official_eu
+  "ussr:R14_SU-5":
+    status: available
+    source: official_eu
+  "ussr:R140_M4_Loza":
+    status: available
+    source: official_eu
+  "ussr:R143_T_29":
+    status: available
+    source: official_eu
+  "ussr:R144_K_91":
+    status: available
+    source: official_eu
+  "ussr:R145_Object_705_A":
+    status: available
+    source: official_eu
+  "ussr:R146_STG":
+    status: available
+    source: official_eu
+  "ussr:R146_STG_Tday":
+    status: available
+    source: official_eu
+  "ussr:R147_Object_701":
+    status: available
+    source: official_lesta
+  "ussr:R148_Object_430_U":
+    status: available
+    source: official_eu
+  "ussr:R149_Object_268_4":
+    status: available
+    source: official_eu
+  "ussr:R149_Object_268_4_02":
+    status: available
+    source: official_lesta
+  "ussr:R15_S-51":
+    status: available
+    source: official_eu
+  "ussr:R151_Object_257_2":
+    status: available
+    source: official_eu
+  "ussr:R152_KV2_W":
+    status: available
+    source: official_eu
+  "ussr:R153_Object_705":
+    status: available
+    source: official_eu
+  "ussr:R154_T_34E_1943":
+    status: available
+    source: official_eu
+  "ussr:R155_Object_277":
+    status: available
+    source: official_eu
+  "ussr:R156_IS_2M":
+    status: available
+    source: official_eu
+  "ussr:R157_Object_279R":
+    status: available
+    source: official_eu
+  "ussr:R158_LT_432":
+    status: available
+    source: official_eu
+  "ussr:R159_SU_130PM":
+    status: available
+    source: official_eu
+  "ussr:R159_SU_130PM_DR":
+    status: available
+    source: official_eu
+  "ussr:R16_SU-18":
+    status: available
+    source: official_eu
+  "ussr:R160_T_50_2":
+    status: available
+    source: official_eu
+  "ussr:R161_T_116":
+    status: available
+    source: official_eu
+  "ussr:R163_SU_122":
+    status: available
+    source: official_lesta
+  "ussr:R164_U_18_T":
+    status: available
+    source: official_lesta
+  "ussr:R165_Object_703_II":
+    status: available
+    source: official_eu
+  "ussr:R165_Object_703_II_100":
+    status: available
+    source: official_lesta
+  "ussr:R165_Object_703_II_2":
+    status: available
+    source: official_lesta
+  "ussr:R166_SU_D15":
+    status: available
+    source: official_lesta
+  "ussr:R167_Object_715_G":
+    status: available
+    source: official_lesta
+  "ussr:R169_ST_II":
+    status: available
+    source: official_eu
+  "ussr:R17_SU-100":
+    status: available
+    source: official_eu
+  "ussr:R170_IS_2_II":
+    status: available
+    source: official_eu
+  "ussr:R171_IS_3_II":
+    status: available
+    source: official_eu
+  "ussr:R171_IS_3_II_02":
+    status: available
+    source: official_lesta
+  "ussr:R172_Object_752":
+    status: available
+    source: official_eu
+  "ussr:R173_K_91_2":
+    status: available
+    source: official_eu
+  "ussr:R173_K_91_2_122":
+    status: available
+    source: official_lesta
+  "ussr:R174_BT-5":
+    status: available
+    source: official_eu
+  "ussr:R175_IS_2_screen":
+    status: available
+    source: official_eu
+  "ussr:R177_ISU_152K_BL10":
+    status: available
+    source: official_eu
+  "ussr:R177_ISU_152K_BL10_02":
+    status: available
+    source: official_lesta
+  "ussr:R178_Object_780":
+    status: available
+    source: official_eu
+  "ussr:R18_SU-152":
+    status: available
+    source: official_eu
+  "ussr:R180_Object_274_A":
+    status: available
+    source: official_eu
+  "ussr:R180_Object_274_A_MT_BF":
+    status: available
+    source: official_lesta
+  "ussr:R182_ST_66":
+    status: available
+    source: official_eu
+  "ussr:R183_K_91_PT":
+    status: available
+    source: official_eu
+  "ussr:R185_T_34_L_11_1941":
+    status: available
+    source: official_eu
+  "ussr:R186_KV_1_Screened":
+    status: available
+    source: official_eu
+  "ussr:R187_Object_590":
+    status: available
+    source: official_eu
+  "ussr:R188_Object_259A":
+    status: available
+    source: official_lesta
+  "ussr:R188_Object_259A_CN":
+    status: available
+    source: official_eu
+  "ussr:R189_SU_100i_TR":
+    status: available
+    source: official_lesta
+  "ussr:R19_IS-3":
+    status: available
+    source: official_eu
+  "ussr:R19_IS-3_FL":
+    status: available
+    source: official_lesta
+  "ussr:R191_Object_283":
+    status: available
+    source: official_eu
+  "ussr:R192_K_2":
+    status: available
+    source: official_eu
+  "ussr:R193_M4A2_T_34":
+    status: available
+    source: official_eu
+  "ussr:R194_ST_62_var_2":
+    status: available
+    source: official_eu
+  "ussr:R195_T34M_54":
+    status: available
+    source: official_lesta
+  "ussr:R196_Object_452K":
+    status: available
+    source: official_eu
+  "ussr:R197_KV_1S_MZ":
+    status: available
+    source: official_eu
+  "ussr:R199_SU_122V":
+    status: available
+    source: official_eu
+  "ussr:R20_T-44":
+    status: available
+    source: official_eu
+  "ussr:R20_T-44_FL":
+    status: available
+    source: official_lesta
+  "ussr:R200_KV_4_Turchaninov":
+    status: available
+    source: official_eu
+  "ussr:R201_IT_3":
+    status: available
+    source: official_eu
+  "ussr:R202_SU_2_122":
+    status: available
+    source: official_eu
+  "ussr:R203_Object_168N":
+    status: available
+    source: official_eu
+  "ussr:R204_ISU_122_2":
+    status: available
+    source: official_eu
+  "ussr:R205_Tank_Rozanova_Obsidian":
+    status: available
+    source: official_eu
+  "ussr:R206_SU_122_54_2022":
+    status: available
+    source: official_lesta
+  "ussr:R207_HT_130":
+    status: available
+    source: official_lesta
+  "ussr:R208_Object_156O":
+    status: available
+    source: official_lesta
+  "ussr:R209_T_115":
+    status: available
+    source: official_lesta
+  "ussr:R210_ISU_2SH_II":
+    status: available
+    source: official_lesta
+  "ussr:R211_Object_261_4_II":
+    status: available
+    source: official_lesta
+  "ussr:R212_Object_265T":
+    status: available
+    source: official_lesta
+  "ussr:R213_TET_100":
+    status: available
+    source: official_lesta
+  "ussr:R215_KV_90":
+    status: available
+    source: official_lesta
+  "ussr:R217_Object_Kust":
+    status: available
+    source: official_eu
+  "ussr:R218_Panther_N_518":
+    status: available
+    source: official_lesta
+  "ussr:R218_T_115":
+    status: available
+    source: official_eu
+  "ussr:R219_Object_265T":
+    status: available
+    source: official_eu
+  "ussr:R219_Waffentrager_E100_Gold":
+    status: available
+    source: official_lesta
+  "ussr:R22_T-46":
+    status: available
+    source: official_eu
+  "ussr:R222_Object_120_Taran":
+    status: available
+    source: official_lesta
+  "ussr:R223_T_54B_1958":
+    status: available
+    source: official_lesta
+  "ussr:R224_IS_3_1945":
+    status: available
+    source: official_lesta
+  "ussr:R225_SU_100i":
+    status: available
+    source: official_eu
+  "ussr:R225_Vasiliev_project":
+    status: available
+    source: official_lesta
+  "ussr:R226_Object_757A":
+    status: available
+    source: official_lesta
+  "ussr:R227_Object_407_MZ":
+    status: available
+    source: official_lesta
+  "ussr:R228_Duplet":
+    status: available
+    source: official_lesta
+  "ussr:R228_KR_1":
+    status: available
+    source: official_eu
+  "ussr:R229_Object_718B":
+    status: available
+    source: official_lesta
+  "ussr:R23_T-43":
+    status: available
+    source: official_eu
+  "ussr:R230_Maus":
+    status: available
+    source: official_lesta
+  "ussr:R230_Object_432U":
+    status: available
+    source: official_eu
+  "ussr:R231_Buryan":
+    status: available
+    source: official_eu
+  "ussr:R231_Object_278":
+    status: available
+    source: official_lesta
+  "ussr:R233_ASU_85":
+    status: available
+    source: official_lesta
+  "ussr:R235_KB_52":
+    status: available
+    source: official_eu
+  "ussr:R235_KV_4_Fedorenko":
+    status: available
+    source: official_lesta
+  "ussr:R236_KV_4_Zeitz":
+    status: available
+    source: official_lesta
+  "ussr:R236_Object_265_II_CFE_A":
+    status: available
+    source: official_eu
+  "ussr:R239_ST_Molot":
+    status: available
+    source: official_lesta
+  "ussr:R239_ST_Molot_02":
+    status: available
+    source: official_lesta
+  "ussr:R24_SU-76":
+    status: available
+    source: official_eu
+  "ussr:R241_T_34_100":
+    status: available
+    source: official_lesta
+  "ussr:R246_Object_168_122":
+    status: available
+    source: official_lesta
+  "ussr:R248_T44_Storm":
+    status: available
+    source: official_lesta
+  "ussr:R25_GAZ-74b":
+    status: available
+    source: official_eu
+  "ussr:R251_T_55_SP_01":
+    status: available
+    source: official_lesta
+  "ussr:R253_Object_277_S":
+    status: available
+    source: official_lesta
+  "ussr:R26_SU-8":
+    status: available
+    source: official_eu
+  "ussr:R27_SU-14":
+    status: available
+    source: official_eu
+  "ussr:R31_Valentine_LL":
+    status: available
+    source: official_eu
+  "ussr:R32_Matilda_II_LL":
+    status: available
+    source: official_eu
+  "ussr:R33_Churchill_LL":
+    status: available
+    source: official_eu
+  "ussr:R34_BT-SV":
+    status: available
+    source: official_eu
+  "ussr:R38_KV-220":
+    status: available
+    source: official_eu
+  "ussr:R38_KV-220_beta":
+    status: available
+    source: official_lesta
+  "ussr:R39_KV-3":
+    status: available
+    source: official_eu
+  "ussr:R40_T-54":
+    status: available
+    source: official_eu
+  "ussr:R41_T-50":
+    status: available
+    source: official_eu
+  "ussr:R42_T-60":
+    status: available
+    source: official_eu
+  "ussr:R43_T-70":
+    status: available
+    source: official_eu
+  "ussr:R44_T80":
+    status: available
+    source: official_eu
+  "ussr:R45_IS-7":
+    status: available
+    source: official_eu
+  "ussr:R45_IS-7_02":
+    status: available
+    source: official_lesta
+  "ussr:R46_KV-13":
+    status: available
+    source: official_eu
+  "ussr:R47_ISU-152":
+    status: available
+    source: official_eu
+  "ussr:R47_ISU-152_FL":
+    status: available
+    source: official_lesta
+  "ussr:R47_ISU-152_Zveroboj":
+    status: available
+    source: official_lesta
+  "ussr:R49_SU100Y":
+    status: available
+    source: official_eu
+  "ussr:R50_SU76I":
+    status: available
+    source: official_eu
+  "ussr:R51_Object_212":
+    status: available
+    source: official_eu
+  "ussr:R52_Object_261":
+    status: available
+    source: official_eu
+  "ussr:R53_Object_704":
+    status: available
+    source: official_eu
+  "ussr:R54_KV-5":
+    status: available
+    source: official_eu
+  "ussr:R56_T-127":
+    status: available
+    source: official_eu
+  "ussr:R57_A43":
+    status: available
+    source: official_eu
+  "ussr:R58_SU-101":
+    status: available
+    source: official_eu
+  "ussr:R59_A44":
+    status: available
+    source: official_eu
+  "ussr:R60_Object416":
+    status: available
+    source: official_eu
+  "ussr:R61_Object252":
+    status: available
+    source: official_eu
+  "ussr:R61_Object252_02":
+    status: available
+    source: official_lesta
+  "ussr:R61_Object252_BF":
+    status: available
+    source: official_eu
+  "ussr:R63_ST_I":
+    status: available
+    source: official_eu
+  "ussr:R66_SU-26":
+    status: available
+    source: official_eu
+  "ussr:R67_M3_LL":
+    status: available
+    source: official_eu
+  "ussr:R68_A-32":
+    status: available
+    source: official_eu
+  "ussr:R71_IS_2B":
+    status: available
+    source: official_eu
+  "ussr:R72_T150":
+    status: available
+    source: official_eu
+  "ussr:R73_KV4":
+    status: available
+    source: official_eu
+  "ussr:R74_SU100M1":
+    status: available
+    source: official_eu
+  "ussr:R77_KV2":
+    status: available
+    source: official_eu
+  "ussr:R78_SU_85I":
+    status: available
+    source: official_eu
+  "ussr:R80_KV1":
+    status: available
+    source: official_eu
+  "ussr:R81_IS8":
+    status: available
+    source: official_eu
+  "ussr:R84_Tetrarch_LL":
+    status: available
+    source: official_eu
+  "ussr:R86_LTP":
+    status: available
+    source: official_eu
+  "ussr:R87_T62A":
+    status: available
+    source: official_eu
+  "ussr:R88_Object268":
+    status: available
+    source: official_eu
+  "ussr:R89_SU122_44":
+    status: available
+    source: official_eu
+  "ussr:R90_IS_4M":
+    status: available
+    source: official_eu
+  "ussr:R91_SU14_1":
+    status: available
+    source: official_eu
+  "ussr:R93_Object263":
+    status: available
+    source: official_eu
+  "ussr:R95_Object_907":
+    status: available
+    source: official_eu
+  "ussr:R96_Object_430":
+    status: available
+    source: official_eu
+  "ussr:R97_Object_140":
+    status: available
+    source: official_eu
+  "ussr:R98_T44_85M":
+    status: available
+    source: official_lesta
+  "ussr:R99_T44_122":
+    status: available
+    source: official_eu
+  "ussr:R99_T44_122_CN":
+    status: available
+    source: official_eu
+  "uk:GB12_Conqueror_FL":
+    status: rental
+    source: frontline_rental
+  "czech:Cz21_Vz_60S":
+    status: base_variant
+    source: dravec
