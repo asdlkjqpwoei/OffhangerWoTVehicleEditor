@@ -382,8 +382,8 @@ strings:
     zh: "车辆改动已保存，重置所需的写入前文件已保留。"
     en: "Vehicle changes saved. Pre-edit files are retained for reset."
   Vehicle.ResetAllWarning:
-    zh: "这会清除本编辑器的所有车辆改动，包括已保存到游戏的改动。已写入文件将恢复编辑前的原始字节，或移除编辑器新建的覆盖文件；不会整份覆盖原生包。若其他工具修改过这些文件，将拒绝回滚。已跟踪文件数量："
-    en: "This clears every vehicle change tracked by this editor, including changes already saved to the game. It restores exact pre-edit files or removes editor-created overrides. Native packages are not replaced. External file changes block rollback. Tracked files: "
+    zh: "这会清除本编辑器的所有车辆改动，包括已保存到游戏的改动。已写入文件将恢复编辑前的原始字节，或移除编辑器新建的覆盖文件；不会整份覆盖原生包。若其他工具修改过这些文件，将拒绝回滚。随后清除旧的 data.wgpdc 缓存，不启动游戏；下次正常启动游戏时自动重建。已跟踪文件数量："
+    en: "This clears every vehicle change tracked by this editor, including changes already saved to the game. It restores exact pre-edit files or removes editor-created overrides. Native packages are not replaced. External file changes block rollback. The stale data.wgpdc cache is then removed without starting the game; the next normal game startup rebuilds it. Tracked files: "
   Vehicle.ResetDone:
     zh: "本编辑器跟踪的缓存及已应用改动均已恢复。"
     en: "Tracked cached and applied changes have been restored."
@@ -460,23 +460,56 @@ strings:
     zh: "等级从高到低"
     en: "Tier descending"
   Parameters.Immediate:
-    zh: "有效修改立即缓存并同步 XML；退出会丢弃未应用的修改。参数名上可查看说明。"
-    en: "Valid edits cache immediately and update XML. Unapplied edits are discarded on exit; hover labels for help."
+    zh: "退出会丢弃未应用的修改。"
+    en: "Unapplied changes are discarded on exit."
+  Parameters.InvalidInput:
+    zh: "有数值尚未通过验证，请修正输入框中的错误后再继续。"
+    en: "Correct the invalid field values before continuing."
+  Session.Loading:
+    zh: "正在恢复上次会话并校验原生脚本包…"
+    en: "Restoring the last session and validating the original scripts…"
+  Session.LoadingSave:
+    zh: "正在加载玩家存档…"
+    en: "Loading the player save…"
+  Session.SaveMissing:
+    zh: "上次存档已移动或不存在，请重新指定："
+    en: "The last save moved or is missing. Select it again: "
+  Vehicle.ApplyWarning:
+    zh: "改动将在下次启动游戏时生效。"
+    en: "Changes take effect the next time you start the game."
+  Cache.Invalidated:
+    zh: "改动将在下次启动游戏时生效。"
+    en: "Changes take effect the next time you start the game."
+  Progress.cache.invalidate:
+    zh: "正在清除旧的游戏数据缓存…"
+    en: "Removing the stale game data cache…"
+  Progress.validate:
+    zh: "正在验证待应用文件…"
+    en: "Validating pending files…"
+  Progress.journal:
+    zh: "正在保存回滚记录…"
+    en: "Saving rollback records…"
+  Progress.write:
+    zh: "正在应用车辆参数…"
+    en: "Applying vehicle parameters…"
+  Progress.restore:
+    zh: "正在恢复原始文件…"
+    en: "Restoring original files…"
+  Progress.cache:
+    zh: "正在刷新游戏数据缓存…"
+    en: "Refreshing the game data cache…"
+  Progress.finalize:
+    zh: "正在完成文件校验和事务…"
+    en: "Finalizing file verification and transaction…"
+  Progress.done:
+    zh: "操作已完成"
+    en: "Operation complete"
   Parameters.Currency:
     zh: "价格币种"
     en: "Price currency"
-  Parameters.CurrencyTip:
-    zh: "只受控切换价格的金币标记；不转换装填机制，不自动增加高级车经验加成。"
-    en: "Only changes the price currency marker. It does not convert loading mechanisms or automatically add premium XP benefits."
   Parameters.NoPrice:
     zh: "该车没有可编辑的注册价格"
     en: "This vehicle has no editable registered price"
-  Parameters.Copies:
-    zh: "同名参数在普通／详细物理及不同模式中可能各有一份；下方按完整来源分别列出，不会只改车库显示值。"
-    en: "Equal names can have independent normal/detailed physics or mode copies. Each source is listed separately."
-  Parameters.NativeMechanism:
-    zh: "仅调整原生装填机制已有的字段；不提供单发、弹匣、弹鼓或双管之间的转换。"
-    en: "Only fields of the existing native loading mechanism can be edited. Mechanism conversion is unavailable."
   Parameters.Shared:
     zh: "该共享模块同时影响以下车辆，数量："
     en: "This shared module also affects these vehicles: "
@@ -510,9 +543,6 @@ strings:
   Xml.Reset:
     zh: "将 XML 文件重置回最初状态"
     en: "Reset XML file to its initial state"
-  Xml.Workflow:
-    zh: "修改值 → 应用到缓存 → 全局保存；树中不能增删节点。"
-    en: "Edit value → Apply to cache → global Save. Nodes cannot be added or removed."
   Xml.ChooseNode:
     zh: "选择树中的节点查看或修改其值。"
     en: "Select a tree node to view or edit its value."
@@ -520,11 +550,8 @@ strings:
     zh: "待应用的 XML 值数量："
     en: "XML values pending Apply: "
   Xml.ReadOnly:
-    zh: "结构、身份或原始空标记只读。"
-    en: "Structure, identity and original empty markers are read-only."
-  Xml.ValueOnly:
-    zh: "此处只修改草稿；应用后才写入缓存。"
-    en: "This edits a draft. Apply commits it to the cache."
+    zh: "该节点只读。"
+    en: "This node is read-only."
   Xml.ConcurrentChange:
     zh: "这个字段已被参数编辑修改，请重新核对后编辑。"
     en: "This field changed through parameter editing. Review it before editing again."
@@ -549,9 +576,6 @@ strings:
   Armor.Thickness:
     zh: "装甲厚度（毫米）"
     en: "Armor thickness (mm)"
-  Armor.Controls:
-    zh: "拖动旋转，右键平移，滚轮缩放，点击装甲块高亮。厚度修改立即缓存。"
-    en: "Drag to orbit, right-drag to pan, scroll to zoom, click armor to highlight. Thickness edits cache immediately."
   Armor.Unmapped:
     zh: "该碰撞区域没有可安全编辑的厚度定义。"
     en: "This collision region has no safely mapped editable thickness."
@@ -582,15 +606,9 @@ strings:
   Settings.CacheLocation:
     zh: "缓存固定在程序目录："
     en: "Cache is fixed beside the application: "
-  Settings.Baseline:
-    zh: "原生默认参数基准："
-    en: "Native default baseline: "
-  Settings.ResetPolicy:
-    zh: "全局重置用于回滚本编辑器跟踪的改动，保留其他离线补丁和 Mod。单车默认值重置不删除客户端必需的节点。"
-    en: "Global reset rolls back editor-tracked changes while preserving other patches and Mods. Per-vehicle defaults never delete required client nodes."
   Parameters.Mechanism:
-    zh: "现有原生装填："
-    en: "Existing native loading: "
+    zh: "装填方式："
+    en: "Loading mechanism: "
   Mechanism.single:
     zh: "单发"
     en: "Single shot"

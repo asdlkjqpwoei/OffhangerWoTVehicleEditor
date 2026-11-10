@@ -10,3 +10,6 @@
 *.ohcache
 *.ohvehicles
 *.md
+!/README.md
+!/assets/Defaults/README.md
+/Notice.md

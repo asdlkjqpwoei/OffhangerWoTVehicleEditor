@@ -1,13 +1,103 @@
 {
-  "version": 6,
-  "configurePresets": [{"name":"vs2026","generator":"Visual Studio 18 2026","architecture":"x64","toolset":"v145","binaryDir":"${sourceDir}/build/vs2026-v2","cacheVariables":{"CMAKE_VS_NUGET_PACKAGE_RESTORE":"OFF"}}],
-  "buildPresets": [
-    {"name":"release","configurePreset":"vs2026","configuration":"Release","resolvePackageReferences":"off","targets":["OffHangerVehicleEditor","OffHangerEditorTests"],"nativeToolOptions":["/restore","/p:RestoreRecursive=false","/p:NuGetAudit=false"],"jobs":2},
-    {"name":"debug","configurePreset":"vs2026","configuration":"Debug","resolvePackageReferences":"off","targets":["OffHangerVehicleEditor","OffHangerEditorTests"],"nativeToolOptions":["/restore","/p:RestoreRecursive=false","/p:NuGetAudit=false"],"jobs":2}
-  ],
-  "testPresets": [{"name":"release","configurePreset":"vs2026","configuration":"Release","output":{"outputOnFailure":true}},{"name":"debug","configurePreset":"vs2026","configuration":"Debug","output":{"outputOnFailure":true}}],
-  "workflowPresets": [
-    {"name":"release","steps":[{"type":"configure","name":"vs2026"},{"type":"build","name":"release"},{"type":"test","name":"release"}]},
-    {"name":"debug","steps":[{"type":"configure","name":"vs2026"},{"type":"build","name":"debug"},{"type":"test","name":"debug"}]}
-  ]
+	"version": 6,
+	"configurePresets": [
+		{
+			"name": "vs2026",
+			"generator": "Visual Studio 18 2026",
+			"architecture": "x64",
+			"toolset": "v145",
+			"binaryDir": "${sourceDir}/build/vs2026-v2",
+			"cacheVariables": {
+				"CMAKE_VS_NUGET_PACKAGE_RESTORE": "OFF"
+			}
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "release",
+			"configurePreset": "vs2026",
+			"configuration": "Release",
+			"resolvePackageReferences": "off",
+			"targets": [
+				"OffHangerWoTOfflineVehicleEditor",
+				"OffHangerWoTOfflineVehicleEditorTests"
+			],
+			"nativeToolOptions": [
+				"/restore",
+				"/p:RestoreRecursive=false",
+				"/p:NuGetAudit=false"
+			],
+			"jobs": 2
+		},
+		{
+			"name": "debug",
+			"configurePreset": "vs2026",
+			"configuration": "Debug",
+			"resolvePackageReferences": "off",
+			"targets": [
+				"OffHangerWoTOfflineVehicleEditor",
+				"OffHangerWoTOfflineVehicleEditorTests"
+			],
+			"nativeToolOptions": [
+				"/restore",
+				"/p:RestoreRecursive=false",
+				"/p:NuGetAudit=false"
+			],
+			"jobs": 2
+		}
+	],
+	"testPresets": [
+		{
+			"name": "release",
+			"configurePreset": "vs2026",
+			"configuration": "Release",
+			"output": {
+				"outputOnFailure": true
+			}
+		},
+		{
+			"name": "debug",
+			"configurePreset": "vs2026",
+			"configuration": "Debug",
+			"output": {
+				"outputOnFailure": true
+			}
+		}
+	],
+	"workflowPresets": [
+		{
+			"name": "release",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "vs2026"
+				},
+				{
+					"type": "build",
+					"name": "release"
+				},
+				{
+					"type": "test",
+					"name": "release"
+				}
+			]
+		},
+		{
+			"name": "debug",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "vs2026"
+				},
+				{
+					"type": "build",
+					"name": "debug"
+				},
+				{
+					"type": "test",
+					"name": "debug"
+				}
+			]
+		}
+	]
 }

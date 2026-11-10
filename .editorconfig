@@ -1,0 +1,20 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+
+[*.{cpp,h,hpp,c,md,json,cmake,in,props,manifest}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+[CMakeLists.txt]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+
+[*.yaml]
+indent_style = space
+indent_size = 2

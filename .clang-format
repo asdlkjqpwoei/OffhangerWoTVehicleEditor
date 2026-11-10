@@ -2,7 +2,7 @@ BasedOnStyle: Microsoft
 Language: Cpp
 IndentWidth: 4
 TabWidth: 4
-UseTab: Never
+UseTab: Always
 ColumnLimit: 110
 BreakBeforeBraces: Allman
 AllowShortBlocksOnASingleLine: Never
@@ -14,3 +14,4 @@ ReferenceAlignment: Left
 DerivePointerAlignment: false
 NamespaceIndentation: None
 SortIncludes: Never
+LineEnding: CRLF

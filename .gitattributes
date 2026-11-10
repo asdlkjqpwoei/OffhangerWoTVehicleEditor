@@ -1,0 +1,7 @@
+* text=auto eol=crlf
+*.pkg binary
+*.dat binary
+*.ohcache binary
+*.ohvehicles binary
+*.png binary
+*.zip binary

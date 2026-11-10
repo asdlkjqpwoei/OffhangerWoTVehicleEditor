@@ -20,55 +20,56 @@
 #include <winrt/Windows.UI.Text.h>
 #include <chrono>
 
-namespace OffHangar::Ui
+namespace OffHanger::Ui
 {
 namespace Xaml = winrt::Microsoft::UI::Xaml;
 namespace Controls = winrt::Microsoft::UI::Xaml::Controls;
+using winrt::Windows::Foundation::IAsyncAction;
 using winrt::Windows::Foundation::IAsyncOperation;
 using winrt::Windows::Foundation::IInspectable;
 
 struct Settings
 {
-    FileSystem::path DataFolder;
-    FileSystem::path GameFolder;
-    FileSystem::path OverrideFolder;
-    FileSystem::path LastSave;
-    FileSystem::path CacheFolder;
-    bool Chinese = true;
-    bool ProfileUi = false;
-    int Theme = 0;
-    uint32_t Accent = 0xff5e9eff;
-    void Load();
-    void Save() const;
+	FileSystem::path DataFolder;
+	FileSystem::path GameFolder;
+	FileSystem::path OverrideFolder;
+	FileSystem::path LastSave;
+	FileSystem::path CacheFolder;
+	bool Chinese = true;
+	bool ProfileUi = false;
+	int Theme = 0;
+	uint32_t Accent = 0xff5e9eff;
+	void Load();
+	void Save() const;
 };
 class UiPerformance
 {
-    struct Entry
-    {
-        std::string Name, Detail;
-        double Milliseconds{};
-        uint64_t PrivateBytes{};
-    };
-    std::vector<Entry> Entries;
-    std::vector<winrt::weak_ref<Controls::Control>> RetiredControls;
+	struct Entry
+	{
+		std::string Name, Detail;
+		double Milliseconds{};
+		uint64_t PrivateBytes{};
+	};
+	std::vector<Entry> Entries;
+	std::vector<winrt::weak_ref<Controls::Control>> RetiredControls;
 
   public:
-    bool Enabled{};
-    class Scope
-    {
-        UiPerformance* Owner{};
-        std::string Name, Detail;
-        std::chrono::steady_clock::time_point Started;
+	bool Enabled{};
+	class Scope
+	{
+		UiPerformance* Owner{};
+		std::string Name, Detail;
+		std::chrono::steady_clock::time_point Started;
 
-      public:
-        Scope(UiPerformance& Trace, std::string Name, std::string Detail);
-        Scope(Scope const&) = delete;
-        Scope& operator=(Scope const&) = delete;
-        ~Scope();
-    };
-    Scope Measure(std::string Name, std::string Detail = {});
-    void WatchRetired(Controls::Control const& Control);
-    void Flush(FileSystem::path const& Target) const noexcept;
+	  public:
+		Scope(UiPerformance& Trace, std::string Name, std::string Detail);
+		Scope(Scope const&) = delete;
+		Scope& operator=(Scope const&) = delete;
+		~Scope();
+	};
+	Scope Measure(std::string Name, std::string Detail = {});
+	void WatchRetired(Controls::Control const& Control);
+	void Flush(FileSystem::path const& Target) const noexcept;
 };
 winrt::hstring Translate(bool Chinese, char const* Key);
 winrt::hstring HString(std::string const& Utf8);
@@ -86,10 +87,10 @@ Controls::ListViewItem ListRow(winrt::hstring const& Text);
 void SetListRows(Controls::ListView const& List, std::vector<winrt::hstring> const& Rows);
 void ArrangeGridColumns(Controls::Grid const& Grid, int Columns);
 FileSystem::path PickFile(Xaml::Window const& Window, bool Save, wchar_t const* FilterName,
-                          wchar_t const* Pattern, wchar_t const* DefaultName = L"", bool Folder = false);
+						  wchar_t const* Pattern, wchar_t const* DefaultName = L"", bool Folder = false);
 HWND NativeWindow(Xaml::Window const& Window);
 int64_t NonnegativeInteger(winrt::hstring const& Text);
 FileSystem::path DefaultSavePath();
 FileSystem::path SavePathInFolder(FileSystem::path const& Folder);
 FileSystem::path ApplicationFolder();
-} // namespace OffHangar::Ui
+} // namespace OffHanger::Ui

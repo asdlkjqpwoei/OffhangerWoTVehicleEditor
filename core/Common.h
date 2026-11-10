@@ -11,7 +11,7 @@
 #include <string_view>
 #include <vector>
 
-namespace OffHangar
+namespace OffHanger
 {
 namespace FileSystem = std::filesystem;
 using Bytes = std::vector<uint8_t>;
@@ -30,7 +30,7 @@ std::string Timestamp();
 std::string PathUtf8(FileSystem::path const& Path);
 std::string NormalizeResourcePath(std::string Path);
 FileSystem::path AtomicWrite(FileSystem::path const& Path, Bytes const& Data, bool Backup = true,
-                             std::optional<uint32_t> ExpectedCrc = {});
+							 std::optional<uint32_t> ExpectedCrc = {});
 bool GameRunning();
 void EnsureWritesAllowed();
 FileSystem::path NativePath(FileSystem::path const& Path);
@@ -42,4 +42,4 @@ void Put32(Bytes& Data, uint32_t Value);
 void Put64(Bytes& Data, uint64_t Value);
 void Append(Bytes& Data, Bytes const& Value);
 void Append(Bytes& Data, std::string_view Value);
-} // namespace OffHangar
+} // namespace OffHanger

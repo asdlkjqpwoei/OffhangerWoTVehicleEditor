@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <Reference Include="$(NuGetPackageRoot)microsoft.web.webview2\1.0.3179.45\lib\Microsoft.Web.WebView2.Core.winmd" />
-  </ItemGroup>
+	<ItemGroup>
+	<Reference Include="$(NuGetPackageRoot)microsoft.web.webview2\1.0.3179.45\lib\Microsoft.Web.WebView2.Core.winmd" />
+	</ItemGroup>
 </Project>
