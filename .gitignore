@@ -1,15 +1,25 @@
+# Build output, including generated projects, restored packages and test results.
 /build/
 /bin/
-/.vs/
+
+# Visual Studio state and machine-local CMake presets.
+.vs/
 *.user
+/CMakeUserPresets.json
+
+# Local game data, editor settings and caches.
 /assets/Defaults/*.pkg
 /script.pkg
 /defaults.yaml
 /settings.yaml
 /Cache/
 *.ohcache
+*.ohcache.lock
 *.ohvehicles
-*.md
-!/README.md
-!/assets/Defaults/README.md
+
+# Atomic-save temporary files and backups created by the editor.
+*.OffHangerWoTOfflineVehicleEditor-*.tmp
+*.before-OffHangerWoTOfflineVehicleEditor-*.bak
+
+# Local development notes.
 /Notice.md
