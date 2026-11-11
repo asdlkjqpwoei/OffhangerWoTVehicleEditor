@@ -20,12 +20,20 @@ struct Property
 	std::string Path, Value;
 	Section* Node{};
 };
+struct SectionStructure
+{
+	std::string Name;
+	std::vector<SectionStructure> Children;
+	int ValueType = 1;
+};
 class DataSection
 {
   public:
 	Section Root;
 	bool Packed = false;
 	static DataSection Parse(Bytes const& Bytes);
+	// Preserve names and child order without decoding scalar values for structural indexes.
+	static SectionStructure ParseStructure(Bytes const& Bytes);
 	Bytes Serialize() const;
 	std::string Xml() const;
 	std::vector<Property> Properties(std::string const& Search = {});

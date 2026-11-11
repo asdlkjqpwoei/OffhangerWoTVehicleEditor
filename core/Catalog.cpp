@@ -77,7 +77,7 @@ void ResourceIndex::Scan(FileSystem::path const& Game, std::function<void(std::s
 	for (auto const& Path : Definitions->Children)
 		if (Path.Name == "Path")
 		{
-			auto Location = GameRoot / FileSystem::path(Wide(Trim(Path.Value)));
+			auto Location = (GameRoot / FileSystem::path(Wide(Trim(Path.Value)))).lexically_normal();
 			bool Mods = false;
 			for (auto const& [AttributeName, AttributeValue] : Path.Attributes)
 				if (AttributeName == "mask" && AttributeValue.find("wotmod") != AttributeValue.npos)
@@ -194,7 +194,7 @@ void ResourceIndex::Scan(FileSystem::path const& Game, std::function<void(std::s
 				 ResourceRoot, FileSystem::directory_options::skip_permission_denied))
 			if (E.is_directory() && FileSystem::is_regular_file(E.path() / L"extension.xml"))
 			{
-				auto Rel = PathUtf8(FileSystem::relative(E.path() / L"extension.xml", ResourceRoot));
+				auto Rel = PathUtf8((E.path() / L"extension.xml").lexically_relative(ResourceRoot));
 				Add({Rel,
 					 "Extension / " + PathUtf8(E.path().filename()),
 					 E.path() / L"extension.xml",
@@ -213,7 +213,7 @@ void ResourceIndex::Scan(FileSystem::path const& Game, std::function<void(std::s
 					 Folder, FileSystem::directory_options::skip_permission_denied))
 				if (E.is_regular_file())
 				{
-					auto Rel = PathUtf8(FileSystem::relative(E.path(), ResourceRoot));
+					auto Rel = PathUtf8(E.path().lexically_relative(ResourceRoot));
 					if (Relevant(Rel))
 						Add({Rel,
 							 "Loose override / " + PathUtf8(ResourceRoot.filename()),

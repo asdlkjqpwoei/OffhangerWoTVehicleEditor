@@ -6,6 +6,7 @@
 #include <limits>
 #include <set>
 #include <sstream>
+#include <type_traits>
 
 namespace OffHanger
 {
@@ -60,23 +61,27 @@ void Section::Set(std::string Text)
 	Value = std::move(Text);
 	Edited = true;
 }
-static Section FromXml(pugi::xml_node N, unsigned Depth = 0)
+template <class Node> static Node FromXml(pugi::xml_node N, unsigned Depth = 0)
 {
 	if (Depth > 128)
 		throw std::runtime_error("XML nesting exceeds limit");
-	Section S;
+	Node S;
 	S.Name = N.name();
-	std::string Value;
+	std::conditional_t<std::is_same_v<Node, Section>, std::string, std::string_view> Value;
 	for (auto C : N.children())
 	{
 		if (C.type() == pugi::node_element)
-			S.Children.push_back(FromXml(C, Depth + 1));
-		else if (C.type() == pugi::node_pcdata || C.type() == pugi::node_cdata)
-			Value += C.value();
+			S.Children.push_back(FromXml<Node>(C, Depth + 1));
+		else if constexpr (std::is_same_v<Node, Section>)
+			if (C.type() == pugi::node_pcdata || C.type() == pugi::node_cdata)
+				Value += C.value();
 	}
-	S.Value = Trim(Value);
-	for (auto A : N.attributes())
-		S.Attributes.emplace_back(A.name(), A.value());
+	if constexpr (std::is_same_v<Node, Section>)
+	{
+		S.Value = Trim(Value);
+		for (auto A : N.attributes())
+			S.Attributes.emplace_back(A.name(), A.value());
+	}
 	return S;
 }
 static void ToXml(Section const& S, pugi::xml_node P)
@@ -89,70 +94,75 @@ static void ToXml(Section const& S, pugi::xml_node P)
 	for (auto const& C : S.Children)
 		ToXml(C, N);
 }
-class PackedReader
+template <class Node> class PackedReader
 {
 	Bytes const& Data;
 	std::vector<std::string> Names;
 	size_t Nodes = 0;
-	Section Scalar(std::string Name, unsigned Type, size_t Begin, size_t End, unsigned Depth)
+	Node Scalar(std::string Name, unsigned Type, size_t Begin, size_t End, unsigned Depth)
 	{
 		if (End < Begin || End > Data.size())
 			throw std::runtime_error("Packed XML offset out of bounds");
 		if (Type == 0)
 			return ReadSection(std::move(Name), Begin, End, Depth + 1);
-		Section S;
+		Node S;
 		S.Name = std::move(Name);
 		S.ValueType = int(Type);
-		S.Original.assign(Data.begin() + Begin, Data.begin() + End);
 		auto Count = End - Begin;
-		switch (Type)
-		{
-		case 1:
-			S.Value.assign(reinterpret_cast<char const*>(Data.data() + Begin), Count);
-			break;
-		case 2:
-		{
-			if (Count != 0 && Count != 1 && Count != 2 && Count != 4 && Count != 8)
-				throw std::runtime_error("Invalid packed integer");
-			uint64_t V = 0;
-			for (size_t I = 0; I < Count; ++I)
-				V |= uint64_t(Data[Begin + I]) << (I * 8);
-			if (Count && Count < 8 && (Data[End - 1] & 128))
-				V |= (~0ull) << (Count * 8);
-			S.Value = std::to_string(int64_t(V));
-			break;
-		}
-		case 3:
-		{
-			if (Count % 4)
-				throw std::runtime_error("Invalid packed float");
-			std::ostringstream Out;
-			Out << std::setprecision(std::numeric_limits<float>::max_digits10);
-			for (size_t I = 0; I < Count; I += 4)
-			{
-				float F;
-				auto Bits = U32(Data, Begin + I);
-				std::memcpy(&F, &Bits, 4);
-				if (I)
-					Out << ' ';
-				Out << F;
-			}
-			S.Value = Out.str();
-			break;
-		}
-		case 4:
-			S.Value = Count ? "true" : "false";
-			break;
-		case 5:
-		case 6:
-			S.Value = Base64(S.Original);
-			break;
-		default:
+		if (Type == 2 && Count != 0 && Count != 1 && Count != 2 && Count != 4 && Count != 8)
+			throw std::runtime_error("Invalid packed integer");
+		if (Type == 3 && Count % 4)
+			throw std::runtime_error("Invalid packed float");
+		if (Type > 6)
 			throw std::runtime_error("Unsupported packed XML value type: " + std::to_string(Type));
+		if constexpr (std::is_same_v<Node, Section>)
+		{
+			S.Original.assign(Data.begin() + Begin, Data.begin() + End);
+			switch (Type)
+			{
+			case 1:
+				S.Value.assign(reinterpret_cast<char const*>(Data.data() + Begin), Count);
+				break;
+			case 2:
+			{
+				uint64_t V = 0;
+				for (size_t I = 0; I < Count; ++I)
+					V |= uint64_t(Data[Begin + I]) << (I * 8);
+				if (Count && Count < 8 && (Data[End - 1] & 128))
+					V |= (~0ull) << (Count * 8);
+				S.Value = std::to_string(int64_t(V));
+				break;
+			}
+			case 3:
+			{
+				std::ostringstream Out;
+				Out << std::setprecision(std::numeric_limits<float>::max_digits10);
+				for (size_t I = 0; I < Count; I += 4)
+				{
+					float F;
+					auto Bits = U32(Data, Begin + I);
+					std::memcpy(&F, &Bits, 4);
+					if (I)
+						Out << ' ';
+					Out << F;
+				}
+				S.Value = Out.str();
+				break;
+			}
+			case 4:
+				S.Value = Count ? "true" : "false";
+				break;
+			case 5:
+			case 6:
+				S.Value = Base64(S.Original);
+				break;
+			default:
+				throw std::runtime_error("Unsupported packed XML value type: " + std::to_string(Type));
+			}
 		}
 		return S;
 	}
-	Section ReadSection(std::string Name, size_t Pos, size_t End, unsigned Depth)
+	Node ReadSection(std::string Name, size_t Pos, size_t End, unsigned Depth)
 	{
 		if (Depth > 128 || ++Nodes > 1000000)
 			throw std::runtime_error("Packed XML nesting exceeds limit");
@@ -165,6 +175,7 @@ class PackedReader
 		if (OwnEnd > End - Payload)
 			throw std::runtime_error("Invalid packed XML own-data length");
 		auto S = Scalar(std::move(Name), Own >> 28, Payload, Payload + OwnEnd, Depth);
+		S.Children.reserve(Count);
 		uint32_t Previous = OwnEnd;
 		for (unsigned I = 0; I < Count; ++I)
 		{
@@ -182,7 +193,7 @@ class PackedReader
 
   public:
 	explicit PackedReader(Bytes const& D) : Data(D) {}
-	Section Parse()
+	Node Parse()
 	{
 		if (Data.size() < 6 || Data[4] != 0)
 			throw std::runtime_error("Unsupported packed XML version");
@@ -280,7 +291,7 @@ DataSection DataSection::Parse(Bytes const& B)
 	if (B.size() >= 4 && U32(B, 0) == 0x62a14e45)
 	{
 		D.Packed = true;
-		D.Root = PackedReader(B).Parse();
+		D.Root = PackedReader<Section>(B).Parse();
 	}
 	else
 	{
@@ -288,9 +299,19 @@ DataSection DataSection::Parse(Bytes const& B)
 		auto Result = Doc.load_buffer(B.data(), B.size(), pugi::parse_default | pugi::parse_ws_pcdata_single);
 		if (!Result || !Doc.document_element())
 			throw std::runtime_error(std::string("Cannot parse XML: ") + Result.description());
-		D.Root = FromXml(Doc.document_element());
+		D.Root = FromXml<Section>(Doc.document_element());
 	}
 	return D;
+}
+SectionStructure DataSection::ParseStructure(Bytes const& B)
+{
+	if (B.size() >= 4 && U32(B, 0) == 0x62a14e45)
+		return PackedReader<SectionStructure>(B).Parse();
+	pugi::xml_document Doc;
+	auto Result = Doc.load_buffer(B.data(), B.size(), pugi::parse_default | pugi::parse_ws_pcdata_single);
+	if (!Result || !Doc.document_element())
+		throw std::runtime_error(std::string("Cannot parse XML: ") + Result.description());
+	return FromXml<SectionStructure>(Doc.document_element());
 }
 std::string DataSection::Xml() const
 {

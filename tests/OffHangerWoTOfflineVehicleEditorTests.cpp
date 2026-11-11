@@ -115,6 +115,79 @@ void TestFormats()
 		"Invalid save batch accepted");
 	Check(Save.Account.Currency("credits") == 100, "Failed save batch did not roll back");
 }
+void TestDefinitionStructure()
+{
+	std::string Xml = "<root flag='kept'><values><integer>-129</integer>"
+					  "<vector>1.25 -2 0.03125</vector><boolean>true</boolean>"
+					  "<binary>AP+A</binary></values><same>one</same><same>two</same><empty/></root>";
+	auto Document = DataSection::Parse(Bytes(Xml.begin(), Xml.end()));
+	auto& Values = *Document.Root.Child("values");
+	for (auto const& [Name, Type] : std::vector<std::pair<std::string, int>>{
+			 {"integer", 2}, {"vector", 3}, {"boolean", 4}, {"binary", 5}})
+	{
+		auto& Node = *Values.Child(Name);
+		Node.ValueType = Type;
+		Node.Edited = true;
+	}
+	std::function<void(Section const&, SectionStructure const&)> Compare =
+		[&](auto const& Full, auto const& Shape)
+	{
+		Check(Full.Name == Shape.Name && Full.ValueType == Shape.ValueType &&
+				  Full.Children.size() == Shape.Children.size(),
+			  "Structural parsing changed node identities or addresses");
+		for (size_t Index = 0; Index < Full.Children.size(); ++Index)
+			Compare(Full.Children[Index], Shape.Children[Index]);
+	};
+	for (bool Packed : {false, true})
+	{
+		Document.Packed = Packed;
+		auto Data = Document.Serialize();
+		Compare(DataSection::Parse(Data).Root, DataSection::ParseStructure(Data));
+		Data.resize(Data.size() / 2);
+		Reject([&] { DataSection::ParseStructure(Data); }, "Truncated structural XML was accepted");
+	}
+	for (auto const& [Type, Length] : std::vector<std::pair<uint32_t, uint32_t>>{{2, 3}, {3, 2}, {7, 0}})
+	{
+		Bytes Invalid;
+		Put32(Invalid, 0x62a14e45);
+		Invalid.insert(Invalid.end(), {0, 0});
+		Put16(Invalid, 0);
+		Put32(Invalid, (Type << 28) | Length);
+		Invalid.resize(Invalid.size() + Length);
+		Reject([&] { DataSection::Parse(Invalid); }, "Invalid packed scalar was accepted");
+		Reject([&] { DataSection::ParseStructure(Invalid); },
+			   "Structural parsing bypassed packed scalar validation");
+	}
+}
+void TestResourceIndexPaths()
+{
+	auto Root = Output / "resource-index";
+	auto ResourcePath = std::string("scripts/item_defs/vehicles/ussr/A.xml");
+	auto Override = Root / "res_mods/current" / Wide(ResourcePath);
+	std::string Current = "<root><hull><maxHealth>100</maxHealth></hull></root>";
+	WriteText(Root / "paths.xml", "<root><Paths><Path>./res_mods/current/../current</Path></Paths></root>");
+	WriteText(Root / "res" / Wide(ResourcePath), "<root>original</root>");
+	WriteText(Override, Current);
+	WriteText(Root / "res_mods/current/Extra/extension.xml", "<root><IsEnabled>true</IsEnabled></root>");
+	WriteText(Root / "res_mods/current/Extra" / Wide(ResourcePath), Current);
+	ResourceIndex Index;
+	Index.Scan(Root);
+	Check(Index.Find(ResourcePath) &&
+			  Index.Find(ResourcePath)->Read() == Bytes(Current.begin(), Current.end()),
+		  "Lexical resource paths changed override precedence");
+	Check(Index.Find("Extra/extension.xml") && Index.Find("Extra/" + ResourcePath),
+		  "An extension's virtual resource paths were changed");
+	Check(Index.LoadedSignature == ResourceIndex::GameSignature(FileSystem::relative(Root)),
+		  "Relative and absolute game roots produced different resource signatures");
+	auto Previous = Index.LoadedSignature;
+	Current += "<!-- changed -->";
+	WriteText(Override, Current);
+	Check(ResourceIndex::GameSignature(Root) != Previous,
+		  "Resource signature stopped detecting changed files");
+	Index.Scan(Root);
+	Check(Index.Find(ResourcePath)->Read() == Bytes(Current.begin(), Current.end()),
+		  "Reloading a resource index retained stale override content");
+}
 void TestWorkspace()
 {
 	auto Catalogue = Fixture();
@@ -208,6 +281,64 @@ void TestWorkspace()
 								OtherRoot / "game-overrides");
 		},
 		"A local cache was restored into another game directory");
+}
+void TestSharedComponentDependencies()
+{
+	auto Catalogue = Fixture();
+	for (auto const& Vehicle : Catalogue.Vehicles)
+		Add(Catalogue, Vehicle.DefinitionPath,
+			"<root><hull><maxHealth>1200</maxHealth></hull>"
+			"<engines><engineA>shared</engineA></engines>"
+			"<turrets0><turret><guns><start>shared</start></guns></turret></turrets0></root>");
+	auto Guns = std::string("scripts/item_defs/vehicles/ussr/components/guns.xml");
+	Add(Catalogue, Guns,
+		"<root><shared>"
+		"<early><guns><late>shared</late></guns><shots><shellEarly>shared</shellEarly></shots></early>"
+		"<start><reloadTime>11</reloadTime><guns><early>shared</early><late>shared</late></guns></start>"
+		"<late><guns><deep>shared</deep></guns><shots><shellLate>shared</shellLate></shots></late>"
+		"<deep><guns><start>shared</start></guns></deep>"
+		"<unrelated><reloadTime>99</reloadTime></unrelated></shared>"
+		"<start><reloadTime>22</reloadTime></start></root>");
+	Add(Catalogue, "scripts/item_defs/vehicles/ussr/components/shells.xml",
+		"<root><shared><shellEarly><damage>100</damage></shellEarly>"
+		"<shellLate><damage>200</damage></shellLate>"
+		"<unrelated><damage>999</damage></unrelated></shared></root>");
+	for (auto& [Key, Resource] : Catalogue.Resources.Files)
+	{
+		auto Document = DataSection::Parse(Resource.Read());
+		Document.Packed = true;
+		Resource.MemoryData = std::make_shared<Bytes const>(Document.Serialize());
+	}
+	VehicleWorkspace Workspace;
+	Workspace.Open(Catalogue, nullptr, {}, Output / "component-dependencies");
+	for (auto const& Vehicle : Catalogue.Vehicles)
+	{
+		auto const& Scopes = Workspace.VehicleScopes(Vehicle);
+		Check(Scopes.size() == 10, "Transitive component dependencies are incomplete or duplicated");
+		std::set<std::pair<std::string, NodeAddress>> Unique;
+		std::set<NodeAddress> StartAddresses;
+		for (auto const& Scope : Scopes)
+		{
+			Check(Unique.emplace(Scope.Path, Scope.Root).second, "A cyclic reference duplicated a scope");
+			Check(Scope.Module != "unrelated", "An unreferenced shared component was included");
+			if (Scope.Path == Guns && Scope.Module == "start")
+				StartAddresses.insert(Scope.Root);
+			if (Scope.Component == "guns" || Scope.Component == "shells")
+				Check(Workspace.SharedUsers(Scope).size() == 2,
+					  "Transitive shared-component ownership is incomplete");
+		}
+		Check(StartAddresses == std::set<NodeAddress>{{1}, {0, 1}},
+			  "Same-named root and shared modules were incorrectly merged");
+		auto Fields = Workspace.Values(Vehicle);
+		for (auto const& [Path, Value] :
+			 std::vector<std::pair<std::string, std::string>>{{"/start/reloadTime", "22"},
+															  {"/shared/start/reloadTime", "11"},
+															  {"/shared/shellEarly/damage", "100"},
+															  {"/shared/shellLate/damage", "200"}})
+			Check(std::any_of(Fields.begin(), Fields.end(), [&](auto const& Field)
+							  { return Field.DisplayPath == Path && Field.Value == Value; }),
+				  "An indirectly referenced component field is missing");
+	}
 }
 YAML::Node ReadManifest(FileSystem::path const& Path, std::string const& Name)
 {
@@ -1147,7 +1278,10 @@ int wmain(int ArgumentCount, wchar_t** Arguments)
 			return 0;
 		}
 		TestFormats();
+		TestDefinitionStructure();
+		TestResourceIndexPaths();
 		TestWorkspace();
+		TestSharedComponentDependencies();
 		TestNativeDefaults();
 		TestInvalidPackages();
 		TestInterruptedWrites();

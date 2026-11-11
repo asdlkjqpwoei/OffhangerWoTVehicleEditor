@@ -270,12 +270,12 @@ VehicleDocument const& VehicleWorkspace::Get(std::string const& Path) const
 }
 void VehicleWorkspace::BuildScopes()
 {
-	std::map<std::string, DataSection> Tables;
-	auto Read = [&](std::string const& Path) -> DataSection const&
+	std::map<std::string, SectionStructure> Tables;
+	auto Read = [&](std::string const& Path) -> SectionStructure const&
 	{
 		auto ResourceKey = Key(Path);
 		if (!Tables.contains(ResourceKey))
-			Tables.emplace(ResourceKey, DataSection::Parse(Catalogue->Resources.Find(Path)->Read()));
+			Tables.emplace(ResourceKey, DataSection::ParseStructure(Catalogue->Resources.Find(Path)->Read()));
 		return Tables.at(ResourceKey);
 	};
 	for (auto const& Vehicle : Catalogue->Vehicles)
@@ -288,12 +288,12 @@ void VehicleWorkspace::BuildScopes()
 		if (!Vehicle.ListPath.empty() && Catalogue->Resources.Find(Vehicle.ListPath))
 		{
 			auto const& List = Read(Vehicle.ListPath);
-			for (size_t Index = 0; Index < List.Root.Children.size(); ++Index)
-				if (List.Root.Children[Index].Name == Vehicle.Model)
+			for (size_t Index = 0; Index < List.Children.size(); ++Index)
+				if (List.Children[Index].Name == Vehicle.Model)
 					Entries.push_back({Vehicle.ListPath, "vehicle", Vehicle.Model, {Index}});
 		}
 		std::map<std::string, std::set<std::string>> References;
-		std::function<void(Section const&)> Collect = [&](Section const& Node)
+		std::function<void(SectionStructure const&)> Collect = [&](SectionStructure const& Node)
 		{
 			auto Group = Node.Name;
 			if (Group.starts_with("turrets"))
@@ -307,10 +307,14 @@ void VehicleWorkspace::BuildScopes()
 			for (auto const& Child : Node.Children)
 				Collect(Child);
 		};
-		Collect(Definition.Root);
+		Collect(Definition);
+		auto ComponentDocuments = Catalogue->Documents(Vehicle);
+		std::map<std::string, std::set<NodeAddress>> ResolvedScopes;
+		for (auto const& Scope : Entries)
+			ResolvedScopes[Key(Scope.Path)].insert(Scope.Root);
 		// Resolve only referenced component bodies; gun bodies can introduce shell references.
 		for (int Pass = 0; Pass < 3; ++Pass)
-			for (auto const& [Caption, Path] : Catalogue->Documents(Vehicle))
+			for (auto const& [Caption, Path] : ComponentDocuments)
 			{
 				if (Path.find("/components/") == Path.npos)
 					continue;
@@ -324,29 +328,27 @@ void VehicleWorkspace::BuildScopes()
 				for (auto const& ComponentPath : Paths)
 				{
 					auto const& Table = Read(ComponentPath);
-					auto Add = [&](Section const& Parent, NodeAddress PrefixAddress)
+					auto& Resolved = ResolvedScopes[Key(ComponentPath)];
+					auto const& Referenced = References[Group];
+					auto Add = [&](SectionStructure const& Parent, NodeAddress PrefixAddress)
 					{
 						for (size_t Index = 0; Index < Parent.Children.size(); ++Index)
-							if (References[Group].contains(Parent.Children[Index].Name))
+							if (Referenced.contains(Parent.Children[Index].Name))
 							{
 								auto Address = PrefixAddress;
 								Address.push_back(Index);
-								bool Exists = std::any_of(Entries.begin(), Entries.end(),
-														  [&](auto const& Scope)
-														  {
-															  return Key(Scope.Path) == Key(ComponentPath) &&
-																	 Scope.Root == Address;
-														  });
-								if (!Exists)
-									Entries.push_back(
-										{ComponentPath, Group, Parent.Children[Index].Name, Address});
+								if (!Resolved.insert(Address).second)
+									continue;
+								Entries.push_back(
+									{ComponentPath, Group, Parent.Children[Index].Name, Address});
+								// Collecting an immutable body once already discovers all its references.
 								Collect(Parent.Children[Index]);
 							}
 					};
-					Add(Table.Root, {});
-					for (size_t Index = 0; Index < Table.Root.Children.size(); ++Index)
-						if (Table.Root.Children[Index].Name == "shared")
-							Add(Table.Root.Children[Index], {Index});
+					Add(Table, {});
+					for (size_t Index = 0; Index < Table.Children.size(); ++Index)
+						if (Table.Children[Index].Name == "shared")
+							Add(Table.Children[Index], {Index});
 				}
 			}
 		for (auto const& Scope : Entries)
