@@ -119,11 +119,14 @@ void TestDefinitionStructure()
 {
 	std::string Xml = "<root flag='kept'><values><integer>-129</integer>"
 					  "<vector>1.25 -2 0.03125</vector><boolean>true</boolean>"
-					  "<binary>AP+A</binary></values><same>one</same><same>two</same><empty/></root>";
+					  "<binary>AP+A</binary><real>+1.25 2e0</real><decimal>2.0</decimal>"
+					  "<whole>2</whole><wholeVector>1 2 3</wholeVector>"
+					  "<invalid>1.25bad</invalid><nonfinite>nan 2.0</nonfinite>"
+					  "</values><same>one</same><same>two</same><empty/></root>";
 	auto Document = DataSection::Parse(Bytes(Xml.begin(), Xml.end()));
 	auto& Values = *Document.Root.Child("values");
 	for (auto const& [Name, Type] : std::vector<std::pair<std::string, int>>{
-			 {"integer", 2}, {"vector", 3}, {"boolean", 4}, {"binary", 5}})
+			 {"integer", 2}, {"vector", 3}, {"wholeVector", 3}, {"boolean", 4}, {"binary", 5}})
 	{
 		auto& Node = *Values.Child(Name);
 		Node.ValueType = Type;
@@ -143,6 +146,12 @@ void TestDefinitionStructure()
 		Document.Packed = Packed;
 		auto Data = Document.Serialize();
 		Compare(DataSection::Parse(Data).Root, DataSection::ParseStructure(Data));
+		auto Shape = DataSection::ParseStructure(Data);
+		auto const& Numbers = Shape.Children.front().Children;
+		for (auto const& Number : Numbers)
+			Check(Number.RealNumber == (Number.Name == "vector" || Number.Name == "real" ||
+										Number.Name == "decimal" || (Packed && Number.Name == "wholeVector")),
+				  "Structural numeric evidence misclassified a scalar/vector");
 		Data.resize(Data.size() / 2);
 		Reject([&] { DataSection::ParseStructure(Data); }, "Truncated structural XML was accepted");
 	}
@@ -158,6 +167,36 @@ void TestDefinitionStructure()
 		Reject([&] { DataSection::ParseStructure(Invalid); },
 			   "Structural parsing bypassed packed scalar validation");
 	}
+}
+void TestFilteredValues()
+{
+	auto Catalogue = Fixture();
+	auto const& Vehicle = Catalogue.Vehicles.front();
+	Add(Catalogue, Vehicle.DefinitionPath,
+		"<root><hull><maxHealth>1200</maxHealth></hull><chassis><track/></chassis>"
+		"<models><nested><reloadTime>999</reloadTime></nested></models>"
+		"<engines><engineA>shared</engineA></engines>"
+		"<same>1</same><same>2</same><group><same>3</same><same>4</same></group></root>");
+	VehicleWorkspace Workspace;
+	Workspace.Open(Catalogue, nullptr, {}, Output / "filtered-values");
+	auto All = Workspace.Values(Vehicle);
+	bool VisitedExcludedChild = false;
+	auto Filtered = Workspace.Values(Vehicle,
+									 [&](Section const& Node, std::string const& Path, DocumentScope const&)
+									 {
+										 VisitedExcludedChild |= Path.starts_with("/models/");
+										 return Node.Name != "models";
+									 });
+	Check(!VisitedExcludedChild, "A filtered subtree was still traversed");
+	std::erase_if(All, [](auto const& Field) { return Field.DisplayPath.starts_with("/models/"); });
+	Check(All.size() == Filtered.size(), "Filtering changed unrelated vehicle values");
+	for (size_t Index = 0; Index < All.size(); ++Index)
+		Check(All[Index].Document == Filtered[Index].Document &&
+				  All[Index].Address == Filtered[Index].Address &&
+				  All[Index].DisplayPath == Filtered[Index].DisplayPath &&
+				  All[Index].Value == Filtered[Index].Value &&
+				  All[Index].SharedVehicles == Filtered[Index].SharedVehicles,
+			  "Filtering changed a repeated/shared field's address or ownership");
 }
 void TestResourceIndexPaths()
 {
@@ -398,10 +437,10 @@ void TestInvalidPackages()
 	Copy.Model += "_R";
 	ParameterDefinitions Definitions(FileSystem::path(OHEDITOR_SOURCE_DIRECTORY) /
 									 "assets/Config/parameters.yaml");
-	Check(Definitions.Classify(Copy).Kind == "rental" && Definitions.Classify(Copy).HiddenByDefault,
+	Check(Definitions.Classify(Copy).Kind == "unavailable" && Definitions.Classify(Copy).HiddenByDefault,
 		  "Rental copies are not hidden by default");
 	Copy.Model = "A_bob";
-	Check(Definitions.Classify(Copy).Kind == "other" && Definitions.Classify(Copy).HiddenByDefault,
+	Check(Definitions.Classify(Copy).Kind == "unavailable" && Definitions.Classify(Copy).HiddenByDefault,
 		  "Bob copies are not hidden by default");
 	Copy.Model = "A_test";
 	Check(Definitions.Classify(Copy).HiddenByDefault, "Test copies are not hidden by default");
@@ -687,7 +726,7 @@ void TestSevenVersusSevenRentals()
 		Vehicle.Model = Model;
 		Vehicle.Name = "ussr:" + Vehicle.Model;
 		auto Category = Definitions.Classify(Vehicle);
-		Check(Category.Kind == "rental" && Category.HiddenByDefault && Category.Availability == "rental",
+		Check(Category.Kind == "unavailable" && Category.HiddenByDefault && Category.Availability == "rental",
 			  "A 7v7 rental required a base model or a catalogue to be recognized");
 	}
 	Vehicle.Name = "sweden:S28_UDES_15_16_7x7";
@@ -723,6 +762,189 @@ void TestNativeMechanismValues()
 	Reject([&] { Workspace.SaveToGame(); }, "An unrecognized target override was overwritten");
 	Check(ReadFile(Target) == Bytes(External.begin(), External.end()),
 		  "Rejected save changed the external target");
+}
+void TestNumericParameterTypes()
+{
+	for (bool Packed : {false, true})
+	{
+		auto Catalogue = Fixture();
+		auto const& Vehicle = Catalogue.Vehicles.front();
+		Add(Catalogue, Vehicle.DefinitionPath,
+			"<root><hull><maxHealth>1200</maxHealth></hull><chassis><track/></chassis>"
+			"<turrets0><turret><guns><gun><reloadTime>10</reloadTime><aimingTime>2</aimingTime>"
+			"<rotationSpeed>30</rotationSpeed><maxAmmo>60</maxAmmo><clip><count>3</count><rate>30</rate>"
+			"</clip></gun></guns></turret></turrets0><mechanics><first><period>2</period>"
+			"<integerOnly>3</integerOnly><curve>1 2 3</curve></first></mechanics></root>");
+		auto First = DataSection::Parse(Catalogue.Resources.Find(Vehicle.DefinitionPath)->Read());
+		Section Engine{"engines", "", {}, {Section{"guns", "", {}, {Section{"torque", "10"}}}}};
+		First.Root.Children.push_back(std::move(Engine));
+		Add(Catalogue, Vehicle.DefinitionPath, First.Xml());
+		Add(Catalogue, Catalogue.Vehicles.back().DefinitionPath,
+			"<root><hull><maxHealth>1200</maxHealth></hull><chassis><track/></chassis>"
+			"<turrets0><turret><guns><peer>shared</peer></guns></turret></turrets0>"
+			"<engines><engines><torque>10.5</torque></engines></engines>"
+			"<mechanics><first><period>2.5</period><curve>1 2.5 3</curve></first>"
+			"<second><integerOnly>3.5</integerOnly></second></mechanics></root>");
+		Add(Catalogue, "scripts/item_defs/vehicles/ussr/components/guns.xml",
+			"<root><shared><peer><reloadTime>9.5</reloadTime><rotationSpeed>31.5</rotationSpeed>"
+			"</peer></shared></root>");
+		if (Packed)
+			for (auto& [Key, Resource] : Catalogue.Resources.Files)
+			{
+				auto Data = DataSection::Parse(Resource.Read());
+				for (auto const& Field : Data.Properties())
+					if (!Field.Value.empty() &&
+						Field.Value.find_first_not_of("0123456789") == Field.Value.npos)
+					{
+						Field.Node->ValueType = 2;
+						Field.Node->Set(Field.Value);
+					}
+				Data.Packed = true;
+				Resource.MemoryData = std::make_shared<Bytes const>(Data.Serialize());
+			}
+		auto Root = Output / (Packed ? "numeric-packed" : "numeric-text");
+		VehicleWorkspace Workspace;
+		Workspace.Open(Catalogue, nullptr, Root / "cache.ohcache", Root / "overrides");
+		auto Fields = Workspace.Values(Vehicle);
+		auto Find = [&](std::string const& Suffix) -> VehicleValue
+		{
+			for (auto const& Field : Fields)
+				if (Field.DisplayPath.ends_with(Suffix))
+					return Field;
+			throw std::runtime_error("Numeric fixture field missing: " + Suffix);
+		};
+		auto Set = [&](std::string const& Suffix, std::string const& Value)
+		{
+			auto Field = Find(Suffix);
+			Workspace.Edit(Vehicle, Field.Document, Field.Address, Value);
+		};
+		auto Reload = Find("/reloadTime");
+		Check(VehicleWorkspace::Resolve(Workspace.Document(Reload.Document).Current, Reload.Address)
+					  .ValueType == (Packed ? 2 : 1),
+			  "The numeric fixture has the wrong native storage type");
+		Set("/reloadTime", "7.25");
+		Set("/rotationSpeed", "30.5");
+		Set("/period", "2.25");
+		Set("/curve", "1 2.25 3");
+		ParameterInfo Interval;
+		Interval.Transform = ParameterTransform::ShotInterval;
+		Set("/clip/rate", ParameterDefinitions::StoredValue(Interval, "1.6", "30"));
+		Set("/aimingTime", "1.75");
+		Set("/torque", "10.25");
+		for (auto Suffix : {"/maxHealth", "/maxAmmo", "/clip/count", "/integerOnly", "/level", "/price"})
+			for (auto Input : {"2.5", "2.0", "2e0"})
+				Reject([&] { Set(Suffix, Input); }, "A discrete parameter accepted a floating-point value");
+		for (auto Input : {"nan", "inf", "7.25oops", "7.25 8", "0", "-1"})
+			Reject([&] { Set("/reloadTime", Input); }, "Invalid reload duration was accepted");
+		Reject([&] { Set("/curve", "1 2"); }, "An inferred real vector changed its shape");
+		Reject([&] { Set("/level", "12"); }, "An unsupported vehicle tier was accepted");
+		auto Package = Root / "changes.ohvehicles";
+		Workspace.ExportChanges(Package, &Vehicle);
+		VehicleWorkspace Imported;
+		Imported.Open(Catalogue, nullptr, {}, Root / "imported");
+		Check(Imported.ImportChanges(Package, &Vehicle) == 7, "Numeric changes did not import completely");
+		auto ReadReload = [&](VehicleWorkspace& Source)
+		{
+			auto Data = DataSection::Parse(Source.Document(Reload.Document).Current.Serialize());
+			return VehicleWorkspace::Resolve(Data, Reload.Address).Value;
+		};
+		Check(ReadReload(Imported) == "7.25", "A decimal reload was truncated during serialization/import");
+		Workspace.ResetVehicle(Vehicle);
+		Check(!Workspace.HasPending() && Workspace.Document(Vehicle.DefinitionPath).Current.Serialize() ==
+											 Workspace.Document(Vehicle.DefinitionPath).Initial.Serialize(),
+			  "Resetting parameters did not restore their native integer storage");
+		Workspace.ImportChanges(Package, &Vehicle);
+		Workspace.SaveToGame();
+		VehicleWorkspace Restarted;
+		Restarted.Open(Catalogue, nullptr, Root / "cache.ohcache", Root / "overrides");
+		Check(ReadReload(Restarted) == "7.25" && !Restarted.HasPending(),
+			  "A promoted numeric value did not survive an applied-cache restart");
+		Restarted.Edit(Vehicle, Reload.Document, Reload.Address, "10");
+		Check(VehicleWorkspace::Resolve(Restarted.Document(Reload.Document).Current, Reload.Address)
+					  .ValueType == (Packed ? 2 : 1),
+			  "Returning to a whole number lost the native storage format");
+		Restarted.ResetAll();
+	}
+}
+void TestVehicleModesAndFilters()
+{
+	Catalog Catalogue;
+	auto Folder = std::string("scripts/item_defs/vehicles/sweden/");
+	Add(Catalogue, Folder + "list.xml",
+		"<root><S10_Strv_103_0_Series><id>17</id><level>9</level><price>3600000</price>"
+		"<userString>Strv 1030</userString><tags>AT-SPG</tags></S10_Strv_103_0_Series>"
+		"<S10_Strv_103_0_Series_FL><id>212</id><level>9</level><price>1</price>"
+		"<userString>Strv 1030 FL</userString><tags>AT-SPG</tags></S10_Strv_103_0_Series_FL>"
+		"<S11_Strv_103B><id>18</id><level>10</level><price>6100000</price>"
+		"<userString>Strv 103B</userString><tags>AT-SPG</tags></S11_Strv_103B>"
+		"<S11_extra><id>213</id><level>10</level><price>100</price>"
+		"<userString>Strv 103B Other</userString><tags>AT-SPG</tags></S11_extra>"
+		"<S22_Strv_S1><id>22</id><level>8</level><price>1000<gold/></price>"
+		"<userString>Strv S1</userString><tags>AT-SPG premium</tags></S22_Strv_S1></root>");
+	std::string Definition =
+		"<root><hull><maxHealth>1000</maxHealth></hull><chassis><track/></chassis></root>";
+	for (auto Model : {"S10_Strv_103_0_Series", "S10_Strv_103_0_Series_FL", "S11_Strv_103B", "S11_extra",
+					   "S22_Strv_S1", "S10_Strv_103_0_Series_FL_siege_mode", "S11_Strv_103B_siege_mode",
+					   "S22_Strv_S1_siege_mode", "Missing_siege_mode", "Unknown_test"})
+		Add(Catalogue, Folder + Model + ".xml", Definition);
+	Catalogue.Rebuild();
+	ParameterDefinitions Rules(FileSystem::path(OHEDITOR_SOURCE_DIRECTORY) / "assets/Config/parameters.yaml");
+	for (auto Model : {"S11_Strv_103B", "S10_Strv_103_0_Series_FL", "S22_Strv_S1"})
+	{
+		auto Base = Catalogue.ByName("sweden:" + std::string(Model));
+		auto Mode = Catalogue.ByName(Base->Name + "_siege_mode");
+		Check(Mode && Catalogue.ModeBase(*Mode) == Base &&
+				  Mode->DisplayName == Base->DisplayName + " Siege Mode",
+			  "A mode has the wrong base or display caption");
+		Check(Mode->Model == std::string(Model) + "_siege_mode" && !Mode->Listed && !Mode->TypeCd &&
+				  Catalogue.Resources.Find(Mode->DefinitionPath)->Read() ==
+					  Bytes(Definition.begin(), Definition.end()),
+			  "Presenting a mode changed its native identity or data");
+		auto Category = Rules.Classify(*Mode, nullptr, &Catalogue);
+		auto List = DataSection::Parse(Catalogue.Resources.Find(Base->ListPath)->Read());
+		auto BaseCategory = Rules.Classify(*Base, List.Root.Child(Base->Model), &Catalogue);
+		Check(Category.Kind == BaseCategory.Kind && Category.HiddenByDefault == BaseCategory.HiddenByDefault,
+			  "A mode did not inherit the base vehicle's acquisition category");
+	}
+	auto Rental = Catalogue.ByName("sweden:S10_Strv_103_0_Series_FL_siege_mode");
+	for (auto Vehicle :
+		 {Rental, Catalogue.ByName("sweden:Missing_siege_mode"), Catalogue.ByName("sweden:Unknown_test")})
+	{
+		auto Category = Rules.Classify(*Vehicle, nullptr, &Catalogue);
+		Check(Category.Kind == "unavailable" && Category.MatchesFilter("unavailable"),
+			  "An unavailable definition is missing from the combined filter");
+		for (auto Filter : {"", "gold", "silver", "reward"})
+			Check(!Category.MatchesFilter(Filter), "An unavailable vehicle leaked into a normal filter");
+	}
+	auto Base = Catalogue.ByName("sweden:S11_Strv_103B");
+	auto Mode = Catalogue.ByName(Base->Name + "_siege_mode");
+	auto GoldMode = Catalogue.ByName("sweden:S22_Strv_S1_siege_mode");
+	Check(Rules.Classify(*GoldMode, nullptr, &Catalogue).MatchesFilter("gold"),
+		  "A gold vehicle mode did not inherit its base price category");
+	auto EditedList = DataSection::Parse(Catalogue.Resources.Find(Base->ListPath)->Read());
+	auto EditedMetadata = EditedList.Root.Child(Base->Model);
+	EditedMetadata->Child("price")->Children.push_back(Section{"gold", ""});
+	Check(Rules.Classify(*Mode, EditedMetadata, &Catalogue).MatchesFilter("gold"),
+		  "A mode did not follow its base vehicle's current edited metadata");
+	for (int Order : {0, 1, 2})
+	{
+		auto Rows = Catalogue.Search("");
+		std::map<std::string, size_t> TierReads;
+		Catalogue.SortForDisplay(Rows, Order,
+								 [&](auto const& Vehicle)
+								 {
+									 ++TierReads[Vehicle.Name];
+									 return Vehicle.Name == Base->Name ? 7 : Vehicle.Tier;
+								 });
+		if (!Order)
+			Check(TierReads.empty(), "Name sorting unnecessarily read vehicle metadata");
+		else
+			for (auto const& [Name, Reads] : TierReads)
+				Check(Reads == 1, "Tier sorting read the same family metadata more than once");
+		auto Parent = std::find(Rows.begin(), Rows.end(), size_t(Base - Catalogue.Vehicles.data()));
+		Check(Parent + 1 != Rows.end() && *(Parent + 1) == size_t(Mode - Catalogue.Vehicles.data()),
+			  "A mode did not stay immediately below its base when sorting");
+	}
 }
 void TestNativeDefaults()
 {
@@ -977,6 +1199,77 @@ void TestRunningGameGuard()
 	CloseHandle(Process.hProcess);
 	CloseHandle(Event);
 }
+void BenchmarkPerformance(FileSystem::path const& Game)
+{
+	YAML::Node Report;
+	auto Measure = [&](std::string const& Name, auto&& Action)
+	{
+		auto Started = std::chrono::steady_clock::now();
+		Action();
+		auto Milliseconds =
+			std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - Started).count();
+		Report[Name] = Milliseconds;
+		std::cout << Name << ": " << Milliseconds << " ms\n" << std::flush;
+	};
+	Catalog Catalogue;
+	Measure("resources", [&] { Catalogue.Resources.Scan(Game); });
+	Measure("catalogue", [&] { Catalogue.Rebuild(); });
+	std::unique_ptr<ParameterDefinitions> Rules;
+	Measure("definitions",
+			[&]
+			{
+				Rules = std::make_unique<ParameterDefinitions>(FileSystem::path(OHEDITOR_SOURCE_DIRECTORY) /
+															   "assets/Config/parameters.yaml");
+			});
+	VehicleWorkspace Workspace;
+	Measure("workspace", [&] { Workspace.Open(Catalogue, nullptr, {}, Output / "benchmark-overrides"); });
+	auto Metadata = [&](Vehicle const& Vehicle) -> Section const*
+	{
+		return Vehicle.ListPath.empty()
+				   ? nullptr
+				   : Workspace.Document(Vehicle.ListPath).Current.Root.Child(Vehicle.Model);
+	};
+	auto Tier = [&](Vehicle const& Vehicle)
+	{
+		auto Base = Catalogue.ModeBase(Vehicle);
+		auto const& Subject = Base ? *Base : Vehicle;
+		auto Entry = Metadata(Subject);
+		return Entry ? std::stoi(Entry->Text("level", std::to_string(Subject.Tier))) : Subject.Tier;
+	};
+	for (int Pass = 0; Pass < 3; ++Pass)
+		Measure("list_" + std::to_string(Pass),
+				[&]
+				{
+					auto Rows = Catalogue.Search("");
+					std::erase_if(
+						Rows,
+						[&](size_t Index)
+						{
+							auto const& Vehicle = Catalogue.Vehicles[Index];
+							auto Base = Catalogue.ModeBase(Vehicle);
+							return !Rules->Classify(Vehicle, Metadata(Base ? *Base : Vehicle), &Catalogue)
+										.MatchesFilter("");
+						});
+					Catalogue.SortForDisplay(Rows, 0, Tier);
+					Report["visible_vehicles"] = Rows.size();
+				});
+	for (int Pass = 0; Pass < 3; ++Pass)
+		Measure("switch_data_" + std::to_string(Pass),
+				[&]
+				{
+					for (auto Name : {"china:Ch19_121", "china:Ch23_112", "china:Ch11_110", "china:Ch19_121"})
+					{
+						auto Vehicle = Catalogue.ByName(Name);
+						Check(Vehicle != nullptr, "A benchmark vehicle is missing");
+						auto Parameters = Rules->Build(Workspace, *Vehicle, true);
+						Check(!Parameters.empty(), "A benchmark vehicle has no parameters");
+					}
+				});
+	Report["vehicles"] = Catalogue.Vehicles.size();
+	if (!GameRunning())
+		WriteYaml(Output / "performance.yaml", Report);
+	std::cout << "Benchmark output: " << PathUtf8(Output) << '\n';
+}
 void TestInstallation(FileSystem::path const& Game, FileSystem::path const& SavePath)
 {
 	Catalog Catalogue;
@@ -989,6 +1282,62 @@ void TestInstallation(FileSystem::path const& Game, FileSystem::path const& Save
 									 "assets/Config/parameters.yaml");
 	VehicleWorkspace Workspace;
 	Workspace.Open(Catalogue, &Defaults, {}, Output / "integration-overrides");
+	size_t Modes{};
+	for (auto const& Vehicle : Catalogue.Vehicles)
+		if (auto Base = Catalogue.ModeBase(Vehicle))
+		{
+			auto Metadata = Base->ListPath.empty()
+								? nullptr
+								: Workspace.Document(Base->ListPath).Current.Root.Child(Base->Model);
+			auto ParentCategory = Definitions.Classify(*Base, Metadata, &Catalogue);
+			auto ModeCategory = Definitions.Classify(Vehicle, Metadata, &Catalogue);
+			Check(Vehicle.DisplayName == Base->DisplayName + " Siege Mode" &&
+					  ModeCategory.Kind == ParentCategory.Kind &&
+					  ModeCategory.HiddenByDefault == ParentCategory.HiddenByDefault,
+				  "An installed mode has the wrong caption or acquisition category");
+			++Modes;
+		}
+	Check(Modes > 40, "Installed mode-definition coverage is unexpectedly small");
+	for (int Order : {0, 1, 2})
+	{
+		auto Rows = Catalogue.Search("");
+		Catalogue.SortForDisplay(Rows, Order);
+		for (size_t Index = 0; Index < Rows.size(); ++Index)
+			if (auto Base = Catalogue.ModeBase(Catalogue.Vehicles[Rows[Index]]))
+				Check(Index && &Catalogue.Vehicles[Rows[Index - 1]] == Base,
+					  "Sorting detached an installed mode from its base vehicle");
+	}
+	std::string NumericReport = "vehicle\tfield\tnative\tedited\n";
+	std::set<std::string> VerifiedNumbers;
+	for (auto Name : {"china:Ch03_WZ-111", "sweden:S11_Strv_103B", "usa:A01_T1_Cunningham"})
+	{
+		auto Sample = Catalogue.ByName(Name);
+		Check(Sample != nullptr, "An installed numeric-regression vehicle is missing");
+		for (auto const& Field : Workspace.Values(*Sample))
+			for (auto Suffix :
+				 {"/reloadTime", "/aimingTime", "/rotationSpeed", "/speedLimits/forward",
+				  "/speedLimits/backward", "/smplEnginePower", "/smplFwMaxSpeed", "/repairTime"})
+			{
+				if (!Field.DisplayPath.ends_with(Suffix) || VerifiedNumbers.contains(Suffix) ||
+					Field.ReadOnly ||
+					VehicleWorkspace::Resolve(Workspace.Document(Field.Document).Current, Field.Address)
+							.ValueType != 2)
+					continue;
+				auto Changed = std::stod(Field.Value) + 0.125;
+				auto Value = std::to_string(Changed);
+				Workspace.Edit(*Sample, Field.Document, Field.Address, Value);
+				auto Roundtrip = DataSection::Parse(Workspace.Document(Field.Document).Current.Serialize());
+				Check(std::stod(VehicleWorkspace::Resolve(Roundtrip, Field.Address).Value) == Changed,
+					  "A native whole-number parameter truncated a decimal edit");
+				NumericReport +=
+					Sample->Name + "\t" + Field.DisplayPath + "\t" + Field.Value + "\t" + Value + "\n";
+				VerifiedNumbers.insert(Suffix);
+			}
+	}
+	Check(VerifiedNumbers.contains("/reloadTime") && VerifiedNumbers.size() >= 5,
+		  "Native integer-to-decimal parameter coverage is incomplete");
+	WriteText(Output / "numeric-input-audit.tsv", NumericReport);
+	Workspace.DiscardPending();
 	YAML::Node Audit;
 	for (auto const& Vehicle : Catalogue.Vehicles)
 	{
@@ -1018,6 +1367,9 @@ void TestInstallation(FileSystem::path const& Game, FileSystem::path const& Save
 	Check(!Audit["czech:Cz21_Vz_60S"]["hidden"].as<bool>(), "The Vz. 60S base vehicle was hidden");
 	Check(Audit["uk:GB12_Conqueror_FL"]["availability"].as<std::string>() == "rental",
 		  "Conqueror FL was not classified as a rental");
+	Check(Audit["sweden:S10_Strv_103_0_Series_FL_siege_mode"]["hidden"].as<bool>() &&
+			  Audit["sweden:S10_Strv_103_0_Series_FL_siege_mode"]["kind"].as<std::string>() == "unavailable",
+		  "The Strv 1030 FL mode escaped the unavailable-vehicle filter");
 	VehicleFactory Factory(Catalogue);
 	size_t StockCount{}, FailureCount{};
 	std::string Failures, ParameterReport = "vehicle\tcategory\tmodule\tfield\tlabel\n";
@@ -1214,6 +1566,11 @@ int wmain(int ArgumentCount, wchar_t** Arguments)
 	{
 		Output = FileSystem::path(OHEDITOR_SOURCE_DIRECTORY) / "build/verification" / Wide(Timestamp());
 		FileSystem::create_directories(Output);
+		if (ArgumentCount == 3 && std::wstring_view(Arguments[1]) == L"--benchmark")
+		{
+			BenchmarkPerformance(Arguments[2]);
+			return 0;
+		}
 		if (ArgumentCount == 3 && std::wstring_view(Arguments[1]) == L"--verify-cache-copy")
 		{
 			FileSystem::path Source = Arguments[2];
@@ -1279,6 +1636,7 @@ int wmain(int ArgumentCount, wchar_t** Arguments)
 		}
 		TestFormats();
 		TestDefinitionStructure();
+		TestFilteredValues();
 		TestResourceIndexPaths();
 		TestWorkspace();
 		TestSharedComponentDependencies();
@@ -1290,6 +1648,8 @@ int wmain(int ArgumentCount, wchar_t** Arguments)
 		TestCacheRollbackAfterFinalizationFailure();
 		TestSevenVersusSevenRentals();
 		TestNativeMechanismValues();
+		TestNumericParameterTypes();
+		TestVehicleModesAndFilters();
 		TestParameterPresentation();
 		TestPendingLifetime();
 		TestBaselineImport();

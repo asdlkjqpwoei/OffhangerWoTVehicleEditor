@@ -4,6 +4,7 @@
 #include <regex>
 #include <set>
 #include <sstream>
+#include <cctype>
 namespace OffHanger
 {
 static std::string Normalize(std::string S)
@@ -315,6 +316,7 @@ void Catalog::Scan(FileSystem::path const& Game, std::function<void(std::string 
 void Catalog::Rebuild(std::function<void(std::string const&)> Progress)
 {
 	Vehicles.clear();
+	NameIndex.clear();
 	Diagnostics.clear();
 	Diagnostics = Resources.Diagnostics;
 	LoadTranslations();
@@ -420,8 +422,13 @@ void Catalog::Rebuild(std::function<void(std::string const&)> Progress)
 			continue;
 		try
 		{
-			auto Doc = DataSection::Parse(ResourceEntry.Read());
-			if (!Doc.Root.Child("hull") || !Doc.Root.Child("chassis"))
+			auto Shape = DataSection::ParseStructure(ResourceEntry.Read());
+			auto Has = [&](std::string_view Name)
+			{
+				return std::any_of(Shape.Children.begin(), Shape.Children.end(),
+								   [&](auto const& Child) { return Child.Name == Name; });
+			};
+			if (!Has("hull") || !Has("chassis"))
 				continue;
 			auto Model = Parts.back().substr(0, Parts.back().size() - 4), Nation = Parts[Parts.size() - 2];
 			if (Byname.contains(Nation + ":" + Model))
@@ -444,6 +451,10 @@ void Catalog::Rebuild(std::function<void(std::string const&)> Progress)
 			Diagnostics.push_back(ResourceEntry.Path + ": " + E.what());
 		}
 	}
+	// Mode definitions keep their native identity; only their list caption comes from the base vehicle.
+	for (auto& Vehicle : Vehicles)
+		if (auto Base = ModeBase(Vehicle))
+			Vehicle.DisplayName = Base->DisplayName + " Siege Mode";
 	std::map<uint32_t, std::vector<size_t>> Ids;
 	for (size_t I = 0; I < Vehicles.size(); ++I)
 		if (Vehicles[I].TypeCd && Vehicles[I].Enabled)
@@ -453,15 +464,81 @@ void Catalog::Rebuild(std::function<void(std::string const&)> Progress)
 			for (auto I : IdEntries)
 				Vehicles[I].Conflict = true;
 	std::sort(Vehicles.begin(), Vehicles.end(), [](auto const& A, auto const& B) { return A.Name < B.Name; });
+	NameIndex.reserve(Vehicles.size());
+	for (size_t Index = 0; Index < Vehicles.size(); ++Index)
+		NameIndex.emplace(Vehicles[Index].Name, Index);
 	if (Progress)
 		Progress("Vehicle catalogue ready");
 }
 Vehicle const* Catalog::ByName(std::string const& N) const
 {
+	if (auto Found = NameIndex.find(N);
+		Found != NameIndex.end() && Found->second < Vehicles.size() && Vehicles[Found->second].Name == N)
+		return &Vehicles[Found->second];
+	// Small synthetic catalogues and callers that directly edit Vehicles still work without a rebuild.
 	for (auto const& V : Vehicles)
 		if (V.Name == N)
 			return &V;
 	return nullptr;
+}
+Vehicle const* Catalog::ModeBase(Vehicle const& Vehicle) const
+{
+	constexpr std::string_view Suffix = "_siege_mode";
+	if (Vehicle.Model.size() < Suffix.size() || Vehicle.Name.size() <= Suffix.size())
+		return nullptr;
+	auto Ending = std::string_view(Vehicle.Model).substr(Vehicle.Model.size() - Suffix.size());
+	if (!std::equal(Ending.begin(), Ending.end(), Suffix.begin(),
+					[](unsigned char A, char B) { return std::tolower(A) == B; }))
+		return nullptr;
+	return ByName(Vehicle.Name.substr(0, Vehicle.Name.size() - Suffix.size()));
+}
+void Catalog::SortForDisplay(std::vector<size_t>& Rows, int Order,
+							 std::function<int(Vehicle const&)> const& Tier) const
+{
+	struct SortKey
+	{
+		size_t Index;
+		Vehicle const* Family;
+		bool Mode;
+		int Tier;
+	};
+	std::vector<SortKey> Keys;
+	Keys.reserve(Rows.size());
+	std::unordered_map<Vehicle const*, int> Tiers;
+	for (auto Index : Rows)
+	{
+		auto const& Vehicle = Vehicles[Index];
+		auto Base = ModeBase(Vehicle);
+		auto Family = Base ? Base : &Vehicle;
+		int Level{};
+		if (Order)
+		{
+			auto [Found, Inserted] = Tiers.try_emplace(Family, 0);
+			if (Inserted)
+				Found->second = Tier ? Tier(*Family) : Family->Tier;
+			Level = Found->second;
+		}
+		Keys.push_back({Index, Family, bool(Base), Level});
+	}
+	std::stable_sort(Keys.begin(), Keys.end(),
+					 [&](SortKey const& Left, SortKey const& Right)
+					 {
+						 auto const& A = Vehicles[Left.Index];
+						 auto const& B = Vehicles[Right.Index];
+						 auto const& FamilyA = *Left.Family;
+						 auto const& FamilyB = *Right.Family;
+						 if (Order && Left.Tier != Right.Tier)
+							 return Order == 1 ? Left.Tier < Right.Tier : Left.Tier > Right.Tier;
+						 if (FamilyA.DisplayName != FamilyB.DisplayName)
+							 return FamilyA.DisplayName < FamilyB.DisplayName;
+						 if (FamilyA.Name != FamilyB.Name)
+							 return FamilyA.Name < FamilyB.Name;
+						 if (Left.Mode != Right.Mode)
+							 return !Left.Mode;
+						 return A.Name < B.Name;
+					 });
+	for (size_t Index = 0; Index < Rows.size(); ++Index)
+		Rows[Index] = Keys[Index].Index;
 }
 Vehicle const* Catalog::ByCd(uint32_t Cd) const
 {

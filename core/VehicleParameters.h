@@ -22,11 +22,26 @@ struct VehicleCategory
 	std::string Kind;
 	bool HiddenByDefault{};
 	std::string Availability = "unverified", Source;
+	bool MatchesFilter(std::string_view Filter) const
+	{
+		return Filter.empty() ? !HiddenByDefault : Kind == Filter;
+	}
 };
 class ParameterDefinitions
 {
 	YAML::Node Definitions;
-	YAML::Node Availability;
+	struct AvailabilityRecord
+	{
+		std::string Status, Source;
+	};
+	struct TaxonomyRule
+	{
+		std::vector<std::string> Suffixes, Names, Tags, Prefixes;
+	};
+	std::unordered_map<std::string, AvailabilityRecord> Availability;
+	std::unordered_map<std::string, YAML::Node> FieldRules, MechanicRules, ModifierRules;
+	std::unordered_map<std::string, std::vector<YAML::Node>> FieldOverrides;
+	TaxonomyRule RentalRule, OtherRule;
 
   public:
 	explicit ParameterDefinitions(FileSystem::path const& Path);

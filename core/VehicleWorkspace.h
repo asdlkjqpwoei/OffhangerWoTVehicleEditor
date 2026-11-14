@@ -4,6 +4,7 @@
 #include "Defaults.h"
 #include "GameDataCache.h"
 #include <set>
+#include <unordered_set>
 
 namespace OffHanger
 {
@@ -56,14 +57,18 @@ class VehicleWorkspace
 	std::map<std::string, std::vector<DocumentScope>> Scopes;
 	std::map<std::string, std::set<std::string>> Users;
 	std::map<std::string, std::set<std::string>> Owners;
+	std::unordered_set<std::string> RealParameters;
 	uint64_t ChangeRevision{};
 	bool InBatch{}, ResetInProgress{}, ApplyInProgress{}, LegacyLedger{};
 	GameCacheResult LastCache;
 	void BuildScopes();
+	bool AcceptsReal(std::string const& Path, Section const& Node, NamedAddress const& Names) const;
 	void Persist() const;
 	void RestoreCache();
-	void ValidateValue(Section const& Node, NamedAddress const& Names, std::string const& Value) const;
-	static void ValidateStructure(DataSection const& Initial, DataSection const& Current);
+	Section ValidateValue(std::string const& Path, Section const& Initial, Section const& Node,
+						  NamedAddress const& Names, std::string const& Value) const;
+	void ValidateStructure(std::string const& Path, DataSection const& Initial,
+						   DataSection const& Current) const;
 	void Commit(std::function<void()> const& Command);
 	std::vector<std::pair<std::string, Bytes>> PendingFiles() const;
 
@@ -79,7 +84,8 @@ class VehicleWorkspace
 	VehicleDocument& Document(std::string const& Path);
 	VehicleDocument const& Get(std::string const& Path) const;
 	std::vector<DocumentScope> const& VehicleScopes(Vehicle const& Vehicle) const;
-	std::vector<VehicleValue> Values(Vehicle const& Vehicle);
+	using ValueFilter = std::function<bool(Section const&, std::string const&, DocumentScope const&)>;
+	std::vector<VehicleValue> Values(Vehicle const& Vehicle, ValueFilter const& Include = {});
 	std::vector<std::string> SharedUsers(DocumentScope const& Scope) const;
 	static Section& Resolve(DataSection& Document, NodeAddress const& Address);
 	static Section const& Resolve(DataSection const& Document, NodeAddress const& Address);

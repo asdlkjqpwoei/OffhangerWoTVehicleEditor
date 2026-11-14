@@ -64,6 +64,62 @@ std::optional<std::vector<double>> Numbers(std::string const& Text)
 		return {};
 	return Values;
 }
+std::string_view ComponentGroup(std::string_view Name)
+{
+	if (Name == "guns" || Name == "engines" || Name == "chassis" || Name == "radios" || Name == "fueltanks")
+		return Name;
+	if (Name == "shots")
+		return "shells";
+	if (Name == "turrets" ||
+		(Name.starts_with("turrets") && Name.substr(7).find_first_not_of("0123456789") == Name.npos))
+		return "turrets";
+	return {};
+}
+std::string NumericKey(std::string const& Resource, std::vector<std::string_view> const& Names)
+{
+	std::string Group = "vehicle";
+	size_t Begin{};
+	if (Resource.ends_with("/list.xml"))
+	{
+		Group = "metadata";
+		Begin = 1;
+	}
+	else if (Resource.find("/components/") != Resource.npos)
+	{
+		Group = Resource.substr(Resource.find_last_of('/') + 1);
+		Group.resize(Group.size() - 4);
+		Begin = !Names.empty() && Names.front() == "shared" ? 2 : 1;
+	}
+	// Inline and shared modules use the same parameter identity. Mechanic names and
+	// nested paths stay distinct, so an unrelated field with the same leaf name is not evidence.
+	for (size_t Index = Begin; Index + 1 < Names.size(); ++Index)
+	{
+		auto Name = Lower(std::string(Names[Index]));
+		if (auto Component = ComponentGroup(Name); !Component.empty())
+		{
+			Group = Component;
+			Begin = Index + 2;
+			++Index;
+		}
+	}
+	for (size_t Index = Begin; Index < Names.size(); ++Index)
+		Group += "/" + Lower(std::string(Names[Index]));
+	return Group;
+}
+std::string NumericKey(std::string const& Path, NamedAddress const& Names)
+{
+	std::vector<std::string_view> Views;
+	Views.reserve(Names.size());
+	for (auto const& Name : Names)
+		Views.push_back(Name.Name);
+	return NumericKey(Key(Path), Views);
+}
+bool IntegerLiteral(std::string const& Text)
+{
+	auto Number = Trim(Text);
+	auto Begin = Number.starts_with('+') || Number.starts_with('-') ? 1u : 0u;
+	return Number.size() > Begin && Number.find_first_not_of("0123456789", Begin) == Number.npos;
+}
 YAML::Node Encode(NamedAddress const& Names)
 {
 	YAML::Node Result(YAML::NodeType::Sequence);
@@ -153,8 +209,26 @@ bool VehicleWorkspace::IsReadOnly(Section const& Node)
 		   Node.Value.empty() || Value.ends_with(".model") || Value.ends_with(".havok") ||
 		   Name == "effects" || Name == "userstring" || Name == "shortuserstring" || Name == "icon";
 }
-void VehicleWorkspace::ValidateValue(Section const& Node, NamedAddress const& Names,
-									 std::string const& Value) const
+bool VehicleWorkspace::AcceptsReal(std::string const& Path, Section const& Node,
+								   NamedAddress const& Names) const
+{
+	auto Leaf = Lower(Node.Name);
+	if (Leaf == "level" || Leaf == "price" || Leaf == "maxhealth" || Leaf == "maxregenhealth" ||
+		Leaf == "maxammo" || Leaf == "count" || Node.Name.ends_with("Count"))
+		return false;
+	// Durations and firing rates remain continuous even in a client whose examples are all whole numbers.
+	static std::set<std::string> const Continuous = {
+		"reloadtime",		"reloadtimes",	  "autoreloadtimes",   "aimingtime",
+		"repairtime",		"rate",			  "intraclipreload",   "intraburstreload",
+		"chargetime",		"reloadlocktime", "ratetime",		   "aftershotdelay",
+		"switchontime",		"switchofftime",  "stunduration",	   "minstunduration",
+		"maxstunduration",	"duration",		  "dualgunchargetime", "dualgunreloadcooldown",
+		"dualgunswitchtime"};
+	return Continuous.contains(Leaf) || RealParameters.contains(NumericKey(Path, Names)) ||
+		   Node.ValueType == 3 || (Node.Value.find_first_of(".eE") != Node.Value.npos && Numbers(Node.Value));
+}
+Section VehicleWorkspace::ValidateValue(std::string const& Path, Section const& Initial, Section const& Node,
+										NamedAddress const& Names, std::string const& Value) const
 {
 	if (IsReadOnly(Node))
 		throw std::runtime_error("This field is structural or read-only");
@@ -164,6 +238,7 @@ void VehicleWorkspace::ValidateValue(Section const& Node, NamedAddress const& Na
 		Value != "0" && Value != "1")
 		throw std::runtime_error("Use true, false, zero or one for a boolean value");
 	auto OriginalNumbers = Numbers(Node.Value), EditedNumbers = Numbers(Value);
+	bool Real = AcceptsReal(Path, Initial, Names);
 	if (OriginalNumbers)
 	{
 		if (!EditedNumbers || OriginalNumbers->size() != EditedNumbers->size())
@@ -171,6 +246,14 @@ void VehicleWorkspace::ValidateValue(Section const& Node, NamedAddress const& Na
 		for (auto Number : *EditedNumbers)
 			if (!std::isfinite(Number) || std::abs(Number) > 1e12)
 				throw std::runtime_error("A finite numeric value is required");
+		if (!Real)
+		{
+			std::istringstream Components(Value);
+			std::string Component;
+			while (Components >> Component)
+				if (!IntegerLiteral(Component))
+					throw std::runtime_error("This parameter requires integer values");
+		}
 		auto Path = Lower(Display(Names));
 		auto Leaf = Lower(Node.Name);
 		bool Positive = Leaf == "reloadtime" || Leaf == "aimingtime" || Leaf == "maxhealth" ||
@@ -184,9 +267,9 @@ void VehicleWorkspace::ValidateValue(Section const& Node, NamedAddress const& Na
 		for (auto Number : *EditedNumbers)
 			if ((Positive && Number <= 0) || (Nonnegative && Number < 0))
 				throw std::runtime_error("Value is outside the safe range for this parameter");
-		if (Leaf == "level" && (EditedNumbers->at(0) < 1 || EditedNumbers->at(0) > 20 ||
+		if (Leaf == "level" && (EditedNumbers->at(0) < 1 || EditedNumbers->at(0) > 11 ||
 								std::floor(EditedNumbers->at(0)) != EditedNumbers->at(0)))
-			throw std::runtime_error("Vehicle tier must be an integer from 1 to 20");
+			throw std::runtime_error("Vehicle tier must be an integer from 1 to 11");
 		if ((Leaf == "fireprobability" || Leaf == "firestartingchance" || Leaf == "firepenalty" ||
 			 Leaf == "guaranteedstunduration" || Leaf == "damagedurationcoeff" ||
 			 Leaf == "guaranteedstuneffect" || Leaf == "damageeffectcoeff" || Leaf == "boostfraction" ||
@@ -201,7 +284,11 @@ void VehicleWorkspace::ValidateValue(Section const& Node, NamedAddress const& Na
 				throw std::runtime_error("Native magazine count must be an integer from 1 to 120");
 	}
 	auto Checked = Node;
+	Checked.ValueType = Initial.ValueType;
+	if (Real && OriginalNumbers && Checked.ValueType == 2 && !IntegerLiteral(Value))
+		Checked.ValueType = 1; // Packed XML also stores native decimal scalars as numeric text.
 	Checked.Set(Value);
+	return Checked;
 }
 void VehicleWorkspace::Open(Catalog const& Input, DefaultResources const* NativeDefaults,
 							FileSystem::path Cache, FileSystem::path Overrides)
@@ -224,6 +311,7 @@ void VehicleWorkspace::Open(Catalog const& Input, DefaultResources const* Native
 	LastCache = {};
 	Scopes.clear();
 	Users.clear();
+	RealParameters.clear();
 	BuildScopes();
 	if (!CacheFile.empty() && FileSystem::is_regular_file(CacheFile))
 	{
@@ -275,7 +363,41 @@ void VehicleWorkspace::BuildScopes()
 	{
 		auto ResourceKey = Key(Path);
 		if (!Tables.contains(ResourceKey))
-			Tables.emplace(ResourceKey, DataSection::ParseStructure(Catalogue->Resources.Find(Path)->Read()));
+		{
+			auto Shape = DataSection::ParseStructure(Catalogue->Resources.Find(Path)->Read());
+			bool ComponentTable = ResourceKey.find("/components/") != ResourceKey.npos;
+			auto Group = NumericKey(ResourceKey, std::vector<std::string_view>{});
+			// Reuse the canonical prefix down each branch instead of rebuilding it from the root
+			// (and revalidating the same resource path) for every numeric leaf.
+			std::function<void(SectionStructure const&, std::string const&, size_t, bool)> IndexNumbers =
+				[&](SectionStructure const& Node, std::string const& Prefix, size_t Skip, bool TableRoot)
+			{
+				for (auto const& Child : Node.Children)
+				{
+					if (!Child.RealNumber && Child.Children.empty())
+						continue;
+					auto Name = Lower(Child.Name);
+					auto ValueKey = Skip ? Prefix : Prefix + "/" + Name;
+					if (Child.RealNumber)
+						RealParameters.insert(ValueKey);
+					if (!Skip)
+						if (auto Component = ComponentGroup(Name); !Component.empty())
+						{
+							IndexNumbers(Child, std::string(Component), 1, false);
+							continue;
+						}
+					auto NextSkip = Skip ? Skip - 1 : 0;
+					if (TableRoot && Name == "shared")
+						NextSkip = 1;
+					IndexNumbers(Child, ValueKey, NextSkip, false);
+				}
+			};
+			if (Shape.RealNumber)
+				RealParameters.insert(Group);
+			IndexNumbers(Shape, Group, ComponentTable || ResourceKey.ends_with("/list.xml") ? 1 : 0,
+						 ComponentTable);
+			Tables.emplace(ResourceKey, std::move(Shape));
+		}
 		return Tables.at(ResourceKey);
 	};
 	for (auto const& Vehicle : Catalogue->Vehicles)
@@ -368,27 +490,36 @@ std::vector<std::string> VehicleWorkspace::SharedUsers(DocumentScope const& Scop
 		return {};
 	return {Found->second.begin(), Found->second.end()};
 }
-std::vector<VehicleValue> VehicleWorkspace::Values(Vehicle const& Vehicle)
+std::vector<VehicleValue> VehicleWorkspace::Values(Vehicle const& Vehicle, ValueFilter const& Include)
 {
 	std::vector<VehicleValue> Result;
 	for (auto const& Scope : VehicleScopes(Vehicle))
 	{
 		auto& Data = Document(Scope.Path).Current;
 		auto Shared = SharedUsers(Scope);
-		std::function<void(NodeAddress)> Walk = [&](NodeAddress Address)
+		auto Address = Scope.Root;
+		std::function<void(Section const&, std::string const&)> Walk =
+			[&](Section const& Node, std::string const& Path)
 		{
-			auto const& Node = Resolve(Data, Address);
+			if (Include && !Include(Node, Path, Scope))
+				return;
 			if (!Node.Value.empty() || Node.Children.empty())
-				Result.push_back({Scope.Path, Display(Names(Data, Address)), Node.Value, Scope.Component,
-								  Scope.Module, Address, IsReadOnly(Node), Shared});
+				Result.push_back({Scope.Path, Path, Node.Value, Scope.Component, Scope.Module, Address,
+								  IsReadOnly(Node), Shared});
+			std::map<std::string_view, size_t> Ordinals;
 			for (size_t Index = 0; Index < Node.Children.size(); ++Index)
 			{
-				auto Child = Address;
-				Child.push_back(Index);
-				Walk(std::move(Child));
+				auto const& Child = Node.Children[Index];
+				auto Ordinal = Ordinals[Child.Name]++;
+				auto ChildPath = Path + "/" + Child.Name;
+				if (Ordinal)
+					ChildPath += "[" + std::to_string(Ordinal + 1) + "]";
+				Address.push_back(Index);
+				Walk(Child, ChildPath);
+				Address.pop_back();
 			}
 		};
-		Walk(Scope.Root);
+		Walk(Resolve(Data, Scope.Root), Display(Names(Data, Scope.Root)));
 	}
 	return Result;
 }
@@ -411,7 +542,7 @@ void VehicleWorkspace::Commit(std::function<void()> const& Command)
 		for (auto const& [Path, Before] : EditPreimages)
 		{
 			auto const& Data = Documents.at(Path);
-			ValidateStructure(Data.Initial, Data.Current);
+			ValidateStructure(Path, Data.Initial, Data.Current);
 			DataSection::Parse(Data.Current.Serialize());
 		}
 		// Pending edits live only in memory and are discarded on exit.
@@ -429,18 +560,24 @@ void VehicleWorkspace::Commit(std::function<void()> const& Command)
 		throw;
 	}
 }
-void VehicleWorkspace::ValidateStructure(DataSection const& Initial, DataSection const& Current)
+void VehicleWorkspace::ValidateStructure(std::string const& Path, DataSection const& Initial,
+										 DataSection const& Current) const
 {
 	if (Initial.Packed != Current.Packed)
 		throw std::runtime_error("Changing XML storage format is not allowed");
+	NamedAddress Names;
 	std::function<void(Section const&, Section const&)> Compare =
 		[&](Section const& Before, Section const& After)
 	{
+		bool NumericText = Before.ValueType == 2 && After.ValueType == 1 &&
+						   AcceptsReal(Path, Before, Names) && Numbers(Before.Value) && Numbers(After.Value);
 		if (Before.Name != After.Name || Before.Attributes != After.Attributes ||
-			Before.ValueType != After.ValueType)
+			(Before.ValueType != After.ValueType && !NumericText))
 			throw std::runtime_error("XML identity, type or attributes changed");
 		if (IsReadOnly(Before) && Before.Value != After.Value)
 			throw std::runtime_error("A structural XML value changed");
+		if (!IsReadOnly(Before) && (Before.Value != After.Value || NumericText))
+			(void)ValidateValue(Path, Before, Before, Names, After.Value);
 		std::vector<Section const*> BeforeChildren, AfterChildren;
 		auto Collect = [](Section const& Parent, auto& Children)
 		{
@@ -462,8 +599,14 @@ void VehicleWorkspace::ValidateStructure(DataSection const& Initial, DataSection
 		Collect(After, AfterChildren);
 		if (BeforeChildren.size() != AfterChildren.size())
 			throw std::runtime_error("Adding or removing XML nodes is not allowed");
+		std::map<std::string, size_t> Ordinals;
 		for (size_t Index = 0; Index < BeforeChildren.size(); ++Index)
+		{
+			auto const& Name = BeforeChildren[Index]->Name;
+			Names.push_back({Name, Ordinals[Name]++});
 			Compare(*BeforeChildren[Index], *AfterChildren[Index]);
+			Names.pop_back();
+		}
 		if (auto Health = After.Child("maxHealth"))
 			if (auto Regenerated = After.Child("maxRegenHealth"))
 			{
@@ -494,11 +637,13 @@ void VehicleWorkspace::Edit(Vehicle const& Vehicle, std::string const& Path, Nod
 	if (!Allowed)
 		throw std::runtime_error("This field does not belong to the selected vehicle");
 	auto& Data = Document(Path);
-	ValidateValue(Resolve(Data.Current, Address), Names(Data.Current, Address), Value);
+	auto AddressNames = Names(Data.Current, Address);
+	auto Changed = ValidateValue(Path, Resolve(Data.Initial, Locate(Data.Initial, AddressNames)),
+								 Resolve(Data.Current, Address), AddressNames, Value);
 	Commit(
 		[&]
 		{
-			Resolve(Document(Path).Current, Address).Set(Value);
+			Resolve(Document(Path).Current, Address) = std::move(Changed);
 			Owners[Key(Path)].insert(Vehicle.Name);
 			for (auto const& Scope : VehicleScopes(Vehicle))
 				if (Key(Scope.Path) == Key(Path) && Prefix(Scope.Root, Address))
@@ -580,7 +725,9 @@ void VehicleWorkspace::ResetVehicle(Vehicle const& Vehicle)
 				// A schema/version-dependent vector must keep the active client's shape.
 				try
 				{
-					ValidateValue(Resolve(Data.Current, Field.Address), AddressNames, Value);
+					(void)ValidateValue(Field.Document,
+										Resolve(Data.Initial, Locate(Data.Initial, AddressNames)),
+										Resolve(Data.Current, Field.Address), AddressNames, Value);
 				}
 				catch (std::exception const&)
 				{
@@ -730,7 +877,7 @@ void VehicleWorkspace::RestoreCache()
 			}
 		}
 		Data.Current = Data.Loaded;
-		ValidateStructure(Data.Initial, Data.Current);
+		ValidateStructure(Path, Data.Initial, Data.Current);
 		for (auto Owner : Item["vehicles"])
 			Owners[ResourceKey].insert(Owner.as<std::string>());
 	}
@@ -771,7 +918,7 @@ void VehicleWorkspace::SaveToGame(Progress const& Report)
 	for (auto const& [Path, Data] : Pending)
 	{
 		auto const& DocumentData = Get(Path);
-		ValidateStructure(DocumentData.Initial, DocumentData.Current);
+		ValidateStructure(Path, DocumentData.Initial, DocumentData.Current);
 		if (auto Resource = Catalogue->Resources.Find(Path); Resource && !Applied.contains(Key(Path)))
 			if (Crc32(Resource->Read()) != DocumentData.LoadedCrc)
 				throw std::runtime_error("Loaded resource changed before saving: " + Path);

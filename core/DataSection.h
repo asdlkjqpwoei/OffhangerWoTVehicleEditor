@@ -25,6 +25,7 @@ struct SectionStructure
 	std::string Name;
 	std::vector<SectionStructure> Children;
 	int ValueType = 1;
+	bool RealNumber = false;
 };
 class DataSection
 {

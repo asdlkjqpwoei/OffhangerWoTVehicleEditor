@@ -1,6 +1,8 @@
 #include "DataSection.h"
 #include "pugixml.hpp"
 #include <cmath>
+#include <charconv>
+#include <cctype>
 #include <cstring>
 #include <iomanip>
 #include <limits>
@@ -61,20 +63,47 @@ void Section::Set(std::string Text)
 	Value = std::move(Text);
 	Edited = true;
 }
+static bool RealNumericText(std::string_view Text)
+{
+	if (Text.find_first_of(".eE") == Text.npos)
+		return false;
+	bool Found = false;
+	while (!Text.empty())
+	{
+		while (!Text.empty() && std::isspace(static_cast<unsigned char>(Text.front())))
+			Text.remove_prefix(1);
+		if (Text.empty())
+			break;
+		if (Text.front() == '+')
+		{
+			Text.remove_prefix(1);
+			if (Text.empty() || Text.front() == '+' || Text.front() == '-')
+				return false;
+		}
+		double Value;
+		auto Parsed = std::from_chars(Text.data(), Text.data() + Text.size(), Value);
+		if (Parsed.ec != std::errc{} || !std::isfinite(Value) ||
+			(Parsed.ptr != Text.data() + Text.size() &&
+			 !std::isspace(static_cast<unsigned char>(*Parsed.ptr))))
+			return false;
+		Found = true;
+		Text.remove_prefix(size_t(Parsed.ptr - Text.data()));
+	}
+	return Found;
+}
 template <class Node> static Node FromXml(pugi::xml_node N, unsigned Depth = 0)
 {
 	if (Depth > 128)
 		throw std::runtime_error("XML nesting exceeds limit");
 	Node S;
 	S.Name = N.name();
-	std::conditional_t<std::is_same_v<Node, Section>, std::string, std::string_view> Value;
+	std::string Value;
 	for (auto C : N.children())
 	{
 		if (C.type() == pugi::node_element)
 			S.Children.push_back(FromXml<Node>(C, Depth + 1));
-		else if constexpr (std::is_same_v<Node, Section>)
-			if (C.type() == pugi::node_pcdata || C.type() == pugi::node_cdata)
-				Value += C.value();
+		else if (C.type() == pugi::node_pcdata || C.type() == pugi::node_cdata)
+			Value += C.value();
 	}
 	if constexpr (std::is_same_v<Node, Section>)
 	{
@@ -82,6 +111,8 @@ template <class Node> static Node FromXml(pugi::xml_node N, unsigned Depth = 0)
 		for (auto A : N.attributes())
 			S.Attributes.emplace_back(A.name(), A.value());
 	}
+	else
+		S.RealNumber = RealNumericText(Value);
 	return S;
 }
 static void ToXml(Section const& S, pugi::xml_node P)
@@ -115,6 +146,23 @@ template <class Node> class PackedReader
 			throw std::runtime_error("Invalid packed float");
 		if (Type > 6)
 			throw std::runtime_error("Unsupported packed XML value type: " + std::to_string(Type));
+		if constexpr (std::is_same_v<Node, SectionStructure>)
+		{
+			if (Type == 1)
+				S.RealNumber = RealNumericText(
+					std::string_view(reinterpret_cast<char const*>(Data.data() + Begin), Count));
+			else if (Type == 3 && Count)
+			{
+				S.RealNumber = true;
+				for (size_t Offset = Begin; Offset < End; Offset += 4)
+				{
+					auto Bits = U32(Data, Offset);
+					float Value;
+					std::memcpy(&Value, &Bits, 4);
+					S.RealNumber &= std::isfinite(Value);
+				}
+			}
+		}
 		if constexpr (std::is_same_v<Node, Section>)
 		{
 			S.Original.assign(Data.begin() + Begin, Data.begin() + End);

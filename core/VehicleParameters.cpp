@@ -44,7 +44,48 @@ ParameterDefinitions::ParameterDefinitions(FileSystem::path const& Path) : Defin
 		throw std::runtime_error("Unsupported parameter definitions YAML");
 	auto Evidence = Path.parent_path() / L"vehicles.yaml";
 	if (FileSystem::is_regular_file(Evidence))
-		Availability = ReadYaml(Evidence, 2 * 1024 * 1024);
+	{
+		auto Data = ReadYaml(Evidence, 2 * 1024 * 1024);
+		std::unordered_map<std::string, std::string> Sources;
+		if (auto Entries = Data["sources"]; Entries.IsMap())
+			for (auto Entry : Entries)
+				Sources.emplace(Entry.first.as<std::string>(), Entry.second.as<std::string>());
+		if (auto Entries = Data["vehicles"]; Entries.IsMap())
+			for (auto Entry : Entries)
+			{
+				auto Source = Sources.find(Entry.second["source"].as<std::string>(""));
+				Availability.emplace(Entry.first.as<std::string>(),
+									 AvailabilityRecord{Entry.second["status"].as<std::string>("unverified"),
+														Source != Sources.end() ? Source->second : ""});
+			}
+	}
+	auto Index = [](YAML::Node const& Source, auto& Target)
+	{
+		if (Source.IsMap())
+			for (auto Entry : Source)
+				Target.emplace(Entry.first.template as<std::string>(), Entry.second);
+	};
+	Index(Definitions["fields"], FieldRules);
+	Index(Definitions["mechanic_fields"], MechanicRules);
+	for (auto Entry : Definitions["mechanic_modifiers"])
+		ModifierRules.emplace(Lower(Entry.first.as<std::string>()), Entry.second);
+	for (auto Rule : Definitions["field_overrides"])
+		FieldOverrides[Rule["field"].as<std::string>()].push_back(Rule);
+	auto CompileTaxonomy = [&](char const* Name, TaxonomyRule& Rule)
+	{
+		auto Node = Definitions["taxonomy"][Name];
+		auto Copy = [&](char const* Key, std::vector<std::string>& Values)
+		{
+			for (auto Value : Node[Key])
+				Values.push_back(Value.as<std::string>());
+		};
+		Copy("name_suffixes", Rule.Suffixes);
+		Copy("name_contains", Rule.Names);
+		Copy("tag_contains", Rule.Tags);
+		Copy("display_prefixes", Rule.Prefixes);
+	};
+	CompileTaxonomy("rental", RentalRule);
+	CompileTaxonomy("other", OtherRule);
 }
 std::string ParameterDefinitions::Category(VehicleValue const& Field) const
 {
@@ -106,26 +147,32 @@ std::vector<ParameterInfo> ParameterDefinitions::Build(VehicleWorkspace& Workspa
 													   bool Chinese) const
 {
 	std::vector<ParameterInfo> Result;
-	for (auto const& Field : Workspace.Values(Vehicle))
+	auto Include = [&](Section const& Node, std::string const& DisplayPath, DocumentScope const& Scope)
+	{
+		if (Scope.Component == "radios" || Scope.Component == "fuelTanks")
+			return false;
+		auto Path = Lower(DisplayPath);
+		for (auto Token : {"/models", "/hittester", "/customization", "/traces", "/spline", "/exhaust",
+						   "/swinging", "/emblem", "/armor/", "/turretpositions", "/physicaltracks",
+						   "/tracknodes", "/tracks/", "/wheels", "/groundnodes", "/aodecals", "/camouflage/"})
+			if (Path.find(Token) != Path.npos)
+				return false;
+		return !Node.Children.empty() || FieldRules.contains(Node.Name) ||
+			   Path.find("/mechanics/") != Path.npos;
+	};
+	for (auto const& Field : Workspace.Values(Vehicle, Include))
 	{
 		if (Field.ReadOnly)
 			continue;
 		auto Path = Lower(Field.DisplayPath);
-		bool Excluded = false;
-		for (auto Token : {"/models", "/hittester", "/customization", "/traces", "/spline", "/exhaust",
-						   "/swinging", "/emblem", "/armor/", "/turretpositions", "/physicaltracks",
-						   "/tracknodes", "/tracks/", "/wheels", "/groundnodes", "/aodecals", "/camouflage/"})
-			Excluded |= Path.find(Token) != Path.npos;
-		if (Excluded || Field.Component == "radios" || Field.Component == "fuelTanks")
-			continue;
 		auto const& Node =
 			VehicleWorkspace::Resolve(Workspace.Document(Field.Document).Current, Field.Address);
 		YAML::Node Rule(YAML::NodeType::Undefined);
-		if (auto StandardRule = Definitions["fields"][Node.Name])
-			Rule.reset(StandardRule);
+		if (auto Found = FieldRules.find(Node.Name); Found != FieldRules.end())
+			Rule.reset(Found->second);
 		if (Path.find("/mechanics/") != Path.npos)
-			if (auto MechanicRule = Definitions["mechanic_fields"][Node.Name])
-				Rule.reset(MechanicRule);
+			if (auto Found = MechanicRules.find(Node.Name); Found != MechanicRules.end())
+				Rule.reset(Found->second);
 		if (!Rule)
 		{
 			if (Path.find("/mechanics/") == Path.npos)
@@ -154,28 +201,26 @@ std::vector<ParameterInfo> ParameterDefinitions::Build(VehicleWorkspace& Workspa
 			ModifierAttribute = Parent.Text("name");
 			auto Attribute = Lower(ModifierAttribute);
 			Operation = Parent.Name;
-			for (auto Entry : Definitions["mechanic_modifiers"])
-				if (Attribute == Lower(Entry.first.as<std::string>()))
-				{
-					Modifier.reset(Entry.second);
-					CategoryName = Modifier["category"].as<std::string>();
-					break;
-				}
+			if (auto Found = ModifierRules.find(Attribute); Found != ModifierRules.end())
+			{
+				Modifier.reset(Found->second);
+				CategoryName = Modifier["category"].as<std::string>();
+			}
 		}
-		for (auto Override : Definitions["field_overrides"])
-		{
-			if (Override["field"].as<std::string>() != Node.Name)
-				continue;
-			if (Override["category"] && Override["category"].as<std::string>() != CategoryName)
-				continue;
-			if (Override["suffix"] && !Field.DisplayPath.ends_with(Override["suffix"].as<std::string>()))
-				continue;
-			if (Override["contains"] &&
-				Field.DisplayPath.find(Override["contains"].as<std::string>()) == std::string::npos)
-				continue;
-			Rule.reset(Override);
-			break;
-		}
+		auto Overrides = FieldOverrides.find(Node.Name);
+		if (Overrides != FieldOverrides.end())
+			for (auto Override : Overrides->second)
+			{
+				if (Override["category"] && Override["category"].as<std::string>() != CategoryName)
+					continue;
+				if (Override["suffix"] && !Field.DisplayPath.ends_with(Override["suffix"].as<std::string>()))
+					continue;
+				if (Override["contains"] &&
+					Field.DisplayPath.find(Override["contains"].as<std::string>()) == std::string::npos)
+					continue;
+				Rule.reset(Override);
+				break;
+			}
 		auto Language = Chinese ? "zh" : "en";
 		auto Label = Rule && Rule[Language] ? Rule[Language].as<std::string>() : Node.Name;
 		auto Help = Rule && Rule[Chinese ? "help_zh" : "help_en"]
@@ -205,7 +250,7 @@ std::vector<ParameterInfo> ParameterDefinitions::Build(VehicleWorkspace& Workspa
 				DisplayField.Module = Group ? Group[Language].as<std::string>() : Names[Index + 1].Name;
 			}
 		}
-		ParameterInfo Info{DisplayField, CategoryName, Label, Help};
+		ParameterInfo Info{std::move(DisplayField), CategoryName, Label, Help};
 		if (Node.Name == "rate" && (Path.find("/clip/") != Path.npos || Path.find("/burst/") != Path.npos))
 		{
 			Info.Transform = ParameterTransform::ShotInterval;
@@ -282,38 +327,45 @@ std::vector<ParameterInfo> ParameterDefinitions::Build(VehicleWorkspace& Workspa
 VehicleCategory ParameterDefinitions::Classify(Vehicle const& Vehicle, Section const* Metadata,
 											   Catalog const* Catalogue) const
 {
+	if (auto Base = Catalogue ? Catalogue->ModeBase(Vehicle) : nullptr)
+	{
+		if (Metadata && Metadata->Name == Base->Model)
+			return Classify(*Base, Metadata, Catalogue);
+		if (auto Resource = Catalogue->Resources.Find(Base->ListPath))
+		{
+			auto List = DataSection::Parse(Resource->Read());
+			return Classify(*Base, List.Root.Child(Base->Model), Catalogue);
+		}
+		return Classify(*Base, nullptr, Catalogue);
+	}
 	auto Name = Lower(Vehicle.Model),
 		 Tags = Lower(Metadata ? Metadata->Text("tags", Vehicle.Tags) : Vehicle.Tags);
 	auto DisplayName = Lower(Vehicle.DisplayName);
 	if (Lower(Vehicle.Name).find("7x7") != std::string::npos || Name.find("7x7") != Name.npos ||
 		DisplayName.find("7x7") != DisplayName.npos)
-		return {"rental", true, "rental", "7v7"};
-	auto Matches = [&](char const* Kind)
+		return {"unavailable", true, "rental", "7v7"};
+	if (!Vehicle.Listed || !Vehicle.Enabled || Vehicle.Conflict || Name.ends_with("_siege_mode"))
+		return {"unavailable", true, "copy", ""};
+	auto Matches = [&](TaxonomyRule const& Rule)
 	{
-		auto Rule = Definitions["taxonomy"][Kind];
-		for (auto Token : Rule["name_suffixes"])
-			if (Name.ends_with(Token.as<std::string>()))
+		for (auto const& Token : Rule.Suffixes)
+			if (Name.ends_with(Token))
 				return true;
-		for (auto Token : Rule["name_contains"])
-			if (Name.find(Token.as<std::string>()) != Name.npos)
+		for (auto const& Token : Rule.Names)
+			if (Name.find(Token) != Name.npos)
 				return true;
-		for (auto Token : Rule["tag_contains"])
-			if (Tags.find(Token.as<std::string>()) != Tags.npos)
+		for (auto const& Token : Rule.Tags)
+			if (Tags.find(Token) != Tags.npos)
 				return true;
-		for (auto Token : Rule["display_prefixes"])
-			if (DisplayName.starts_with(Token.as<std::string>()))
+		for (auto const& Token : Rule.Prefixes)
+			if (DisplayName.starts_with(Token))
 				return true;
 		return false;
 	};
-	YAML::Node Evidence(YAML::NodeType::Undefined);
-	if (Availability.IsMap())
-		if (auto Vehicles = Availability["vehicles"]; Vehicles.IsMap())
-			if (auto Record = Vehicles[Vehicle.Name])
-				Evidence.reset(Record);
-	auto Status = Evidence ? Evidence["status"].as<std::string>("unverified") : "unverified";
-	auto SourceKey = Evidence ? Evidence["source"].as<std::string>("") : "";
-	auto Source = SourceKey.empty() ? "" : Availability["sources"][SourceKey].as<std::string>("");
-	bool Rental = Matches("rental"), Other = Matches("other");
+	auto Evidence = Availability.find(Vehicle.Name);
+	auto Status = Evidence != Availability.end() ? Evidence->second.Status : "unverified";
+	auto Source = Evidence != Availability.end() ? Evidence->second.Source : "";
+	bool Rental = Matches(RentalRule), Other = Matches(OtherRule);
 	if (Catalogue && Name.ends_with("_fl"))
 	{
 		auto Base = Vehicle.Name.substr(0, Vehicle.Name.size() - 3);
@@ -322,9 +374,9 @@ VehicleCategory ParameterDefinitions::Classify(Vehicle const& Vehicle, Section c
 	if (Status == "available" || Status == "base_variant")
 		Rental = Other = false;
 	if (Status == "rental" || (Status == "unverified" && Rental))
-		return {"rental", true, "rental", Source};
+		return {"unavailable", true, "rental", Source};
 	if (Status == "test" || Status == "copy" || (Status == "unverified" && Other))
-		return {"other", true, Status == "test" ? "test" : "copy", Source};
+		return {"unavailable", true, Status == "test" ? "test" : "copy", Source};
 	bool Premium = Tags.find("premium") != Tags.npos;
 	bool Reward = Tags.find("special") != Tags.npos || Tags.find("reward") != Tags.npos;
 	auto Price = Metadata ? Metadata->Child("price") : nullptr;

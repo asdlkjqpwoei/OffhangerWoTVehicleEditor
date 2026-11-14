@@ -60,6 +60,7 @@ class EditorWindow : public std::enable_shared_from_this<EditorWindow>
 	Controls::ListView VehicleList{nullptr};
 	Controls::TextBlock VehicleTitle{nullptr};
 	std::vector<size_t> VehicleRows;
+	std::vector<winrt::hstring> VehicleLabels;
 	struct XmlPending
 	{
 		std::string Vehicle;
@@ -124,7 +125,6 @@ class EditorWindow : public std::enable_shared_from_this<EditorWindow>
 	IAsyncAction ScanGame();
 	Controls::Grid BuildVehiclePage();
 	void RefreshVehicles();
-	int CurrentTier(Vehicle const& Vehicle);
 	void SelectVehicle();
 	void ActivateVehicleTab(int Index);
 	Controls::Grid BuildParameterPage();

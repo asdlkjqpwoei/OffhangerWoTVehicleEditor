@@ -1,6 +1,7 @@
 #pragma once
 #include "Archive.h"
 #include "DataSection.h"
+#include <unordered_map>
 namespace OffHanger
 {
 struct Resource
@@ -47,14 +48,18 @@ class Catalog
 	void Scan(FileSystem::path const& Game, std::function<void(std::string const&)> Progress = {});
 	void Rebuild(std::function<void(std::string const&)> Progress = {});
 	Vehicle const* ByName(std::string const& Name) const;
+	Vehicle const* ModeBase(Vehicle const& Vehicle) const;
 	Vehicle const* ByCd(uint32_t Cd) const;
 	std::vector<size_t> Search(std::string const& Query, int Origin = 0) const;
+	void SortForDisplay(std::vector<size_t>& Rows, int Order = 0,
+						std::function<int(Vehicle const&)> const& Tier = {}) const;
 	std::vector<std::pair<std::string, std::string>> Documents(Vehicle const& Vehicle) const;
 	DataSection LoadDefinition(Vehicle const& Vehicle) const;
 	Bytes StockDescriptor(Vehicle const& Vehicle) const;
 	std::string Localization(std::string Key) const;
 
   private:
+	std::unordered_map<std::string, size_t> NameIndex;
 	std::map<std::string, std::map<std::string, std::string>> Translations;
 	void LoadTranslations();
 };

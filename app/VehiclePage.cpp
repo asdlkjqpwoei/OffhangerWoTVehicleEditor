@@ -3,19 +3,6 @@ namespace OffHanger::Ui
 {
 using namespace winrt;
 using namespace Controls;
-int EditorWindow::CurrentTier(Vehicle const& Vehicle)
-{
-	if (!Vehicle.ListPath.empty())
-		if (auto Entry = VehicleData.Document(Vehicle.ListPath).Current.Root.Child(Vehicle.Model))
-			try
-			{
-				return std::stoi(Entry->Text("level", std::to_string(Vehicle.Tier)));
-			}
-			catch (std::exception const&)
-			{
-			}
-	return Vehicle.Tier;
-}
 Grid EditorWindow::BuildVehiclePage()
 {
 	auto Timing = Performance.Measure("Vehicle.BuildPage");
@@ -55,7 +42,7 @@ Grid EditorWindow::BuildVehiclePage()
 	VehicleNation = Combo({Tr("Filter.AllNations"), L"ussr", L"germany", L"usa", L"china", L"france", L"uk",
 						   L"japan", L"czech", L"sweden", L"poland", L"italy"});
 	std::vector<hstring> Tiers{Tr("Filter.AllTiers")};
-	for (int Tier = 1; Tier <= 20; ++Tier)
+	for (int Tier = 1; Tier <= 11; ++Tier)
 		Tiers.push_back(HString(std::to_string(Tier)));
 	VehicleTier = Combo(Tiers);
 	FirstFilters.Children().Append(VehicleNation);
@@ -66,8 +53,8 @@ Grid EditorWindow::BuildVehiclePage()
 	auto SecondFilters = Columns({Star(), Star()});
 	VehicleClass = Combo({Tr("Filter.AllClasses"), Tr("Filter.Light"), Tr("Filter.Medium"),
 						  Tr("Filter.Heavy"), Tr("Filter.Td"), Tr("Filter.Spg")});
-	VehicleKind = Combo({Tr("Filter.Regular"), Tr("Filter.All"), Tr("Filter.Gold"), Tr("Filter.Silver"),
-						 Tr("Filter.Reward"), Tr("Filter.Rental"), Tr("Filter.Other")});
+	VehicleKind = Combo({Tr("Filter.Regular"), Tr("Filter.Gold"), Tr("Filter.Silver"), Tr("Filter.Reward"),
+						 Tr("Filter.Unavailable")});
 	SecondFilters.Children().Append(VehicleClass);
 	Grid::SetColumn(VehicleKind, 1);
 	SecondFilters.Children().Append(VehicleKind);
@@ -137,7 +124,7 @@ Grid EditorWindow::BuildVehiclePage()
 	VehicleTabs.SelectionChanged(
 		[this](auto&&, auto&&)
 		{
-			if (!BuildingVehicle)
+			if (!BuildingVehicle && VehicleTabs.SelectedIndex() != CurrentVehicleTab)
 				Run([&] { ActivateVehicleTab(VehicleTabs.SelectedIndex()); });
 		});
 	VehicleSearch.TextChanged(
@@ -166,11 +153,8 @@ Grid EditorWindow::BuildVehiclePage()
 		auto Found = std::find(VehicleRows.begin(), VehicleRows.end(), ActiveVehicle);
 		if (Found != VehicleRows.end())
 			VehicleList.SelectedIndex(int(Found - VehicleRows.begin()));
-		else
-			ActivateVehicleTab(CurrentVehicleTab);
 	}
-	else
-		ActivateVehicleTab(CurrentVehicleTab);
+	ActivateVehicleTab(CurrentVehicleTab);
 	return Page;
 }
 void EditorWindow::RefreshVehicles()
@@ -181,20 +165,51 @@ void EditorWindow::RefreshVehicles()
 	bool PreviousBuilding = BuildingVehicle;
 	BuildingVehicle = true;
 	auto Previous = ActiveVehicle;
+	auto PreviousRows = std::move(VehicleRows);
 	VehicleRows.clear();
+	struct Listing
+	{
+		int Tier;
+		std::string Tags;
+		VehicleCategory Category;
+	};
+	std::vector<std::optional<Listing>> Listings(GameCatalog.Vehicles.size());
+	auto ReadListing = [&](Vehicle const& Vehicle) -> Listing const&
+	{
+		auto Index = size_t(&Vehicle - GameCatalog.Vehicles.data());
+		if (!Listings[Index])
+		{
+			Section const* Metadata =
+				Vehicle.ListPath.empty()
+					? nullptr
+					: VehicleData.Document(Vehicle.ListPath).Current.Root.Child(Vehicle.Model);
+			auto Tier = Vehicle.Tier;
+			try
+			{
+				if (Metadata)
+					Tier = std::stoi(Metadata->Text("level", std::to_string(Tier)));
+			}
+			catch (std::exception const&)
+			{
+			}
+			Listings[Index] = Listing{Tier, Metadata ? Metadata->Text("tags", Vehicle.Tags) : Vehicle.Tags,
+									  ParameterRules->Classify(Vehicle, Metadata, &GameCatalog)};
+		}
+		return *Listings[Index];
+	};
 	static char const* ClassTags[] = {"", "lighttank", "mediumtank", "heavytank", "at-spg", "spg"};
-	static char const* Kinds[] = {"", "", "gold", "silver", "reward", "rental", "other"};
+	static char const* Kinds[] = {"", "gold", "silver", "reward", "unavailable"};
 	auto Query = Lower(String(VehicleSearch.Text()));
 	for (auto Index : GameCatalog.Search(""))
 	{
 		auto const& Vehicle = GameCatalog.Vehicles[Index];
 		if (VehicleNation.SelectedIndex() > 0 && Vehicle.NationId != VehicleNation.SelectedIndex() - 1)
 			continue;
-		Section const* Metadata = nullptr;
-		if (!Vehicle.ListPath.empty())
-			Metadata = VehicleData.Document(Vehicle.ListPath).Current.Root.Child(Vehicle.Model);
-		auto Tier = CurrentTier(Vehicle);
-		auto Tags = Metadata ? Metadata->Text("tags", Vehicle.Tags) : Vehicle.Tags;
+		auto Base = GameCatalog.ModeBase(Vehicle);
+		auto const& Subject = Base ? *Base : Vehicle;
+		auto const& Listing = ReadListing(Subject);
+		auto Tier = Listing.Tier;
+		auto const& Tags = Listing.Tags;
 		if (!Query.empty() && Lower(Vehicle.Name + " " + Vehicle.DisplayName + " " + Tags + " " +
 									std::to_string(Tier) + " " + std::to_string(Vehicle.TypeCd))
 									  .find(Query) == std::string::npos)
@@ -204,37 +219,33 @@ void EditorWindow::RefreshVehicles()
 		if (VehicleClass.SelectedIndex() > 0 &&
 			Lower(Tags).find(ClassTags[VehicleClass.SelectedIndex()]) == std::string::npos)
 			continue;
-		auto Category = ParameterRules->Classify(Vehicle, Metadata, &GameCatalog);
-		auto Kind = VehicleKind.SelectedIndex();
-		if (Kind == 0 && Category.HiddenByDefault)
-			continue;
-		if (Kind >= 2 && Category.Kind != Kinds[Kind])
+		if (!Listing.Category.MatchesFilter(Kinds[VehicleKind.SelectedIndex()]))
 			continue;
 		VehicleRows.push_back(Index);
 	}
-	auto Sort = VehicleSort.SelectedIndex();
-	std::stable_sort(VehicleRows.begin(), VehicleRows.end(),
-					 [&](size_t Left, size_t Right)
-					 {
-						 auto const& A = GameCatalog.Vehicles[Left];
-						 auto const& B = GameCatalog.Vehicles[Right];
-						 auto TierA = CurrentTier(A), TierB = CurrentTier(B);
-						 if (Sort && TierA != TierB)
-							 return Sort == 1 ? TierA < TierB : TierA > TierB;
-						 return A.DisplayName < B.DisplayName;
-					 });
+	GameCatalog.SortForDisplay(VehicleRows, VehicleSort.SelectedIndex(),
+							   [&](auto const& Vehicle) { return ReadListing(Vehicle).Tier; });
 	std::vector<hstring> Labels;
 	Labels.reserve(VehicleRows.size());
 	for (auto Index : VehicleRows)
 	{
 		auto const& Vehicle = GameCatalog.Vehicles[Index];
-		auto Tier = CurrentTier(Vehicle);
+		auto Base = GameCatalog.ModeBase(Vehicle);
+		auto Tier = ReadListing(Base ? *Base : Vehicle).Tier;
 		Labels.push_back(HString(Vehicle.DisplayName + " · " + std::to_string(Tier) + "\n" + Vehicle.Name));
 	}
-	SetListRows(VehicleList, Labels);
+	if (!VehicleList.ItemsSource() || VehicleRows != PreviousRows || Labels != VehicleLabels)
+	{
+		VehicleLabels = Labels;
+		SetListRows(VehicleList, Labels);
+	}
 	auto Found = std::find(VehicleRows.begin(), VehicleRows.end(), Previous);
 	if (Found != VehicleRows.end())
-		VehicleList.SelectedIndex(int(Found - VehicleRows.begin()));
+	{
+		auto Index = int(Found - VehicleRows.begin());
+		if (VehicleList.SelectedIndex() != Index)
+			VehicleList.SelectedIndex(Index);
+	}
 	else if (Previous != SIZE_MAX)
 	{
 		ActiveVehicle = SIZE_MAX;
@@ -248,6 +259,8 @@ void EditorWindow::SelectVehicle()
 	auto Timing = Performance.Measure("Vehicle.Select");
 	auto Index = VehicleList.SelectedIndex();
 	if (Index < 0 || size_t(Index) >= VehicleRows.size())
+		return;
+	if (ActiveVehicle == VehicleRows[Index])
 		return;
 	if (!FlushTextEdits())
 	{

@@ -430,11 +430,8 @@ strings:
     zh: "自行火炮"
     en: "SPG"
   Filter.Regular:
-    zh: "默认（隐藏副本）"
-    en: "Default (hide copies)"
-  Filter.All:
-    zh: "全部（含副本／测试）"
-    en: "All, including copies/tests"
+    zh: "默认"
+    en: "Default"
   Filter.Gold:
     zh: "金币车"
     en: "Gold-priced vehicles"
@@ -444,12 +441,9 @@ strings:
   Filter.Reward:
     zh: "特种奖励车"
     en: "Reward vehicles"
-  Filter.Rental:
-    zh: "租用／R 副本"
-    en: "Rental / R copies"
-  Filter.Other:
-    zh: "其他／模式与测试副本"
-    en: "Other / mode and test copies"
+  Filter.Unavailable:
+    zh: "无法正常获取"
+    en: "Not normally obtainable"
   Filter.Name:
     zh: "按名称排序"
     en: "Sort by name"

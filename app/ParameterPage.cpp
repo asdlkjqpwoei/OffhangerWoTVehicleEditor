@@ -57,9 +57,11 @@ Grid EditorWindow::BuildParameterPage()
 		Grid::SetColumn(NoPrice, 1);
 		Options.Children().Append(NoPrice);
 	}
-	Section const* Metadata = Vehicle.ListPath.empty()
+	auto Base = GameCatalog.ModeBase(Vehicle);
+	auto const& Subject = Base ? *Base : Vehicle;
+	Section const* Metadata = Subject.ListPath.empty()
 								  ? nullptr
-								  : VehicleData.Document(Vehicle.ListPath).Current.Root.Child(Vehicle.Model);
+								  : VehicleData.Document(Subject.ListPath).Current.Root.Child(Subject.Model);
 	auto Acquisition = ParameterRules->Classify(Vehicle, Metadata, &GameCatalog);
 	auto AvailabilityKey = "Availability." + Acquisition.Availability;
 	auto Availability = Label(Tr(AvailabilityKey.c_str()), 12);
@@ -106,6 +108,8 @@ Grid EditorWindow::BuildParameterPage()
 	Categories.SelectionChanged(
 		[this, Populate](auto const& Sender, auto&&)
 		{
+			if (Sender.as<Pivot>().SelectedIndex() == CurrentParameterCategory)
+				return;
 			FlushTextEdits();
 			Populate(Sender.as<Pivot>());
 		});
