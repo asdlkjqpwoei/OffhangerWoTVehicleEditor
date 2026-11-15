@@ -4,6 +4,7 @@
 #include "SaveSession.h"
 #include "Geometry.h"
 #include "Crew.h"
+#include "Barracks.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -114,6 +115,265 @@ void TestFormats()
 		},
 		"Invalid save batch accepted");
 	Check(Save.Account.Currency("credits") == 100, "Failed save batch did not roll back");
+}
+void TestBarracksAndCleanup()
+{
+	auto Catalogue = Fixture();
+	for (auto& Vehicle : Catalogue.Vehicles)
+	{
+		Vehicle.Tags = "mediumTank";
+		Vehicle.DisplayName = Vehicle.Model;
+	}
+	Add(Catalogue, Catalogue.Vehicles[0].DefinitionPath,
+		"<root><crew><commander/><gunner/><driver/><loader/><radioman/></crew></root>");
+	Add(Catalogue, Catalogue.Vehicles[1].DefinitionPath, "<root><crew><driver/></crew></root>");
+	Add(Catalogue, "scripts/item_defs/tankmen/tankmen.xml",
+		"<root><roles><commander/><radioman/><driver/><gunner/><loader/></roles><skills><repair/><camouflage/"
+		"><brotherhood/></skills></root>");
+	std::vector<std::string> Nations = {"ussr",	 "germany", "usa",	  "china",	"france", "uk",
+										"japan", "czech",	"sweden", "poland", "italy"};
+	auto Group = [](std::string Key, std::string Roles, int Id)
+	{
+		return "<" + Key + "><roles>" + Roles + "</roles><firstNames><_" + std::to_string(Id) + ">First</_" +
+			   std::to_string(Id) + "></firstNames><lastNames><_" + std::to_string(Id + 1) + ">Last</_" +
+			   std::to_string(Id + 1) + "></lastNames><icons><_" + std::to_string(Id + 2) + ">portrait</_" +
+			   std::to_string(Id + 2) + "></icons></" + Key + ">";
+	};
+	for (int N = 0; N < 11; ++N)
+		Add(Catalogue, "scripts/item_defs/tankmen/" + Nations[N] + ".xml",
+			"<root><normalGroups>" + Group("men1", "", 1) + Group("men_open", "", 100) +
+				(N == 0 ? Group("men_limited_commander", "commander", 200) +
+							  Group("bp-commander-1_1", "commander", 400) +
+							  Group("bp-commander-1_2", "commander", 500) +
+							  "<commander_solo><roles>commander</roles><firstNames><_300>Solo</_300></"
+							  "firstNames>"
+							  "<lastNames><_301>?empty?</_301></lastNames><icons><_302>solo</_302></icons></"
+							  "commander_solo>"
+						: "") +
+				"</normalGroups></root>");
+	CrewCatalog Names;
+	Names.Scan(Catalogue);
+	Check(Names.BrotherhoodSkill == 8 && CrewRoleId("gunner") == 4 && CrewRoleId("radioman") == 2,
+		  "Native role or Brothers in Arms ids are incorrect");
+	auto Candidates = RecruitCandidates(Names);
+	auto Find = [&](char const* Key) -> RecruitCandidate const&
+	{
+		return *std::find_if(Candidates.begin(), Candidates.end(),
+							 [&](auto const& Candidate) { return Candidate.Key == Key; });
+	};
+	auto const& Open = Find("men_open:0");
+	auto const& Limited = Find("men_limited_commander:0");
+	auto const& Solo = Find("commander_solo:0");
+	Check(!Solo.Theme.empty() && Solo.ThemeLabel == "Solo" && Solo.Name == "Solo",
+		  "A role-prefixed identity lost its theme or exposed an empty name placeholder");
+	Check(Find("bp-commander-1_1:0").Theme == Find("bp-commander-1_2:0").Theme,
+		  "Native aliases for the same Battle Pass event were split into separate themes");
+	Check(Open.Variants.size() == 11 && Open.Allows(9, 5) && Open.Allows(2, 4),
+		  "Unrestricted cross-nation crew were not merged or filterable");
+	Check(Limited.Allows(0, 1) && !Limited.Allows(2, 1) && !Limited.Allows(0, 4),
+		  "Native recruitment restrictions were lost");
+	SaveSession Session;
+	Session.Account.Root = Value::Make(ValueKind::Dictionary);
+	Session.Account.Root->Set("vehicles", Value::Make(ValueKind::Dictionary));
+	int64_t First{};
+	Session.Execute(
+		"Recruit", [&](SaveGame& Save)
+		{ First = RecruitCrew(Save, Catalogue, Names, Limited, 0, 2, Catalogue.Vehicles[0].TypeCd, 1); });
+	auto Roster = BarracksRoster(Session.Account, Catalogue, Names);
+	Check(Roster.size() == 1 && !Roster[0].VehicleId && Roster[0].Info.Skills == std::vector<uint8_t>{8} &&
+			  Roster[0].Info.LastSkillLevel == 100 && Roster[0].Info.FreeSkills == 1 &&
+			  Roster[0].Info.EfficiencyXp == 100000,
+		  "Recruited crew lack full proficiency or gifted fully trained Brothers in Arms");
+	Check(Roster[0].Theme == "limited" && Names.NameFor(Roster[0].Info) == "First Last",
+		  "Owned crew identity or theme is missing");
+	Check(Roster[0].RecruitKey == Limited.Key, "Owned crew is not linked to its recruitment entry");
+	Reject(
+		[&]
+		{
+			Session.Execute(
+				"Duplicate special crew", [&](SaveGame& Save)
+				{ RecruitCrew(Save, Catalogue, Names, Limited, 0, 2, Catalogue.Vehicles[0].TypeCd, 1); });
+		},
+		"An owned special crew member was recruited twice");
+	auto Before = WritePickle(Session.Account.Root);
+	for (auto Request : {std::tuple(2, 2, Catalogue.Vehicles[0].TypeCd, 1),
+						 std::tuple(0, 1, Catalogue.Vehicles[0].TypeCd, 1),
+						 std::tuple(0, 2, Catalogue.Vehicles[0].TypeCd, 4),
+						 std::tuple(0, 2, Catalogue.Vehicles[1].TypeCd, 1)})
+	{
+		Reject(
+			[&]
+			{
+				Session.Execute("Invalid recruitment",
+								[&](SaveGame& Save)
+								{
+									RecruitCrew(Save, Catalogue, Names, Limited, std::get<0>(Request),
+												std::get<1>(Request), std::get<2>(Request),
+												std::get<3>(Request));
+								});
+			},
+			"Invalid recruitment accepted");
+		Check(WritePickle(Session.Account.Root) == Before, "Rejected recruitment changed account data");
+	}
+	auto Tankmen = Session.Account.Root->Get("tankmen");
+	auto DescriptorBefore = Tankmen->Get(First)->Get("compDescr")->Text;
+	Session.Execute("XP", [&](SaveGame& Save) { SetCrewExperience(Save, Roster[0], 1234567890); });
+	auto DescriptorAfter = Session.Account.Root->Get("tankmen")->Get(First)->Get("compDescr")->Text;
+	auto Info = ParseCrew(Bytes(DescriptorAfter.begin(), DescriptorAfter.end()));
+	Check(Info.FreeXp == 1234567890 && Info.Skills == std::vector<uint8_t>{8} && Info.FreeSkills == 1,
+		  "Crew XP edit changed skills or XP byte order");
+	for (size_t I = 0; I < DescriptorBefore.size(); ++I)
+		if (I < Info.PassportOffset + 6 || I >= Info.PassportOffset + 10)
+			Check(DescriptorBefore[I] == DescriptorAfter[I], "Crew XP edit changed unrelated bytes");
+	Reject([&] { SetCrewExperience(Session.Account, Roster[0], 4000000001u); },
+		   "Out-of-range crew XP accepted");
+	auto AddMember = [&](int64_t Id, int Role, int64_t VehicleId)
+	{
+		auto Record = Value::Make(ValueKind::Dictionary);
+		Record->Set("compDescr", Value::FromBytes(BuildCrew(0, 65, Role, {1, 2, 3})));
+		Record->Set("vehicle", Value::Number(VehicleId));
+		Session.Account.Root->Get("tankmen")->Set(Id, Record);
+	};
+	for (int I = 0; I < 5; ++I)
+		AddMember(10 + I, I + 1, 20);
+	auto VehicleRecord = Value::Make(ValueKind::Dictionary);
+	auto Seats = Value::MakeList();
+	for (int I = 0; I < 5; ++I)
+		Seats->Items.push_back(Value::Number(10 + I));
+	Seats->Items.push_back(Value::Number(10));
+	VehicleRecord->Set("crew", Seats);
+	VehicleRecord->Set("compDescr", Value::FromBytes(Bytes{1, 65, 0}));
+	Session.Account.Root->Get("vehicles")->Set(20, VehicleRecord);
+	Roster = BarracksRoster(Session.Account, Catalogue, Names);
+	Check(Roster.size() == 6 && !Roster[0].VehicleId, "Barracks crew were not placed before mounted crew");
+	std::vector<int> SortedRoles;
+	for (auto const& Crew : Roster)
+		if (Crew.VehicleId)
+			SortedRoles.push_back(Crew.Info.Role);
+	Check(SortedRoles == std::vector<int>({1, 4, 3, 5, 2}),
+		  "Mounted crew are not grouped in the required primary role order");
+	auto Commander =
+		*std::find_if(Roster.begin(), Roster.end(), [](auto const& Crew) { return Crew.Id == 10; });
+	Session.Execute("Detach", [&](SaveGame& Save) { DismissCrew(Save, Commander, false); });
+	Check(Seats->Items[0]->Kind == ValueKind::None && Seats->Items[5]->Kind == ValueKind::None &&
+			  Session.Account.Root->Get("tankmen")->Get(10)->Get("vehicle")->AsInt() == 0,
+		  "Detaching a crew member left vehicle references");
+	Check(Seats->Items[1]->AsInt() == 11 && Session.Account.Root->Get("tankmen")->Get(11),
+		  "Detaching affected another crew member");
+	Session.Execute("Dismiss", [&](SaveGame& Save) { DismissCrew(Save, Commander, true); });
+	Check(!Session.Account.Root->Get("tankmen")->Get(10) && Session.Account.Root->Get("tankmen")->Get(11),
+		  "Dismissing one crew removed another crew record");
+	ParameterDefinitions Rules(FileSystem::path(OHEDITOR_SOURCE_DIRECTORY) / "assets/Config/parameters.yaml");
+	for (auto Tags :
+		 {"observer private lightTank", "lightTank event_battles battle_royale", "mediumTank testTank"})
+	{
+		auto System = Catalogue.Vehicles.front();
+		System.Tags = Tags;
+		auto Category = Rules.Classify(System, nullptr, &Catalogue);
+		Check(Category.HiddenByDefault && Category.Kind == "unavailable",
+			  "A system or mode vehicle leaked into normally obtainable vehicles");
+	}
+	auto External = Catalogue.Vehicles.front();
+	External.Extension = true;
+	for (auto Tags : {"mediumTank special secret testTank", "mediumTank testVehicle"})
+	{
+		External.Tags = Tags;
+		Check(!Rules.Classify(External, nullptr, &Catalogue).HiddenByDefault,
+			  "A registered extension vehicle was hidden by an inherited client test flag");
+	}
+	for (auto Tags : {"mediumTank observer", "mediumTank event_battles", "mediumTank battle_royale",
+					  "mediumTank rental", "mediumTank bob"})
+	{
+		External.Tags = Tags;
+		Check(Rules.Classify(External, nullptr, &Catalogue).HiddenByDefault,
+			  "An extension's mode, NPC or rental vehicle escaped the unavailable filter");
+	}
+	External.Tags = "mediumTank testTank";
+	External.Enabled = false;
+	Check(Rules.Classify(External, nullptr, &Catalogue).HiddenByDefault,
+		  "An extension test flag bypassed the disabled-registration check");
+	External.Enabled = true;
+	External.Listed = false;
+	Check(Rules.Classify(External, nullptr, &Catalogue).HiddenByDefault,
+		  "An extension test flag bypassed the missing-registration check");
+	auto Decoration = Catalogue.Vehicles.front();
+	Decoration.Tags = "mediumTank testTankDecoration bobblehead event_battles_style";
+	Check(!Rules.Classify(Decoration, nullptr, &Catalogue).HiddenByDefault,
+		  "A partial tag match hid an unrelated vehicle");
+	Vehicle Rental = Catalogue.Vehicles[0];
+	Rental.Id = 67;
+	Rental.TypeCd = 67 * 256 + 1;
+	Rental.Model = "A_r";
+	Rental.Name = "ussr:A_r";
+	Catalogue.Vehicles.push_back(Rental);
+	auto Garage = Session.Account.Root->Get("vehicles");
+	auto Record = [&](uint16_t Type)
+	{
+		auto P = Value::Make(ValueKind::Dictionary);
+		P->Set("compDescr", Value::FromBytes(Bytes{1, uint8_t(Type), uint8_t(Type >> 8)}));
+		P->Set("shells", Value::MakeList());
+		return P;
+	};
+	Garage->Set(21, Record(65));
+	Garage->Set(22, Record(67));
+	Garage->Set(23, Record(999));
+	Garage->Pairs.emplace_back(Value::FromBytes("broken-a"), Value::Make(ValueKind::None));
+	Garage->Pairs.emplace_back(Value::FromBytes("broken-b"), Record(999));
+	auto Invalid = Session.PreviewCleanup(Catalogue, CleanupKind::Invalid, Rules);
+	auto Unavailable = Session.PreviewCleanup(Catalogue, CleanupKind::Unavailable, Rules);
+	Check(Invalid.size() == 3 && Unavailable.size() == 1 && Unavailable[0].InventoryId == 22,
+		  "Invalid, unavailable and duplicate vehicles were not distinguished");
+	Check(!Unavailable[0].DataFields.empty() && Unavailable[0].DataFields[0].find("compDescr =") == 0,
+		  "Deletion preview omits affected vehicle data");
+	auto Exact = *std::find_if(Invalid.begin(), Invalid.end(),
+							   [](auto const& Issue) { return Issue.InventoryKey->Text == "broken-a"; });
+	Session.Execute("Remove malformed key",
+					[&](SaveGame& Save) { Save.RemoveVehicleEntry(Exact.InventoryKey); });
+	Check(!Garage->Get("broken-a") && Garage->Get("broken-b"),
+		  "Malformed-key deletion targeted the wrong inventory record");
+	SaveGame Legacy;
+	Legacy.Json922 = true;
+	Legacy.Root = Value::Make(ValueKind::Dictionary);
+	auto LegacyVehicles = Value::Make(ValueKind::Dictionary);
+	Legacy.Root->Set("vehicles", LegacyVehicles);
+	auto LegacyRecord = Value::Make(ValueKind::Dictionary);
+	auto LegacySeats = Value::Make(ValueKind::Dictionary);
+	auto Encoded = Value::Make(ValueKind::Unicode);
+	Encoded->Text = Base64(BuildCrew(0, 65, 1, {1, 2, 3}, false, false, true));
+	LegacySeats->Set("0", Encoded);
+	LegacyRecord->Set("crew", LegacySeats);
+	LegacyVehicles->Set("16641", LegacyRecord);
+	auto LegacyRoster = BarracksRoster(Legacy, Catalogue, Names);
+	Check(LegacyRoster.size() == 1, "Legacy embedded crew were omitted");
+	SetCrewExperience(Legacy, LegacyRoster[0], 7654321);
+	Check(ParseCrew(Unbase64(LegacySeats->Get("0")->Text), true).FreeXp == 7654321,
+		  "Legacy XP byte order is incorrect");
+	Reject([&] { DismissCrew(Legacy, LegacyRoster[0], false); }, "Legacy barracks storage was invented");
+	DismissCrew(Legacy, LegacyRoster[0], true);
+	Check(LegacySeats->Pairs.empty(), "Legacy selected crew removal failed");
+	SaveGame BoundSave;
+	BoundSave.Root = Value::Make(ValueKind::Dictionary);
+	BoundSave.Root->Set("vehicles", Value::Make(ValueKind::Dictionary));
+	auto Bound = Open;
+	for (auto& Variant : Bound.Variants)
+		Variant.Vehicles = {"ussr:B"};
+	Reject([&] { RecruitCrew(BoundSave, Catalogue, Names, Bound, 0, 2, Catalogue.Vehicles[0].TypeCd, 3); },
+		   "A vehicle-bound recruit was assigned to another vehicle");
+	RecruitCrew(BoundSave, Catalogue, Names, Bound, 0, 2, Catalogue.Vehicles[1].TypeCd, 3);
+	auto BoundRoster = BarracksRoster(BoundSave, Catalogue, Names);
+	Check(BoundRoster.size() == 1 && BoundRoster[0].Info.Vehicle == 66 && BoundRoster[0].Info.Role == 3,
+		  "Permitted vehicle-bound recruitment failed");
+	DismissCrew(BoundSave, BoundRoster[0], true);
+	auto Extended = Catalogue.Vehicles[0];
+	Extended.Id = 700;
+	Extended.TypeCd = 700 * 256 + 1;
+	Extended.Name = "ussr:Extended";
+	Catalogue.Vehicles.push_back(Extended);
+	RecruitCrew(BoundSave, Catalogue, Names, Open, 0, 2, Extended.TypeCd, 4);
+	auto ExtendedCrew = BarracksRoster(BoundSave, Catalogue, Names).at(0).Info;
+	Check(ExtendedCrew.Vehicle == 700 && ExtendedCrew.Role == 4 &&
+			  ExtendedCrew.Skills == std::vector<uint8_t>{8} && ExtendedCrew.FreeSkills == 1,
+		  "Extended vehicle ids displaced gifted skill or passport fields");
 }
 void TestDefinitionStructure()
 {
@@ -926,6 +1186,40 @@ void TestVehicleModesAndFilters()
 	EditedMetadata->Child("price")->Children.push_back(Section{"gold", ""});
 	Check(Rules.Classify(*Mode, EditedMetadata, &Catalogue).MatchesFilter("gold"),
 		  "A mode did not follow its base vehicle's current edited metadata");
+	VehicleWorkspace FilterWorkspace;
+	FilterWorkspace.Open(Catalogue, nullptr, {}, Output / "filter-overrides");
+	VehicleListIndex Listings;
+	Listings.Refresh(Catalogue, FilterWorkspace, Rules);
+	VehicleFilter Filter;
+	auto Visible = Listings.Select(Filter);
+	Check(std::find(Visible.begin(), Visible.end(), size_t(Rental - Catalogue.Vehicles.data())) ==
+			  Visible.end(),
+		  "Unavailable mode leaked into shared default filters");
+	Filter.Kind = "gold";
+	Filter.Nation = 8;
+	Filter.Class = 4;
+	Filter.Tier = 8;
+	auto Gold = Listings.Select(Filter);
+	Check(Gold.size() == 2 && Gold[1] == size_t(GoldMode - Catalogue.Vehicles.data()),
+		  "Shared vehicle filters lost nation, class, tier or mode adjacency");
+	Filter.Kind = "unavailable";
+	Filter.Tier = 9;
+	auto Rentals = Listings.Select(Filter);
+	Check(Rentals.size() == 2 && Rentals[1] == size_t(Rental - Catalogue.Vehicles.data()),
+		  "Shared unavailable filter differs from parameter classification");
+	Filter.Kind = "";
+	Filter.Tier = 0;
+	Filter.Class = 0;
+	Filter.Search = "Strv 103B";
+	for (int Order : {0, 1, 2})
+	{
+		Filter.Order = Order;
+		auto Rows = Listings.Select(Filter);
+		auto Parent = std::find(Rows.begin(), Rows.end(), size_t(Base - Catalogue.Vehicles.data()));
+		Check(Parent != Rows.end() && Parent + 1 != Rows.end() &&
+				  *(Parent + 1) == size_t(Mode - Catalogue.Vehicles.data()),
+			  "Shared sort detached a mode from its parent");
+	}
 	for (int Order : {0, 1, 2})
 	{
 		auto Rows = Catalogue.Search("");
@@ -1223,34 +1517,18 @@ void BenchmarkPerformance(FileSystem::path const& Game)
 			});
 	VehicleWorkspace Workspace;
 	Measure("workspace", [&] { Workspace.Open(Catalogue, nullptr, {}, Output / "benchmark-overrides"); });
-	auto Metadata = [&](Vehicle const& Vehicle) -> Section const*
-	{
-		return Vehicle.ListPath.empty()
-				   ? nullptr
-				   : Workspace.Document(Vehicle.ListPath).Current.Root.Child(Vehicle.Model);
-	};
-	auto Tier = [&](Vehicle const& Vehicle)
-	{
-		auto Base = Catalogue.ModeBase(Vehicle);
-		auto const& Subject = Base ? *Base : Vehicle;
-		auto Entry = Metadata(Subject);
-		return Entry ? std::stoi(Entry->Text("level", std::to_string(Subject.Tier))) : Subject.Tier;
-	};
+	CrewCatalog CrewNames;
+	Measure("crew_catalogue", [&] { CrewNames.Scan(Catalogue); });
+	std::vector<RecruitCandidate> Candidates;
+	Measure("recruit_candidates", [&] { Candidates = RecruitCandidates(CrewNames); });
+	Report["recruitable_crew"] = Candidates.size();
+	VehicleListIndex Listings;
 	for (int Pass = 0; Pass < 3; ++Pass)
 		Measure("list_" + std::to_string(Pass),
 				[&]
 				{
-					auto Rows = Catalogue.Search("");
-					std::erase_if(
-						Rows,
-						[&](size_t Index)
-						{
-							auto const& Vehicle = Catalogue.Vehicles[Index];
-							auto Base = Catalogue.ModeBase(Vehicle);
-							return !Rules->Classify(Vehicle, Metadata(Base ? *Base : Vehicle), &Catalogue)
-										.MatchesFilter("");
-						});
-					Catalogue.SortForDisplay(Rows, 0, Tier);
+					Listings.Refresh(Catalogue, Workspace, *Rules);
+					auto Rows = Listings.Select({});
 					Report["visible_vehicles"] = Rows.size();
 				});
 	for (int Pass = 0; Pass < 3; ++Pass)
@@ -1282,6 +1560,71 @@ void TestInstallation(FileSystem::path const& Game, FileSystem::path const& Save
 									 "assets/Config/parameters.yaml");
 	VehicleWorkspace Workspace;
 	Workspace.Open(Catalogue, &Defaults, {}, Output / "integration-overrides");
+	CrewCatalog NativeCrew;
+	NativeCrew.Scan(Catalogue);
+	for (auto Name : {"ussr:Observer", "china:Ch00_ClingeBot_SH"})
+	{
+		auto System = Catalogue.ByName(Name);
+		Check(System && Definitions.Classify(*System, nullptr, &Catalogue).HiddenByDefault,
+			  "Native observer or mode bot was offered as a normal recruitment vehicle");
+	}
+	Check(NativeCrew.BrotherhoodSkill != 0, "Installed Brothers in Arms definition is missing");
+	auto Recruits = RecruitCandidates(NativeCrew);
+	Check(Recruits.size() > 200 && Recruits.size() < NativeCrew.Groups.size(),
+		  "Native recruit entries were not consolidated across nations");
+	std::set<std::string> RecruitKeys;
+	for (auto const& Candidate : Recruits)
+	{
+		Check(!Candidate.Theme.empty() && !Candidate.ThemeLabel.empty() &&
+				  Candidate.Name.find("?empty?") == std::string::npos,
+			  "A native recruit has an empty theme or a placeholder name");
+		Check(RecruitKeys.insert(Candidate.Key).second, "Duplicate native recruit candidate");
+		for (auto const& Variant : Candidate.Variants)
+			Check(Variant.Nation >= 0 && Variant.Nation < 11 && !Variant.Roles.empty(),
+				  "Unresolved native recruit restrictions");
+	}
+	for (auto Prefix :
+		 {"girls_und_panzer_", "men_Offspring_", "ny26_", "tankmen_bp19_", "hw25_", "men_race19_"})
+	{
+		std::set<std::string> Themes;
+		size_t Members = 0;
+		for (auto const& Group : NativeCrew.Groups)
+			if (Group.Key.starts_with(Prefix))
+			{
+				Themes.insert(Group.Theme);
+				++Members;
+			}
+		Check(Members > 1 && Themes.size() == 1,
+			  "A native multi-member event was split across different themes");
+	}
+	SaveGame RecruitmentCopy;
+	RecruitmentCopy.Root = Value::Make(ValueKind::Dictionary);
+	RecruitmentCopy.Root->Set("vehicles", Value::Make(ValueKind::Dictionary));
+	size_t NativeRecruited = 0;
+	for (auto const& Candidate : Recruits)
+	{
+		if (NativeRecruited >= 5)
+			break;
+		for (auto const& Vehicle : Catalogue.Vehicles)
+			if (Vehicle.Listed && Vehicle.Enabled && !Vehicle.Conflict && Vehicle.TypeCd &&
+				VehicleClass(Vehicle.Tags) && Candidate.AllowsVehicle(Vehicle))
+			{
+				auto Roles = VehicleCrewRoles(Catalogue, Vehicle);
+				auto Role = std::find_if(Roles.begin(), Roles.end(),
+										 [&](int R) { return Candidate.Allows(Vehicle.NationId, R); });
+				if (Role == Roles.end())
+					continue;
+				RecruitCrew(RecruitmentCopy, Catalogue, NativeCrew, Candidate, Vehicle.NationId,
+							VehicleClass(Vehicle.Tags), Vehicle.TypeCd, *Role);
+				++NativeRecruited;
+				break;
+			}
+	}
+	Check(NativeRecruited == 5, "Native recruitment could not resolve complete permitted specifications");
+	for (auto const& Crew : BarracksRoster(RecruitmentCopy, Catalogue, NativeCrew))
+		Check(Crew.Valid && !Crew.VehicleId && Crew.Info.FreeSkills == 1 && Crew.Info.LastSkillLevel == 100 &&
+				  Crew.Info.Skills == std::vector<uint8_t>{NativeCrew.BrotherhoodSkill},
+			  "Native recruited crew lacks gifted 100% Brothers in Arms");
 	size_t Modes{};
 	for (auto const& Vehicle : Catalogue.Vehicles)
 		if (auto Base = Catalogue.ModeBase(Vehicle))
@@ -1371,6 +1714,26 @@ void TestInstallation(FileSystem::path const& Game, FileSystem::path const& Save
 			  Audit["sweden:S10_Strv_103_0_Series_FL_siege_mode"]["kind"].as<std::string>() == "unavailable",
 		  "The Strv 1030 FL mode escaped the unavailable-vehicle filter");
 	VehicleFactory Factory(Catalogue);
+	auto Merkava = Catalogue.ByName("ussr:R1010_Merkava_LP_T");
+	Check(Merkava && Merkava->Extension && Merkava->Listed && Merkava->Enabled && !Merkava->Conflict,
+		  "The installed Merkava LP T extension is not registered and enabled");
+	Check(!Audit[Merkava->Name]["hidden"].as<bool>() &&
+			  Audit[Merkava->Name]["kind"].as<std::string>() == "reward",
+		  "The playable Merkava LP T extension was classified as unavailable");
+	VehicleListIndex ExtensionListings;
+	ExtensionListings.Refresh(Catalogue, Workspace, Definitions);
+	auto MerkavaIndex = size_t(Merkava - Catalogue.Vehicles.data());
+	Check(ExtensionListings.Matches(MerkavaIndex, {}) &&
+			  !ExtensionListings.Matches(MerkavaIndex, {"", "unavailable"}),
+		  "Shared parameter, garage and add filters hide the Merkava LP T extension");
+	SaveSession ExtensionSave;
+	ExtensionSave.Account.Root = Value::Make(ValueKind::Dictionary);
+	auto ExtensionGarage = Value::Make(ValueKind::Dictionary);
+	ExtensionGarage->Set(1, Factory.Stock(*Merkava).Record());
+	ExtensionSave.Account.Root->Set("vehicles", ExtensionGarage);
+	Check(ExtensionSave.PreviewCleanup(Catalogue, CleanupKind::Unavailable, Definitions).empty() &&
+			  ExtensionSave.PreviewCleanup(Catalogue, CleanupKind::Invalid, Definitions).empty(),
+		  "Vehicle cleanup offered to delete a playable Merkava LP T extension");
 	size_t StockCount{}, FailureCount{};
 	std::string Failures, ParameterReport = "vehicle\tcategory\tmodule\tfield\tlabel\n";
 	for (auto const& Vehicle : Catalogue.Vehicles)
@@ -1566,6 +1929,99 @@ int wmain(int ArgumentCount, wchar_t** Arguments)
 	{
 		Output = FileSystem::path(OHEDITOR_SOURCE_DIRECTORY) / "build/verification" / Wide(Timestamp());
 		FileSystem::create_directories(Output);
+		if (ArgumentCount == 4 && std::wstring_view(Arguments[1]) == L"--prepare-ui-invalid-copy")
+		{
+			SaveGame Copy;
+			Copy.Open(Arguments[2]);
+			auto SourceHash = Sha256File(Arguments[2]);
+			Check(!Copy.Json922, "UI invalid-record fixture requires a modern save copy");
+			auto Vehicles = Copy.Root->Get("vehicles");
+			int64_t Id = 900000;
+			while (Vehicles->Get(Id))
+				++Id;
+			auto Invalid = Value::Make(ValueKind::Dictionary);
+			Invalid->Set("compDescr", Value::FromBytes(Bytes{0xf3, 0xff, 0xff}));
+			Invalid->Set("crew", Value::MakeList());
+			auto Marker = Value::Make(ValueKind::Unicode);
+			Marker->Text = "UI_TEST_INVALID_RECORD";
+			Invalid->Set("ui_test_marker", Marker);
+			Vehicles->Set(Id, Invalid);
+			Copy.Dirty = true;
+			Check(FileSystem::weakly_canonical(Arguments[2]) != FileSystem::weakly_canonical(Arguments[3]),
+				  "UI fixture must use a separate output file");
+			Copy.Save(Arguments[3]);
+			Check(Sha256File(Arguments[2]) == SourceHash, "Preparing a UI fixture changed its input save");
+			std::cout << "Invalid UI fixture created; inventory id " << Id << '\n';
+			return 0;
+		}
+		if (ArgumentCount == 8 && std::wstring_view(Arguments[1]) == L"--verify-ui-save")
+		{
+			Catalog Catalogue;
+			Catalogue.Scan(Arguments[2]);
+			CrewCatalog Names;
+			Names.Scan(Catalogue);
+			SaveGame Before, After;
+			Before.Open(Arguments[3]);
+			After.Open(Arguments[4]);
+			auto XpId = std::stoll(Arguments[5]);
+			auto Xp = std::stoull(Arguments[6]);
+			auto Recruited = std::stoull(Arguments[7]);
+			Check(!Before.Json922 && !After.Json922, "UI save audit requires modern save copies");
+			Check(Before.Root->Pairs.size() == After.Root->Pairs.size(),
+				  "UI operations changed unrelated account fields");
+			for (auto const& [Key, Value] : Before.Root->Pairs)
+				if (Key->Text != "tankmen" && Key->Text != "nextTmanInvID")
+					Check(ValueEqual(Value, After.Root->Get(Key->Text)),
+						  "UI crew operations changed other account or vehicle data");
+			auto OldCrew = Before.Root->Get("tankmen"), NewCrew = After.Root->Get("tankmen");
+			Check(OldCrew && NewCrew && NewCrew->Pairs.size() == OldCrew->Pairs.size() + Recruited,
+				  "UI recruitment changed the wrong number of crew records");
+			Check(OldCrew->Get(XpId) != nullptr, "UI XP target is absent from the original save");
+			for (auto const& [Key, Record] : OldCrew->Pairs)
+			{
+				auto Updated = NewCrew->Get(Key->AsInt());
+				Check(Updated != nullptr, "UI operations removed an existing crew member");
+				if (Key->AsInt() != XpId)
+				{
+					Check(ValueEqual(Record, Updated), "UI XP operation changed another crew member");
+					continue;
+				}
+				auto OldText = Record->Get("compDescr")->Text, NewText = Updated->Get("compDescr")->Text;
+				auto Info = ParseCrew(Bytes(NewText.begin(), NewText.end()));
+				Check(Info.FreeXp == Xp && OldText.size() == NewText.size(),
+					  "UI XP value did not survive writing and reopening");
+				for (size_t I = 0; I < OldText.size(); ++I)
+					if (I < Info.PassportOffset + 6 || I >= Info.PassportOffset + 10)
+						Check(OldText[I] == NewText[I],
+							  "UI XP operation changed skills, passport or proficiency");
+				auto Expected = ReadPickle(WritePickle(Record));
+				Expected->Set("compDescr", Updated->Get("compDescr"));
+				Check(ValueEqual(Expected, Updated), "UI XP operation changed unrelated crew data");
+			}
+			for (auto const& [Key, Record] : NewCrew->Pairs)
+				if (!OldCrew->Get(Key->AsInt()))
+				{
+					auto Text = Record->Get("compDescr")->Text;
+					auto Info = ParseCrew(Bytes(Text.begin(), Text.end()));
+					auto Vehicle =
+						Catalogue.ByCd((uint32_t(Info.Vehicle) << 8) | (uint32_t(Info.Nation) << 4) | 1);
+					Check(Vehicle && Names.GroupFor(Info),
+						  "UI recruitment produced an unresolved vehicle or identity");
+					auto Roles = VehicleCrewRoles(Catalogue, *Vehicle);
+					Check(std::find(Roles.begin(), Roles.end(), Info.Role) != Roles.end(),
+						  "UI recruitment selected an invalid primary role");
+					Check(Record->Get("vehicle") && Record->Get("vehicle")->AsInt() == 0,
+						  "UI recruitment did not place crew in barracks");
+					Check(Info.Skills == std::vector<uint8_t>{Names.BrotherhoodSkill} &&
+							  Info.LastSkillLevel == 100 && Info.FreeSkills == 1 &&
+							  Info.EfficiencyXp == 100000,
+						  "UI-recruited crew lacks full proficiency or gifted 100% Brothers in Arms");
+				}
+			std::cout << "UI save verified: selected crew XP " << Xp << ", " << Recruited
+					  << " barracks recruits; other account, crew and vehicle data preserved; " << Assertions
+					  << " assertions passed\n";
+			return 0;
+		}
 		if (ArgumentCount == 3 && std::wstring_view(Arguments[1]) == L"--benchmark")
 		{
 			BenchmarkPerformance(Arguments[2]);
@@ -1635,6 +2091,7 @@ int wmain(int ArgumentCount, wchar_t** Arguments)
 			return 0;
 		}
 		TestFormats();
+		TestBarracksAndCleanup();
 		TestDefinitionStructure();
 		TestFilteredValues();
 		TestResourceIndexPaths();

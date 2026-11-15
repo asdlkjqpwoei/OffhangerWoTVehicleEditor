@@ -1,4 +1,5 @@
 #include "EditorWindow.h"
+#include "VehicleFactory.h"
 
 namespace OffHanger::Ui
 {
@@ -67,15 +68,19 @@ Grid EditorWindow::BuildSavePage()
 	Grid::SetRow(Wallet, 2);
 	Page.Children().Append(Wallet);
 	SaveTabs = Pivot();
-	for (auto Key : {"Save.Garage", "Save.AddVehicles", "Save.UniqueAndThemedCrew", "Save.AllSaveFields"})
+	for (auto Key : {"Save.Garage", "Save.AddVehicles", "Barracks.Title", "Save.AllSaveFields"})
 	{
 		PivotItem Item;
 		Item.Header(box_value(Tr(Key)));
 		SaveTabs.Items().Append(Item);
 	}
 	SaveTabs.SelectedIndex(CurrentSaveTab);
-	SaveTabs.SelectionChanged([this](auto&&, auto&&)
-							  { Run([&] { ActivateSaveTab(SaveTabs.SelectedIndex()); }); });
+	SaveTabs.SelectionChanged(
+		[this](auto&&, auto&&)
+		{
+			if (SaveTabs.SelectedIndex() != CurrentSaveTab)
+				Run([&] { ActivateSaveTab(SaveTabs.SelectedIndex()); });
+		});
 	Grid::SetRow(SaveTabs, 3);
 	Page.Children().Append(SaveTabs);
 	RefreshSave();
@@ -114,13 +119,8 @@ void EditorWindow::ActivateSaveTab(int Index)
 Grid EditorWindow::BuildInventoryTab()
 {
 	auto Page = Rows({Auto(), Star(), Auto(), Auto()});
-	auto Filters = Columns({Star(), Pixels(180)});
-	GarageSearch = TextBox();
-	GarageSearch.PlaceholderText(Tr("Save.FilterGarageVehicles"));
-	Filters.Children().Append(GarageSearch);
-	GarageSort = Combo({Tr("Save.InventoryId"), Tr("Save.VehicleName"), Tr("Save.TierDescending")});
-	Grid::SetColumn(GarageSort, 1);
-	Filters.Children().Append(GarageSort);
+	auto Filters =
+		BuildVehicleFilters(Preferences.Chinese, GarageFilters, [this] { Run([&] { RefreshGarage(); }); });
 	Page.Children().Append(Filters);
 	GarageList = ListView();
 	GarageList.SelectionMode(ListViewSelectionMode::Extended);
@@ -128,18 +128,6 @@ Grid EditorWindow::BuildInventoryTab()
 	Page.Children().Append(GarageList);
 	auto Actions = Stack(true, 6);
 	Actions.Children().Append(Button("Save.DeleteSelected", [this] { DeleteSelected(); }));
-	Actions.Children().Append(Button("Save.CloneVehicleAndCrew",
-									 [this]
-									 {
-										 auto Ids = SelectedGarage();
-										 SaveData.Execute("Clone garage vehicles",
-														  [&](SaveGame& Save)
-														  {
-															  for (auto Id : Ids)
-																  Save.CloneVehicle(Id, true);
-														  });
-										 RefreshSave();
-									 }));
 	XpValue = TextBox();
 	XpValue.Width(140);
 	XpValue.PlaceholderText(Tr("Save.VehicleXp"));
@@ -162,17 +150,10 @@ Grid EditorWindow::BuildInventoryTab()
 	Page.Children().Append(Actions);
 	auto CleanupActions = Stack(true, 6);
 	CleanupActions.Children().Append(
-		Button("Save.PreviewDeduplication", [this] { Cleanup(CleanupKind::Duplicates); }));
-	CleanupActions.Children().Append(
-		Button("Save.PreviewInvalidVehicles", [this] { Cleanup(CleanupKind::Invalid); }));
-	CleanupActions.Children().Append(
-		Button("Save.PreviewSpecialModeVehicles", [this] { Cleanup(CleanupKind::Nonstandard); }));
-	CleanupActions.Children().Append(
-		Button("Save.PreviewRentalDemo", [this] { Cleanup(CleanupKind::RentalDemo); }));
+		Button("Save.DeleteUnavailable", [this] { Cleanup(CleanupKind::Unavailable); }));
+	CleanupActions.Children().Append(Button("Save.DeleteInvalid", [this] { Cleanup(CleanupKind::Invalid); }));
 	Grid::SetRow(CleanupActions, 3);
 	Page.Children().Append(CleanupActions);
-	GarageSearch.TextChanged([this](auto&&, auto&&) { Run([&] { RefreshGarage(); }); });
-	GarageSort.SelectionChanged([this](auto&&, auto&&) { Run([&] { RefreshGarage(); }); });
 	GarageList.SelectionChanged(
 		[this](auto&&, auto&&)
 		{
@@ -189,29 +170,13 @@ Grid EditorWindow::BuildInventoryTab()
 }
 Grid EditorWindow::BuildAddTab()
 {
-	auto Page = Rows({Auto(), Auto(), Star(), Auto()});
-	AddSearch = TextBox();
-	AddSearch.PlaceholderText(Tr("Save.VehicleNameCodeOrTags"));
-	Page.Children().Append(AddSearch);
-	auto Filters = Columns({Star(), Star(), Star(), Star()});
-	AddNation = Combo({Tr("Save.AllNations"), L"ussr", L"germany", L"usa", L"china", L"france", L"uk",
-					   L"japan", L"czech", L"sweden", L"poland", L"italy"});
-	AddTier =
-		Combo({Tr("Save.AllTiers"), L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9", L"10", L"11"});
-	AddClass = Combo({Tr("Save.AllClasses"), L"lightTank", L"mediumTank", L"heavyTank", L"AT-SPG", L"SPG"});
-	AddCategory = Combo({Tr("Save.AllVehicles"), Tr("Save.NotOwned"), Tr("Save.Owned"), Tr("Save.Hidden"),
-						 Tr("Save.GarageAvailable"), Tr("Save.ExtensionsMods")});
-	int Column = 0;
-	for (auto Filter : {AddNation, AddTier, AddClass, AddCategory})
-	{
-		Grid::SetColumn(Filter, Column++);
-		Filters.Children().Append(Filter);
-	}
-	Grid::SetRow(Filters, 1);
+	auto Page = Rows({Auto(), Star(), Auto()});
+	auto Filters =
+		BuildVehicleFilters(Preferences.Chinese, AddFilters, [this] { Run([&] { RefreshAdd(); }); });
 	Page.Children().Append(Filters);
 	AddList = ListView();
 	AddList.SelectionMode(ListViewSelectionMode::Multiple);
-	Grid::SetRow(AddList, 2);
+	Grid::SetRow(AddList, 1);
 	Page.Children().Append(AddList);
 	auto Actions = Stack(true, 12);
 	AddWithCrew = CheckBox();
@@ -220,42 +185,8 @@ Grid EditorWindow::BuildAddTab()
 	Actions.Children().Append(AddWithCrew);
 	Actions.Children().Append(Button("Save.SelectFiltered", [this] { AddList.SelectAll(); }));
 	Actions.Children().Append(Button("Save.AddSelectedVehicles", [this] { AddSelected(); }));
-	Grid::SetRow(Actions, 3);
+	Grid::SetRow(Actions, 2);
 	Page.Children().Append(Actions);
-	AddSearch.TextChanged([this](auto&&, auto&&) { Run([&] { RefreshAdd(); }); });
-	for (auto Filter : {AddNation, AddTier, AddClass, AddCategory})
-		Filter.SelectionChanged([this](auto&&, auto&&) { Run([&] { RefreshAdd(); }); });
-	return Page;
-}
-Grid EditorWindow::BuildCrewTab()
-{
-	auto Page = Rows({Auto(), Star(), Auto(), Auto()});
-	CrewSearch = TextBox();
-	CrewSearch.PlaceholderText(Tr("Save.FilterByNationThemeOrTags"));
-	Page.Children().Append(CrewSearch);
-	CrewList = ListView();
-	CrewList.SelectionMode(ListViewSelectionMode::Multiple);
-	Grid::SetRow(CrewList, 1);
-	Page.Children().Append(CrewList);
-	auto Actions = Stack(true, 8);
-	Actions.Children().Append(Button("Save.AssignToSelectedVehiclesGarage", [this] { AssignCrew(); }));
-	Actions.Children().Append(Button("Save.RestoreVehicleSpecificCrew", [this] { RestoreUniqueCrew(); }));
-	RecruitCount = TextBox();
-	RecruitCount.Width(180);
-	RecruitCount.Header(box_value(Tr("Save.RecruitsPerGroup0All")));
-	RecruitCount.Text(L"0");
-	Actions.Children().Append(RecruitCount);
-	Actions.Children().Append(Button("Save.RecruitSelectedGroups", [this] { RecruitThemes(false); }));
-	Actions.Children().Append(Button("Save.RecruitAllThemes", [this] { RecruitThemes(true); }));
-	auto ActionsScroll = Scroll(Actions);
-	ActionsScroll.HorizontalScrollBarVisibility(ScrollBarVisibility::Auto);
-	ActionsScroll.HorizontalScrollMode(ScrollMode::Enabled);
-	Grid::SetRow(ActionsScroll, 2);
-	Page.Children().Append(ActionsScroll);
-	auto Help = Label(Tr("Save.CombineMultipleThemesWithNoVehicleSelectionAssignment"), 12);
-	Grid::SetRow(Help, 3);
-	Page.Children().Append(Help);
-	CrewSearch.TextChanged([this](auto&&, auto&&) { Run([&] { RefreshCrew(); }); });
 	return Page;
 }
 Grid EditorWindow::BuildSaveFieldsTab()
@@ -316,7 +247,7 @@ void EditorWindow::RefreshSave()
 		Input.IsEnabled(bool(Save.Root) && (!Save.Json922 || (Key != "equipCoin" && Key != "bpcoin")));
 	}
 	// Hidden lists refresh later; their old selections must never target a new account or batch.
-	for (auto const& List : {GarageList, AddList, CrewList, SaveFieldList})
+	for (auto const& List : {GarageList, AddList, OwnedCrewList, RecruitList, SaveFieldList})
 		if (List)
 		{
 			if (List.SelectionMode() == ListViewSelectionMode::Single)
@@ -327,30 +258,58 @@ void EditorWindow::RefreshSave()
 	SaveTabDirty.fill(true);
 	ActivateSaveTab(CurrentSaveTab);
 }
+void EditorWindow::EnsureGarageInventory()
+{
+	if (InventoryRevision == SaveData.Revision())
+		return;
+	GarageInventory = SaveData.Account.Inventory(GameCatalog);
+	InventoryRevision = SaveData.Revision();
+}
 void EditorWindow::RefreshGarage()
 {
+	auto Timing = Performance.Measure("Save.RefreshGarage");
 	if (!GarageList)
 		return;
+	EnsureVehicleListings();
+	EnsureGarageInventory();
+	auto Filter = ReadVehicleFilter(GarageFilters);
+	auto Query = Filter.Search;
+	Filter.Search.clear();
+	auto Ordered = VehicleListings.Select(Filter);
+	std::unordered_map<uint32_t, size_t> Ranks;
+	for (size_t Rank = 0; Rank < Ordered.size(); ++Rank)
+		Ranks.try_emplace(GameCatalog.Vehicles[Ordered[Rank]].TypeCd, Rank);
 	GarageRows.clear();
+	for (auto const& Owned : GarageInventory)
+	{
+		auto Vehicle = GameCatalog.ByCd(Owned.TypeCd);
+		if (Vehicle ? !Ranks.contains(Owned.TypeCd)
+					: (Filter.Kind != "unavailable" || Filter.Nation >= 0 || Filter.Tier || Filter.Class))
+			continue;
+		if (!Query.empty() &&
+			Lower(Owned.Name + " " + Owned.Display + " " + std::to_string(Owned.InventoryId) + " " +
+				  std::to_string(Owned.TypeCd) + " " +
+				  (Vehicle ? VehicleListings.At(size_t(Vehicle - GameCatalog.Vehicles.data())).Search : ""))
+					.find(Query) == std::string::npos)
+			continue;
+		GarageRows.push_back(Owned);
+	}
+	std::stable_sort(GarageRows.begin(), GarageRows.end(),
+					 [&](auto const& A, auto const& B)
+					 {
+						 auto RankA = Ranks.contains(A.TypeCd) ? Ranks.at(A.TypeCd) : SIZE_MAX;
+						 auto RankB = Ranks.contains(B.TypeCd) ? Ranks.at(B.TypeCd) : SIZE_MAX;
+						 return RankA != RankB ? RankA < RankB : A.InventoryId < B.InventoryId;
+					 });
 	std::vector<hstring> Labels;
-	auto Search = Lower(String(GarageSearch.Text()));
-	for (auto const& Owned : SaveData.Account.Inventory(GameCatalog))
-		if (Search.empty() ||
-			Lower(Owned.Name + " " + Owned.Display + " " + std::to_string(Owned.TypeCd) + " " +
-				  std::to_string(Owned.Tier) + " " + std::to_string(Owned.InventoryId))
-					.find(Search) != std::string::npos)
-			GarageRows.push_back(Owned);
-	auto Order = GarageSort.SelectedIndex();
-	if (Order == 1)
-		std::stable_sort(GarageRows.begin(), GarageRows.end(),
-						 [](auto const& Left, auto const& Right) { return Left.Display < Right.Display; });
-	if (Order == 2)
-		std::stable_sort(GarageRows.begin(), GarageRows.end(),
-						 [](auto const& Left, auto const& Right) { return Left.Tier > Right.Tier; });
+	Labels.reserve(GarageRows.size());
 	for (auto const& Owned : GarageRows)
-		Labels.push_back(HString(std::to_string(Owned.InventoryId) + "  ·  " +
-								 (Owned.Known ? Owned.Display : String(Tr("Save.UnknownVehicle"))) + "  ·  " +
-								 std::to_string(Owned.Tier) + "\n" + Owned.Name));
+	{
+		auto Vehicle = GameCatalog.ByCd(Owned.TypeCd);
+		auto Tier = Vehicle ? VehicleListings.At(size_t(Vehicle - GameCatalog.Vehicles.data())).Tier : 0;
+		Labels.push_back(HString(std::to_string(Owned.InventoryId) + " · " + Owned.Display + " · " +
+								 std::to_string(Tier) + "\n" + Owned.Name));
+	}
 	SetListRows(GarageList, Labels);
 }
 void EditorWindow::RefreshAdd()
@@ -358,60 +317,22 @@ void EditorWindow::RefreshAdd()
 	auto Timing = Performance.Measure("Save.RefreshAdd");
 	if (!AddList)
 		return;
-	AddRows.clear();
-	std::vector<hstring> Labels;
+	EnsureVehicleListings();
+	EnsureGarageInventory();
+	AddRows = VehicleListings.Select(ReadVehicleFilter(AddFilters));
 	std::set<uint32_t> Owned;
-	for (auto const& Item : SaveData.Account.Inventory(GameCatalog))
+	for (auto const& Item : GarageInventory)
 		Owned.insert(Item.TypeCd);
-	auto Category = AddCategory.SelectedIndex();
-	auto Nation = AddNation.SelectedIndex(), Tier = AddTier.SelectedIndex(), Class = AddClass.SelectedIndex();
-	auto ClassName = Class > 0 ? Lower(String(unbox_value<hstring>(AddClass.SelectedItem()))) : "";
-	for (auto Index : GameCatalog.Search(String(AddSearch.Text())))
+	std::vector<hstring> Labels;
+	Labels.reserve(AddRows.size());
+	for (auto Index : AddRows)
 	{
 		auto const& Vehicle = GameCatalog.Vehicles[Index];
-		if (Nation > 0 && Vehicle.NationId != Nation - 1)
-			continue;
-		if (Tier > 0 && Vehicle.Tier != Tier)
-			continue;
-		if (Class > 0 && Lower(Vehicle.Tags).find(ClassName) == std::string::npos)
-			continue;
-		if (Category == 1 && Owned.contains(Vehicle.TypeCd))
-			continue;
-		if (Category == 2 && !Owned.contains(Vehicle.TypeCd))
-			continue;
-		if (Category == 3 && !Vehicle.Hidden)
-			continue;
-		if (Category == 4 && (!Vehicle.Enabled || Vehicle.Conflict || !Vehicle.TypeCd))
-			continue;
-		if (Category == 5 && !Vehicle.Extension)
-			continue;
-		AddRows.push_back(Index);
-		Labels.push_back(HString(Vehicle.DisplayName + "  ·  " + std::to_string(Vehicle.Tier) +
-								 (Owned.contains(Vehicle.TypeCd) ? "  ✓" : "") + "\n" + Vehicle.Name));
+		Labels.push_back(HString(Vehicle.DisplayName + " · " +
+								 std::to_string(VehicleListings.At(Index).Tier) +
+								 (Owned.contains(Vehicle.TypeCd) ? " ✓" : "") + "\n" + Vehicle.Name));
 	}
 	SetListRows(AddList, Labels);
-}
-void EditorWindow::RefreshCrew()
-{
-	if (!CrewList)
-		return;
-	CrewRows.clear();
-	std::vector<hstring> Labels;
-	auto Search = Lower(String(CrewSearch.Text()));
-	for (size_t Index = 0; Index < CrewNames.Groups.size(); ++Index)
-	{
-		auto const& Group = CrewNames.Groups[Index];
-		if (!Group.Special)
-			continue;
-		if (!Search.empty() &&
-			Lower(Group.Nation + " " + Group.Label + " " + Group.Key + " " + Group.Tags).find(Search) ==
-				std::string::npos)
-			continue;
-		CrewRows.push_back(Index);
-		Labels.push_back(HString(Group.Label + "  ·  " + Group.Nation + "\n" + Group.Key + "  ·  " +
-								 std::to_string(Group.Members.size())));
-	}
-	SetListRows(CrewList, Labels);
 }
 void EditorWindow::RefreshSaveFields()
 {
@@ -488,23 +409,47 @@ void EditorWindow::WriteSave(bool SaveAs)
 	SetStatus(Tr("Save.SaveWritten") + (Backup.empty() ? L"" : L" · " + HString(PathUtf8(Backup))));
 	Log("Saved account to " + PathUtf8(Target));
 }
+hstring EditorWindow::DeletionPreview(std::vector<SaveIssue> const& Plan) const
+{
+	std::string Text =
+		String(Tr(SaveData.Account.Json922 ? "Save.DeleteLegacyData" : "Save.DeleteVehicleData")) + "\n\n";
+	for (auto const& Item : Plan)
+	{
+		Text += Item.VehicleName + "\n" + String(Tr("Save.InventoryId")) + ": " +
+				(Item.InventoryKey ? Item.InventoryKey->Display() : std::to_string(Item.InventoryId)) +
+				" · typeCd: " + std::to_string(Item.TypeCd) + "\n";
+		if (!Item.Reason.empty())
+			Text += String(Tr(("Save.Reason." + Item.Reason).c_str())) + "\n";
+		for (auto const& Field : Item.DataFields)
+			Text += "  " + Field + "\n";
+		if (!Item.CrewIds.empty())
+		{
+			Text += String(Tr("Save.MovedCrewIds"));
+			for (auto Id : Item.CrewIds)
+				Text += " " + std::to_string(Id);
+			Text += "\n";
+		}
+		Text += "\n";
+	}
+	return HString(Text);
+}
 fire_and_forget EditorWindow::DeleteSelected()
 {
 	auto Lifetime = shared_from_this();
 	try
 	{
-		auto Ids = SelectedGarage();
-		if (Ids.empty())
+		std::vector<SaveIssue> Plan;
+		for (auto Index : SelectedIndices(GarageList))
+			Plan.push_back(SaveSession::DescribeDeletion(GarageRows.at(Index)));
+		if (Plan.empty())
 			co_return;
-		if (!(co_await Confirm(Tr("Save.DeleteVehicles"),
-							   HString(std::to_string(Ids.size())) +
-								   Tr("Save.VehiclesWillLeaveTheGarageCrewMoveTo"))))
+		if (!(co_await Confirm(Tr("Save.DeleteVehicles"), DeletionPreview(Plan))))
 			co_return;
 		SaveData.Execute("Delete garage vehicles",
 						 [&](SaveGame& Save)
 						 {
-							 for (auto Id : Ids)
-								 Save.RemoveVehicle(Id);
+							 for (auto const& Item : Plan)
+								 Save.RemoveVehicleEntry(Item.InventoryKey);
 						 });
 		RefreshSave();
 	}
@@ -518,23 +463,19 @@ fire_and_forget EditorWindow::Cleanup(CleanupKind Kind)
 	auto Lifetime = shared_from_this();
 	try
 	{
-		auto Plan = SaveData.PreviewCleanup(GameCatalog, Kind);
+		auto Plan = SaveData.PreviewCleanup(GameCatalog, Kind, *ParameterRules);
 		if (Plan.empty())
 		{
 			Message(Tr("Save.CleanupPreview"), Tr("Save.NoMatchingVehicles"));
 			co_return;
 		}
-		std::string Preview;
-		for (auto const& Item : Plan)
-			Preview +=
-				std::to_string(Item.InventoryId) + " · " + Item.VehicleName + " · " + Item.Reason + "\n";
-		if (!(co_await Confirm(Tr("Save.CleanupPreviewDeleteTheseVehicles"), HString(Preview))))
+		if (!(co_await Confirm(Tr("Save.CleanupPreviewDeleteTheseVehicles"), DeletionPreview(Plan))))
 			co_return;
 		SaveData.Execute("Clean garage",
 						 [&](SaveGame& Save)
 						 {
 							 for (auto const& Item : Plan)
-								 Save.RemoveVehicle(Item.InventoryId);
+								 Save.RemoveVehicleEntry(Item.InventoryKey);
 						 });
 		RefreshSave();
 	}
@@ -559,8 +500,8 @@ fire_and_forget EditorWindow::AddSelected()
 		{
 			auto Index = AddRows.at(Row);
 			auto const& Vehicle = GameCatalog.Vehicles[Index];
-			if (Owned.contains(Vehicle.TypeCd) || !Vehicle.Enabled || Vehicle.Conflict || !Vehicle.TypeCd ||
-				(Vehicle.DefinitionPath.empty() && Vehicle.StockDescriptor.empty()))
+			if (Owned.contains(Vehicle.TypeCd) || !Vehicle.Enabled || !Vehicle.Listed || Vehicle.Conflict ||
+				!Vehicle.TypeCd || (Vehicle.DefinitionPath.empty() && Vehicle.StockDescriptor.empty()))
 			{
 				++Skipped;
 				continue;
@@ -595,11 +536,13 @@ fire_and_forget EditorWindow::AddSelected()
 				[&](SaveGame& Save)
 				{
 					size_t Completed = 0;
+					VehicleFactory Factory(GameCatalog);
 					for (auto Index : Vehicles)
 					{
 						if (CancelWork)
 							throw std::runtime_error("Cancelled");
-						Save.AddVehicle(GameCatalog.Vehicles[Index], GameCatalog, WithCrew);
+						Save.AddVehicle(GameCatalog.Vehicles[Index], GameCatalog, WithCrew, &CrewNames,
+										&Factory);
 						auto Progress = std::to_string(++Completed) + " / " + std::to_string(Vehicles.size());
 						Queue.TryEnqueue([Lifetime, Progress] { Lifetime->SetStatus(HString(Progress)); });
 					}
@@ -619,142 +562,6 @@ fire_and_forget EditorWindow::AddSelected()
 			std::rethrow_exception(Failure);
 		RefreshSave();
 		SetStatus(Tr("Save.VehiclesAddedToTheOpenAccountNotSaved"));
-	}
-	catch (...)
-	{
-		Run([] { throw; });
-	}
-}
-fire_and_forget EditorWindow::AssignCrew()
-{
-	auto Lifetime = shared_from_this();
-	try
-	{
-		std::vector<size_t> Groups;
-		for (auto Index : SelectedIndices(CrewList))
-			Groups.push_back(CrewRows.at(Index));
-		auto Vehicles = SelectedGarage();
-		auto Count = AssignCrewGroup(SaveData.Account, CrewNames, Groups, Vehicles, true);
-		if (!(co_await Confirm(Tr("Save.ThemedCrewAssignmentPreview"),
-							   HString(std::to_string(Count)) +
-								   Tr("Save.CrewIdentitiesWillChangeExistingSkillsAndXp"))))
-			co_return;
-		SaveData.Execute("Assign themed crew",
-						 [&](SaveGame& Save) { AssignCrewGroup(Save, CrewNames, Groups, Vehicles); });
-		RefreshSave();
-	}
-	catch (...)
-	{
-		Run([] { throw; });
-	}
-}
-fire_and_forget EditorWindow::RecruitThemes(bool All)
-{
-	auto Lifetime = shared_from_this();
-	try
-	{
-		std::vector<size_t> Groups;
-		if (All)
-		{
-			for (size_t Index = 0; Index < CrewNames.Groups.size(); ++Index)
-				if (CrewNames.Groups[Index].Special)
-					Groups.push_back(Index);
-		}
-		else
-			for (auto Row : SelectedIndices(CrewList))
-				Groups.push_back(CrewRows.at(Row));
-		if (Groups.empty())
-			throw std::runtime_error("Select one or more crew themes to recruit");
-		auto Count = size_t(NonnegativeInteger(RecruitCount.Text()));
-		if (Count > 1000)
-			throw std::runtime_error("Recruit at most 1000 members per group");
-		if (!(co_await Confirm(Tr("Save.RecruitThemedCrew"),
-							   HString(std::to_string(Groups.size())) +
-								   Tr("Save.GroupsWillBeRecruitedToTheBarracksExisting"))))
-			co_return;
-		size_t Added = 0;
-		SaveData.Execute("Recruit themed crew",
-						 [&](SaveGame& Save)
-						 {
-							 for (auto Index : Groups)
-							 {
-								 auto const& Group = CrewNames.Groups[Index];
-								 Added += RecruitCrewGroup(Save, Group, Count ? Count : Group.Members.size());
-							 }
-						 });
-		RefreshSave();
-		SetStatus(HString(std::to_string(Added)) + Tr("Save.NewCrewAddedToTheBarracksNotSaved"));
-	}
-	catch (...)
-	{
-		Run([] { throw; });
-	}
-}
-fire_and_forget EditorWindow::RestoreUniqueCrew()
-{
-	auto Lifetime = shared_from_this();
-	try
-	{
-		if (!SaveData.Account.Root)
-			throw std::runtime_error("Open an account save first");
-		auto Garage = SaveData.Account.Inventory(GameCatalog);
-		auto Selected = SelectedGarage();
-		std::vector<std::pair<size_t, size_t>> Choices;
-		ListView Vehicles;
-		Vehicles.SelectionMode(ListViewSelectionMode::Multiple);
-		Vehicles.MaxHeight(420);
-		for (size_t GroupIndex = 0; GroupIndex < CrewNames.Groups.size(); ++GroupIndex)
-			for (auto const& Name : CrewNames.Groups[GroupIndex].BoundVehicles)
-				if (auto Vehicle = GameCatalog.ByName(Name))
-				{
-					size_t Index = size_t(Vehicle - GameCatalog.Vehicles.data());
-					bool Owned = false, IsSelected = false;
-					for (auto const& Item : Garage)
-						if (Item.TypeCd == Vehicle->TypeCd)
-						{
-							Owned = true;
-							IsSelected |= Selected.contains(Item.InventoryId);
-						}
-					Choices.emplace_back(Index, GroupIndex);
-					auto Caption =
-						HString(Vehicle->DisplayName + " · " + CrewNames.Groups[GroupIndex].Label) +
-						(Owned ? L"" : Tr("Save.VehicleWillBeAddedFirst"));
-					auto Item = ListRow(Caption);
-					Vehicles.Items().Append(Item);
-					if (Selected.empty() ? Owned : IsSelected)
-						Vehicles.SelectedItems().Append(Item);
-				}
-		if (Choices.empty())
-			throw std::runtime_error("No vehicle-specific crew groups are defined by this client");
-		ContentDialog Dialog;
-		Dialog.XamlRoot(Root.XamlRoot());
-		Dialog.Title(box_value(Tr("Save.RestoreVehicleSpecificCrew")));
-		auto Content = Stack();
-		Content.Children().Append(Label(Tr("Save.SelectVehiclesExistingCrewRetainSkillsAndXp"), 12));
-		Content.Children().Append(Vehicles);
-		Dialog.Content(Content);
-		Dialog.PrimaryButtonText(Tr("Save.ApplyToOpenAccount"));
-		Dialog.CloseButtonText(Tr("Save.Cancel"));
-		if (co_await Dialog.ShowAsync() != ContentDialogResult::Primary)
-			co_return;
-		auto Rows = SelectedIndices(Vehicles);
-		SaveData.Execute("Restore vehicle-specific crew",
-						 [&](SaveGame& Save)
-						 {
-							 for (auto Row : Rows)
-							 {
-								 auto [VehicleIndex, GroupIndex] = Choices.at(Row);
-								 auto const& Vehicle = GameCatalog.Vehicles[VehicleIndex];
-								 std::set<int64_t> Owners;
-								 for (auto const& Item : Save.Inventory(GameCatalog))
-									 if (Item.TypeCd == Vehicle.TypeCd)
-										 Owners.insert(Item.InventoryId);
-								 if (Owners.empty())
-									 Owners.insert(Save.AddVehicle(Vehicle, GameCatalog, true));
-								 AssignCrewGroup(Save, CrewNames, {GroupIndex}, Owners);
-							 }
-						 });
-		RefreshSave();
 	}
 	catch (...)
 	{

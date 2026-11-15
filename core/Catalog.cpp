@@ -317,6 +317,7 @@ void Catalog::Rebuild(std::function<void(std::string const&)> Progress)
 {
 	Vehicles.clear();
 	NameIndex.clear();
+	CdIndex.clear();
 	Diagnostics.clear();
 	Diagnostics = Resources.Diagnostics;
 	LoadTranslations();
@@ -466,7 +467,12 @@ void Catalog::Rebuild(std::function<void(std::string const&)> Progress)
 	std::sort(Vehicles.begin(), Vehicles.end(), [](auto const& A, auto const& B) { return A.Name < B.Name; });
 	NameIndex.reserve(Vehicles.size());
 	for (size_t Index = 0; Index < Vehicles.size(); ++Index)
+	{
 		NameIndex.emplace(Vehicles[Index].Name, Index);
+		auto [Found, Inserted] = CdIndex.emplace(Vehicles[Index].TypeCd, Index);
+		if (!Inserted && !Vehicles[Found->second].Enabled && Vehicles[Index].Enabled)
+			Found->second = Index;
+	}
 	if (Progress)
 		Progress("Vehicle catalogue ready");
 }
@@ -544,6 +550,9 @@ Vehicle const* Catalog::ByCd(uint32_t Cd) const
 {
 	if (!Cd || (Cd & 15) != 1)
 		return nullptr;
+	if (auto Found = CdIndex.find(Cd);
+		Found != CdIndex.end() && Found->second < Vehicles.size() && Vehicles[Found->second].TypeCd == Cd)
+		return &Vehicles[Found->second];
 	Vehicle const* Result = nullptr;
 	for (auto const& V : Vehicles)
 		if (V.TypeCd == Cd)

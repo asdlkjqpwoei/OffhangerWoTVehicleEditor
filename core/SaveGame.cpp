@@ -37,7 +37,8 @@ std::vector<OwnedVehicle> SaveGame::Inventory(Catalog const& C) const
 			Owned.InventoryId = -1;
 		}
 		Owned.Record = EntryValue;
-		auto Desc = EntryValue->Get("compDescr");
+		Owned.InventoryKey = EntryKey;
+		auto Desc = EntryValue ? EntryValue->Get("compDescr") : nullptr;
 		if (Desc && (Desc->Kind == ValueKind::Bytes || Desc->Kind == ValueKind::Unicode))
 		{
 			try
@@ -176,7 +177,8 @@ static void SetAdd(ValuePtr const& Set, int64_t Value)
 			return;
 	List->Items.push_back(Value::Number(Value));
 }
-int64_t SaveGame::AddVehicle(Vehicle const& Vehicle, Catalog const& Catalog, bool WithCrew)
+int64_t SaveGame::AddVehicle(Vehicle const& Vehicle, Catalog const& Catalog, bool WithCrew,
+							 CrewCatalog const* CrewNames, VehicleFactory* Factory)
 {
 	if (!Root)
 		throw std::runtime_error("Open an account save first");
@@ -194,7 +196,7 @@ int64_t SaveGame::AddVehicle(Vehicle const& Vehicle, Catalog const& Catalog, boo
 	{
 		try
 		{
-			Stock = VehicleFactory(Catalog).Stock(Vehicle);
+			Stock = Factory ? Factory->Stock(Vehicle) : VehicleFactory(Catalog).Stock(Vehicle);
 			Built = true;
 		}
 		catch (...)
@@ -237,9 +239,13 @@ int64_t SaveGame::AddVehicle(Vehicle const& Vehicle, Catalog const& Catalog, boo
 		if (Roles.empty() && Vehicle.Crew)
 			throw std::runtime_error(
 				"Runtime snapshot has no crew roles; refresh it or add this vehicle without crew");
-		CrewCatalog Names;
-		Names.Scan(Catalog);
-		auto Group = Names.Ordinary(Vehicle.NationId, false);
+		CrewCatalog LocalNames;
+		if (!CrewNames)
+		{
+			LocalNames.Scan(Catalog);
+			CrewNames = &LocalNames;
+		}
+		auto Group = CrewNames->Ordinary(Vehicle.NationId, false);
 		if (!Roles.empty() && (!Group || Group->Members.empty()))
 			throw std::runtime_error("No valid native crew passport pool for this nation");
 		static std::map<std::string, int> const RoleIds = {
@@ -368,15 +374,28 @@ void SaveGame::RemoveVehicle(int64_t Id)
 {
 	if (!Root)
 		throw std::runtime_error("Open a save first");
+	for (auto const& Pair : Root->Get("vehicles")->Pairs)
+		if (Json922 ? Pair.first->Text == std::to_string(Id) : Pair.first->AsInt(-1) == Id)
+		{
+			auto Key = Pair.first;
+			RemoveVehicleEntry(Key);
+			return;
+		}
+	throw std::runtime_error("Garage inventory entry not found");
+}
+void SaveGame::RemoveVehicleEntry(ValuePtr const& Key)
+{
+	if (!Root)
+		throw std::runtime_error("Open a save first");
 	auto Table = Root->Get("vehicles");
 	for (auto It = Table->Pairs.begin(); It != Table->Pairs.end(); ++It)
-		if ((Json922 ? It->first->Text == std::to_string(Id) : It->first->AsInt(-1) == Id))
+		if (ValueEqual(It->first, Key))
 		{
-			auto Crew = It->second->Get("crew");
+			auto Crew = It->second ? It->second->Get("crew") : nullptr;
 			auto Tankmen = Root->Get("tankmen");
 			if (Crew && Tankmen)
 				for (auto const& Member : Crew->Items)
-					if (Member->Kind != ValueKind::None)
+					if (Member && Member->Kind != ValueKind::None)
 					{
 						auto Record = Tankmen->Get(Member->AsInt(-1));
 						if (Record && Record->Kind == ValueKind::Dictionary)

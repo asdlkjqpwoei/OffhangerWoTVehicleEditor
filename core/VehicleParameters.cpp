@@ -6,6 +6,83 @@
 #include <numeric>
 namespace OffHanger
 {
+int VehicleClass(std::string const& Tags)
+{
+	static std::string_view const Classes[] = {"lighttank", "mediumtank", "heavytank", "at-spg", "spg"};
+	auto Text = Lower(Tags);
+	for (int Index = 0; Index < 5; ++Index)
+		if (Text.find(Classes[Index]) != Text.npos)
+			return Index + 1;
+	return 0;
+}
+void VehicleListIndex::Refresh(Catalog const& Catalogue, VehicleWorkspace& Workspace,
+							   ParameterDefinitions const& Rules)
+{
+	if (Source == &Catalogue && Data == Catalogue.Vehicles.data() && Revision == Workspace.Revision() &&
+		Entries.size() == Catalogue.Vehicles.size())
+		return;
+	Entries.assign(Catalogue.Vehicles.size(), {});
+	std::vector<bool> Ready(Entries.size());
+	for (size_t Index = 0; Index < Entries.size(); ++Index)
+	{
+		auto const& Vehicle = Catalogue.Vehicles[Index];
+		auto Base = Catalogue.ModeBase(Vehicle);
+		auto Family = Base ? size_t(Base - Catalogue.Vehicles.data()) : Index;
+		auto const& Subject = Catalogue.Vehicles[Family];
+		if (!Ready[Family])
+		{
+			auto Metadata = Subject.ListPath.empty()
+								? nullptr
+								: Workspace.Document(Subject.ListPath).Current.Root.Child(Subject.Model);
+			auto& Entry = Entries[Family];
+			Entry.Tier = Subject.Tier;
+			if (Metadata)
+				try
+				{
+					Entry.Tier = std::stoi(Metadata->Text("level", std::to_string(Subject.Tier)));
+				}
+				catch (std::exception const&)
+				{
+				}
+			Entry.Tags = Metadata ? Metadata->Text("tags", Subject.Tags) : Subject.Tags;
+			Entry.Class = VehicleClass(Entry.Tags);
+			Entry.Category = Rules.Classify(Subject, Metadata, &Catalogue);
+			Ready[Family] = true;
+		}
+		auto Entry = Entries[Family];
+		Entry.Index = Index;
+		Entry.Family = Family;
+		Entry.Search = Lower(Vehicle.Name + " " + Vehicle.DisplayName + " " + Entry.Tags + " " +
+							 std::to_string(Entry.Tier) + " " + std::to_string(Vehicle.TypeCd) + " " +
+							 std::to_string(Subject.TypeCd));
+		Entries[Index] = std::move(Entry);
+	}
+	for (int Order = 0; Order < 3; ++Order)
+	{
+		Orders[Order] = Catalogue.Search("");
+		Catalogue.SortForDisplay(Orders[Order], Order, [&](auto const& Vehicle)
+								 { return Entries[size_t(&Vehicle - Catalogue.Vehicles.data())].Tier; });
+	}
+	Source = &Catalogue;
+	Data = Catalogue.Vehicles.data();
+	Revision = Workspace.Revision();
+}
+bool VehicleListIndex::Matches(size_t Index, VehicleFilter const& Filter) const
+{
+	auto const& Entry = Entries.at(Index);
+	return (Filter.Nation < 0 || Source->Vehicles[Entry.Family].NationId == Filter.Nation) &&
+		   (!Filter.Tier || Entry.Tier == Filter.Tier) && (!Filter.Class || Entry.Class == Filter.Class) &&
+		   Entry.Category.MatchesFilter(Filter.Kind) &&
+		   (Filter.Search.empty() || Entry.Search.find(Lower(Filter.Search)) != Entry.Search.npos);
+}
+std::vector<size_t> VehicleListIndex::Select(VehicleFilter const& Filter) const
+{
+	std::vector<size_t> Result;
+	for (auto Index : Orders[std::clamp(Filter.Order, 0, 2)])
+		if (Matches(Index, Filter))
+			Result.push_back(Index);
+	return Result;
+}
 namespace
 {
 std::vector<double> ParseNumbers(std::string const& Text)
@@ -82,6 +159,7 @@ ParameterDefinitions::ParameterDefinitions(FileSystem::path const& Path) : Defin
 		Copy("name_suffixes", Rule.Suffixes);
 		Copy("name_contains", Rule.Names);
 		Copy("tag_contains", Rule.Tags);
+		Copy("base_tag_contains", Rule.BaseTags);
 		Copy("display_prefixes", Rule.Prefixes);
 	};
 	CompileTaxonomy("rental", RentalRule);
@@ -354,9 +432,23 @@ VehicleCategory ParameterDefinitions::Classify(Vehicle const& Vehicle, Section c
 		for (auto const& Token : Rule.Names)
 			if (Name.find(Token) != Name.npos)
 				return true;
+		auto HasTag = [&](std::string const& Token)
+		{
+			for (auto At = Tags.find(Token); At != Tags.npos; At = Tags.find(Token, At + 1))
+				if ((!At || std::isspace(static_cast<unsigned char>(Tags[At - 1]))) &&
+					(At + Token.size() == Tags.size() ||
+					 std::isspace(static_cast<unsigned char>(Tags[At + Token.size()]))))
+					return true;
+			return false;
+		};
 		for (auto const& Token : Rule.Tags)
-			if (Tags.find(Token) != Tags.npos)
+			if (HasTag(Token))
 				return true;
+		// Enabled extension packs can register playable ports with their original test flags intact.
+		if (!Vehicle.Extension)
+			for (auto const& Token : Rule.BaseTags)
+				if (HasTag(Token))
+					return true;
 		for (auto const& Token : Rule.Prefixes)
 			if (DisplayName.starts_with(Token))
 				return true;

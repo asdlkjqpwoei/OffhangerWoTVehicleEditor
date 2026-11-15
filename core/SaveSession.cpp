@@ -1,6 +1,7 @@
 #include "SaveSession.h"
 #include "Crew.h"
 #include "Json.h"
+#include "VehicleParameters.h"
 #include <set>
 
 namespace OffHanger
@@ -19,10 +20,12 @@ void SaveSession::Open(FileSystem::path const& Path)
 	SaveGame Loaded;
 	Loaded.Open(Path);
 	Account = std::move(Loaded);
+	++ChangeRevision;
 }
 void SaveSession::Close()
 {
 	Account = {};
+	++ChangeRevision;
 }
 void SaveSession::Execute(std::string /*Label*/, std::function<void(SaveGame&)> const& Command)
 {
@@ -37,46 +40,75 @@ void SaveSession::Execute(std::string /*Label*/, std::function<void(SaveGame&)> 
 		if (Snapshot() == Before)
 			return;
 		Account.Dirty = true;
+		++ChangeRevision;
 	}
 	catch (...)
 	{
 		Restore(Before);
 		Account.Dirty = WasDirty;
+		++ChangeRevision;
 		throw;
 	}
 }
-std::vector<SaveIssue> SaveSession::PreviewCleanup(Catalog const& Catalog, CleanupKind Kind) const
+std::string SaveSession::InvalidVehicleReason(OwnedVehicle const& Owned, Catalog const& Catalogue)
+{
+	if (Owned.InventoryId < 1)
+		return "invalid_inventory_key";
+	if (!Owned.TypeCd)
+		return "invalid_descriptor";
+	auto Definition = Catalogue.ByCd(Owned.TypeCd);
+	if (!Definition)
+		return "missing_vehicle";
+	if (!Definition->Listed || !Definition->Enabled || Definition->Conflict)
+		return "missing_registration";
+	if (!Catalogue.Resources.Find(Definition->DefinitionPath) && Definition->StockDescriptor.empty())
+		return "missing_definition";
+	return {};
+}
+SaveIssue SaveSession::DescribeDeletion(OwnedVehicle const& Owned, std::string Reason)
+{
+	SaveIssue Issue{Owned.InventoryId, Owned.Known ? Owned.Display + " · " + Owned.Name : Owned.Name,
+					std::move(Reason), Owned.TypeCd, Owned.InventoryKey};
+	if (Owned.Record && Owned.Record->Kind == ValueKind::Dictionary)
+		for (auto const& [Key, Value] : Owned.Record->Pairs)
+		{
+			auto Preview = Value ? Value->Display() : "None";
+			if (Preview.size() > 240)
+				Preview = "text (" + std::to_string(Preview.size()) + " bytes)";
+			Issue.DataFields.push_back(Key->Display() + " = " + Preview);
+		}
+	else
+		Issue.DataFields.push_back(Owned.Record ? Owned.Record->Display() : "None");
+	if (auto Crew = Owned.Record ? Owned.Record->Get("crew") : nullptr)
+		for (auto const& Member : Crew->Items)
+			if (Member && Member->Kind != ValueKind::None)
+				Issue.CrewIds.push_back(Member->AsInt(-1));
+	return Issue;
+}
+std::vector<SaveIssue> SaveSession::PreviewCleanup(Catalog const& Catalog, CleanupKind Kind,
+												   ParameterDefinitions const& Rules) const
 {
 	std::vector<SaveIssue> Result;
-	std::set<uint32_t> Seen;
+	std::map<std::string, DataSection> Metadata;
 	for (auto const& Owned : Account.Inventory(Catalog))
 	{
 		auto Definition = Catalog.ByCd(Owned.TypeCd);
-		std::string Reason;
-		if (Kind == CleanupKind::Duplicates && Owned.TypeCd && !Seen.insert(Owned.TypeCd).second)
-			Reason = "duplicate vehicle type";
-		if (Kind == CleanupKind::Invalid && (!Owned.TypeCd || !Definition))
-			Reason = Owned.TypeCd ? "type absent from the current catalogue" : "invalid descriptor";
-		if (Kind == CleanupKind::Nonstandard && Definition)
+		auto Invalid = InvalidVehicleReason(Owned, Catalog);
+		std::string Reason = Kind == CleanupKind::Invalid ? Invalid : "";
+		if (Kind == CleanupKind::Unavailable && Invalid.empty() && Definition)
 		{
-			auto Tags = Lower(Definition->Tags);
-			bool NormalClass = false;
-			for (auto Class : {"lighttank", "mediumtank", "heavytank", "at-spg", "spg"})
-				NormalClass |= Tags.find(Class) != Tags.npos;
-			if (!NormalClass || Definition->Tier < 1 || Definition->Tier > 11)
-				Reason = "special mode vehicle outside the standard class/tier range";
-		}
-		if (Kind == CleanupKind::RentalDemo)
-		{
-			auto Name = Lower(Owned.Name);
-			auto Tags = Definition ? Lower(Definition->Tags) : "";
-			if (Name.find("rental") != Name.npos || Name.find("_demo") != Name.npos ||
-				Name.find("7x7") != Name.npos || Tags.find("rental") != Tags.npos ||
-				Tags.find("demo") != Tags.npos)
-				Reason = "rental/demo variant";
+			Section const* Entry = nullptr;
+			if (auto Resource = Catalog.Resources.Find(Definition->ListPath))
+			{
+				if (!Metadata.contains(Definition->ListPath))
+					Metadata.emplace(Definition->ListPath, DataSection::Parse(Resource->Read()));
+				Entry = Metadata.at(Definition->ListPath).Root.Child(Definition->Model);
+			}
+			if (Rules.Classify(*Definition, Entry, &Catalog).HiddenByDefault)
+				Reason = "unavailable";
 		}
 		if (!Reason.empty())
-			Result.push_back({Owned.InventoryId, Owned.Name, Reason});
+			Result.push_back(DescribeDeletion(Owned, Reason));
 	}
 	return Result;
 }

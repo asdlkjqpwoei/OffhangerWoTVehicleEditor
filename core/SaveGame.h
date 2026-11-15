@@ -3,6 +3,8 @@
 #include "Pickle.h"
 namespace OffHanger
 {
+class CrewCatalog;
+class VehicleFactory;
 struct OwnedVehicle
 {
 	int64_t InventoryId{};
@@ -11,6 +13,7 @@ struct OwnedVehicle
 	int Tier{};
 	bool Known{};
 	ValuePtr Record;
+	ValuePtr InventoryKey;
 };
 class SaveGame
 {
@@ -28,8 +31,10 @@ class SaveGame
 	int64_t Currency(std::string const& Key) const;
 	void SetVehicleXp(uint32_t TypeCd, int64_t Xp);
 	int64_t VehicleXp(uint32_t TypeCd) const;
-	int64_t AddVehicle(Vehicle const& Vehicle, Catalog const& Catalog, bool WithCrew = true);
+	int64_t AddVehicle(Vehicle const& Vehicle, Catalog const& Catalog, bool WithCrew = true,
+					   CrewCatalog const* CrewNames = nullptr, VehicleFactory* Factory = nullptr);
 	void RemoveVehicle(int64_t InventoryId);
+	void RemoveVehicleEntry(ValuePtr const& InventoryKey);
 	int64_t CloneVehicle(int64_t InventoryId, bool CloneCrew = true);
 	size_t DeduplicateVehicles(Catalog const& Catalog);
 	FileSystem::path Save(FileSystem::path const& Target);

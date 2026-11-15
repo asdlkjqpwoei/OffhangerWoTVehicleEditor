@@ -2,8 +2,59 @@
 #include <regex>
 #include <sstream>
 #include <tuple>
+#include <charconv>
 namespace OffHanger
 {
+int CrewRoleId(std::string_view Name)
+{
+	static std::string_view const Roles[] = {"commander", "radioman", "driver", "gunner", "loader"};
+	for (int Index = 0; Index < 5; ++Index)
+		if (Name == Roles[Index])
+			return Index + 1;
+	return 0;
+}
+int CrewRoleOrder(int Role)
+{
+	static int const Order[] = {5, 0, 4, 2, 1, 3};
+	return Role >= 1 && Role <= 5 ? Order[Role] : 5;
+}
+static uint64_t PassportKey(CrewInfo const& Info)
+{
+	return uint64_t(Info.Nation) << 48 | uint64_t(Info.Passport.First) << 32 |
+		   uint64_t(Info.Passport.Last) << 16 | Info.Passport.Icon;
+}
+static std::string CrewThemeKey(CrewGroup const& Group)
+{
+	if (!Group.Special)
+		return "ordinary";
+	auto Key = Lower(Group.Key), Tags = Lower(Group.Tags);
+	for (std::string_view Prefix : {"men_", "women_"})
+		if (Key.starts_with(Prefix))
+			Key.erase(0, Prefix.size());
+	if (Key.find("twitch") != Key.npos)
+		return "twitch";
+	if (Key.starts_with("girls_und_panzer_"))
+		return "girls_und_panzer";
+	if (Tags.find("sabatoncrew") != Tags.npos)
+		return "sabaton";
+	if (Tags.find("offspringcrew") != Tags.npos)
+		return "offspring";
+	if (Key.starts_with("theboys_") || Key.starts_with("seven_"))
+		return "theboys";
+	static std::regex const Event(
+		"^(ny[0-9]{2}(?:ruby)?|hw[0-9]{2}|bob[0-9]{2}|race[0-9]{2}|wt_(?:cn)?[0-9]{4}|wt[0-9]{2}|tc[0-9]{4}|"
+		"birthday[0-9]+|onslaught_p[0-9]+|cosm[0-9]+|oow[0-9]+|boosteroid)(?:_|$).*"),
+		Campaign(
+			"^(?:tankmen_|commander_)?(bp(?:[0-9]+|h)|bp-commander-[0-9]+|pm[0-9]+|mtlb[0-9]+|auc)(?:_|$).*"),
+		RoleSuffix("[_]?(?:commander|gunner|driver|radioman|loader)(?:[a-z0-9]*)(?:_[a-z]+)?$");
+	std::smatch Match;
+	if (std::regex_match(Key, Match, Event) || std::regex_match(Key, Match, Campaign))
+		return Match[1];
+	if (Key.starts_with("wt_"))
+		return "wt";
+	auto Theme = std::regex_replace(Key, RoleSuffix, "");
+	return Theme.empty() ? Key : Theme;
+}
 static uint16_t Be16(Bytes const& D, size_t P)
 {
 	auto N = U16(D, P);
@@ -66,9 +117,17 @@ CrewInfo ParseCrew(Bytes const& D, bool Old)
 	R.EfficiencyXp = (uint32_t(D[Pos] & 1) << 16) | (uint32_t(D[Pos + 1]) << 8) | D[Pos + 2];
 	Pos += 3;
 	auto Skills = D[Pos++];
+	if (Pos + size_t(Skills) + 1 > D.size())
+		throw std::runtime_error("Truncated crew skills");
+	R.Skills.assign(D.begin() + Pos, D.begin() + Pos + Skills);
+	R.LastSkillLevel = D[Pos + Skills];
 	Pos += Skills + 1;
 	if (Flags & 16)
-		++Pos;
+	{
+		if (Pos >= D.size())
+			throw std::runtime_error("Truncated free crew skills");
+		R.FreeSkills = D[Pos++];
+	}
 	if (Flags & 8)
 	{
 		if (Pos >= D.size())
@@ -164,12 +223,19 @@ static std::vector<uint16_t> Ids(Section const* Section)
 	std::vector<uint16_t> Out;
 	if (!Section)
 		return Out;
-	std::regex Digits("[0-9]+");
-	for (std::sregex_iterator I(Section->Value.begin(), Section->Value.end(), Digits), End; I != End; ++I)
+	for (size_t Pos = 0; Pos < Section->Value.size();)
 	{
-		auto Id = std::stoul(I->str());
-		if (Id <= 65535)
+		auto Begin = Section->Value.find_first_of("0123456789", Pos);
+		if (Begin == std::string::npos)
+			break;
+		auto End = Section->Value.find_first_not_of("0123456789", Begin);
+		if (End == std::string::npos)
+			End = Section->Value.size();
+		unsigned Id{};
+		auto Parsed = std::from_chars(Section->Value.data() + Begin, Section->Value.data() + End, Id);
+		if (Parsed.ec == std::errc{} && Id <= 65535)
 			Out.push_back(uint16_t(Id));
+		Pos = End;
 	}
 	if (Out.empty())
 		for (auto const& C : Section->Children)
@@ -188,6 +254,21 @@ static std::vector<uint16_t> Ids(Section const* Section)
 void CrewCatalog::Scan(Catalog const& Catalog)
 {
 	Groups.clear();
+	PassportGroups.clear();
+	IconGroups.clear();
+	FirstNames.clear();
+	LastNames.clear();
+	BrotherhoodSkill = 0;
+	if (auto Source = Catalog.Resources.Find("scripts/item_defs/tankmen/tankmen.xml"))
+	{
+		auto Document = DataSection::Parse(Source->Read());
+		auto Roles = Document.Root.Child("roles"), Skills = Document.Root.Child("skills");
+		if (Roles && Skills)
+			for (size_t Index = 0; Index < Skills->Children.size(); ++Index)
+				if (Skills->Children[Index].Name == "brotherhood" &&
+					Roles->Children.size() + Index + 1 <= 255)
+					BrotherhoodSkill = uint8_t(Roles->Children.size() + Index + 1);
+	}
 	static std::vector<std::string> const Nations = {"ussr",  "germany", "usa",	   "china",	 "france", "uk",
 													 "japan", "czech",	 "sweden", "poland", "italy"};
 	for (size_t Ni = 0; Ni < Nations.size(); ++Ni)
@@ -213,16 +294,52 @@ void CrewCatalog::Scan(Catalog const& Catalog)
 				Result.Key = Group.Name;
 				Result.Tags = Group.Text("tags");
 				Result.Label = Catalog.Localization(Group.Text("userString", Group.Name));
-				if (Result.Label.empty() || Result.Label.starts_with('#'))
+				if (Result.Label.empty() || Result.Label.starts_with('#') ||
+					Lower(Trim(Result.Label)) == "?empty?")
 					Result.Label = Group.Name;
 				auto ThemeLabel =
 					Catalog.Localization("#tooltips:notrecruitedtankman/" + Group.Name + "/label");
-				if (!ThemeLabel.empty() && !ThemeLabel.starts_with('#'))
+				if (!ThemeLabel.empty() && !ThemeLabel.starts_with('#') &&
+					Lower(Trim(ThemeLabel)) != "?empty?")
 					Result.Label = std::move(ThemeLabel);
 				Result.Premium = std::string(Container) == "premiumGroups";
 				Result.Female =
 					Lower(Group.Text("sex")) == "female" || Lower(Group.Name).starts_with("women");
-				Result.Special = !std::regex_match(Group.Name, std::regex("(?:men|women)[0-9]+"));
+				static std::regex const OrdinaryPattern("(?:men|women)[0-9]+");
+				Result.Special = !std::regex_match(Group.Name, OrdinaryPattern);
+				auto RoleText = Trim(Group.Text("roles"));
+				std::istringstream RoleInput(RoleText);
+				std::string RoleName;
+				while (RoleInput >> RoleName)
+					if (auto Id = CrewRoleId(RoleName))
+						Result.AllowedRoles.push_back(Id);
+				if (RoleText.empty())
+					Result.AllowedRoles = {1, 2, 3, 4, 5};
+				Result.Theme = CrewThemeKey(Result);
+				Result.ThemeLabel = Result.Theme == Lower(Group.Name) ? Result.Label : Result.Theme;
+				if (Result.Theme.starts_with("bp-commander-") && Result.Label != Group.Name)
+					Result.ThemeLabel = Result.Label;
+				std::replace(Result.ThemeLabel.begin(), Result.ThemeLabel.end(), '_', ' ');
+				auto ReadNames = [&](char const* Field, auto& Target)
+				{
+					if (auto Names = Group.Child(Field))
+						for (auto const& Name : Names->Children)
+						{
+							auto Begin = Name.Name.find_first_of("0123456789");
+							if (Begin == Name.Name.npos)
+								continue;
+							auto Id = std::stoul(Name.Name.substr(Begin));
+							if (Id <= 65535)
+							{
+								auto Text = Catalog.Localization(Name.Value);
+								if (Lower(Trim(Text)) == "?empty?")
+									Text.clear();
+								Target[(uint32_t(Ni) << 16) | Id] = std::move(Text);
+							}
+						}
+				};
+				ReadNames("firstNames", FirstNames);
+				ReadNames("lastNames", LastNames);
 				static std::regex const VehicleTagPattern("[a-z]+:[A-Za-z0-9_]+");
 				for (std::sregex_iterator Match(Result.Tags.begin(), Result.Tags.end(), VehicleTagPattern),
 					 End;
@@ -237,15 +354,23 @@ void CrewCatalog::Scan(Catalog const& Catalog)
 						break;
 					}
 				if (!Result.BoundVehicles.empty())
+				{
 					Result.RecruitmentVehicle = uint16_t(Catalog.ByName(Result.BoundVehicles.front())->Id);
+					Result.Theme = "vehicle:" + Result.BoundVehicles.front();
+					Result.ThemeLabel = Catalog.ByName(Result.BoundVehicles.front())->DisplayName;
+				}
 				auto Count = std::max({First.size(), Last.size(), Icons.size()});
 				for (size_t N = 0; N < Count; ++N)
 					Result.Members.push_back(
 						{First[N % First.size()], Last[N % Last.size()], Icons[N % Icons.size()]});
 				for (auto const& Member : Result.Members)
 				{
+					auto Given = FirstNames.find((uint32_t(Ni) << 16) | Member.First);
+					auto Family = LastNames.find((uint32_t(Ni) << 16) | Member.Last);
+					Result.MemberNames.push_back(Trim((Given == FirstNames.end() ? "" : Given->second) + " " +
+													  (Family == LastNames.end() ? "" : Family->second)));
 					std::string IconName;
-					if (auto IconTable = Doc.Root.Child("icons"))
+					if (auto IconTable = Group.Child("icons"))
 						for (auto const& Icon : IconTable->Children)
 						{
 							auto Digits = Icon.Name.find_first_of("0123456789");
@@ -258,11 +383,11 @@ void CrewCatalog::Scan(Catalog const& Catalog)
 						}
 					int Role = 0;
 					for (auto const& [Name, Id] : std::vector<std::pair<std::string, int>>{{"commander", 1},
-																						   {"gunner", 2},
+																						   {"gunner", 4},
 																						   {"driver", 3},
-																						   {"radioman", 4},
-																						   {"radio", 4},
-																						   {"operator", 4},
+																						   {"radioman", 2},
+																						   {"radio", 2},
+																						   {"operator", 2},
 																						   {"loader", 5}})
 						if (IconName.find(Name) != IconName.npos)
 						{
@@ -271,10 +396,53 @@ void CrewCatalog::Scan(Catalog const& Catalog)
 						}
 					Result.MemberRoles.push_back(Role);
 				}
+				if (Result.Special && Result.Theme == Lower(Group.Name) && !Result.MemberNames.empty() &&
+					!Result.MemberNames.front().empty() && !Result.MemberNames.front().starts_with('#'))
+					Result.ThemeLabel = Result.MemberNames.front();
 				Groups.push_back(std::move(Result));
 			}
 		}
 	}
+	for (size_t Index = 0; Index < Groups.size(); ++Index)
+		for (auto const& Member : Groups[Index].Members)
+		{
+			CrewInfo Info;
+			Info.Nation = Groups[Index].NationId;
+			Info.Passport = Member;
+			auto Key = PassportKey(Info);
+			if (!PassportGroups.contains(Key) || Groups[Index].Special)
+				PassportGroups[Key] = Index;
+			auto& ByIcon = IconGroups[(uint32_t(Info.Nation) << 16) | Member.Icon];
+			if (std::find(ByIcon.begin(), ByIcon.end(), Index) == ByIcon.end())
+				ByIcon.push_back(Index);
+		}
+}
+CrewGroup const* CrewCatalog::GroupFor(CrewInfo const& Info) const
+{
+	if (auto Found = PassportGroups.find(PassportKey(Info)); Found != PassportGroups.end())
+		return &Groups[Found->second];
+	auto Found = IconGroups.find((uint32_t(Info.Nation) << 16) | Info.Passport.Icon);
+	if (Found != IconGroups.end())
+		for (auto Index : Found->second)
+		{
+			auto const& Group = Groups[Index];
+			bool First = false, Last = false;
+			for (auto const& Member : Group.Members)
+			{
+				First |= Member.First == Info.Passport.First;
+				Last |= Member.Last == Info.Passport.Last;
+			}
+			if (First && Last)
+				return &Group;
+		}
+	return nullptr;
+}
+std::string CrewCatalog::NameFor(CrewInfo const& Info) const
+{
+	auto First = FirstNames.find((uint32_t(Info.Nation) << 16) | Info.Passport.First);
+	auto Last = LastNames.find((uint32_t(Info.Nation) << 16) | Info.Passport.Last);
+	return Trim((First == FirstNames.end() ? "" : First->second) + " " +
+				(Last == LastNames.end() ? "" : Last->second));
 }
 CrewGroup const* CrewCatalog::Ordinary(int Nation, bool Female) const
 {
@@ -286,12 +454,8 @@ CrewGroup const* CrewCatalog::Ordinary(int Nation, bool Female) const
 }
 bool CrewCatalog::IsSpecial(CrewInfo const& I) const
 {
-	for (auto const& G : Groups)
-		if (G.Special && G.NationId == I.Nation)
-			for (auto const& P : G.Members)
-				if (P == I.Passport)
-					return true;
-	return false;
+	auto Group = GroupFor(I);
+	return Group && Group->Special;
 }
 static ValuePtr* Slot(ValuePtr& P, std::string const& Key)
 {

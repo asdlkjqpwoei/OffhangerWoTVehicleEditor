@@ -11,7 +11,7 @@ option(OHEDITOR_BUILD_APP "Build the WinUI editor" ON)
 option(OHEDITOR_BUILD_TESTS "Build the native verification program" ON)
 set(CoreSources
 	core/Archive.cpp core/Catalog.cpp core/Common.cpp core/Configuration.cpp
-	core/Crew.cpp core/DataSection.cpp core/Defaults.cpp core/GameDataCache.cpp core/Geometry.cpp core/Havok.cpp
+	core/Crew.cpp core/Barracks.cpp core/DataSection.cpp core/Defaults.cpp core/GameDataCache.cpp core/Geometry.cpp core/Havok.cpp
 	core/ResourceSignature.cpp core/Json.cpp core/ModelCache.cpp core/Pickle.cpp core/SaveGame.cpp core/SaveSession.cpp
 	core/VehicleFactory.cpp core/VehicleWorkspace.cpp core/VehicleParameters.cpp
 )
@@ -35,7 +35,7 @@ if(OHEDITOR_BUILD_APP)
 		message(FATAL_ERROR "Use the vs2026 preset to build the WinUI application.")
 	endif()
 	set(AppSources app/Main.cpp app/EditorWindow.cpp app/BaselinePage.cpp app/VehiclePage.cpp app/ParameterPage.cpp
-		app/XmlPage.cpp app/ModelPage.cpp app/ModelViewport.cpp app/SavePage.cpp app/UiCommon.cpp app/EditBuffer.cpp app/SessionLoading.cpp app/WorkspaceOperations.cpp)
+		app/XmlPage.cpp app/ModelPage.cpp app/ModelViewport.cpp app/SavePage.cpp app/BarracksPage.cpp app/UiCommon.cpp app/EditBuffer.cpp app/SessionLoading.cpp app/WorkspaceOperations.cpp)
 	add_executable(OffHangerWoTOfflineVehicleEditor WIN32 ${AppSources} app/EditorWindow.h app/UiCommon.h
 		app/ModelViewport.h app/app.manifest)
 	ConfigureCore(OffHangerWoTOfflineVehicleEditor)

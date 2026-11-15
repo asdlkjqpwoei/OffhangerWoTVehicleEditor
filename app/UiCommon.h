@@ -19,6 +19,7 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.UI.Text.h>
 #include <chrono>
+#include <array>
 
 namespace OffHanger::Ui
 {
@@ -83,6 +84,14 @@ Xaml::GridLength Auto();
 Xaml::GridLength Star(double Weight = 1);
 Xaml::GridLength Pixels(double Size);
 Controls::ComboBox Combo(std::vector<winrt::hstring> const& Items, int Selected = 0);
+struct VehicleFilterControls
+{
+	Controls::TextBox Search{nullptr};
+	Controls::ComboBox Nation{nullptr}, Tier{nullptr}, Class{nullptr}, Kind{nullptr}, Sort{nullptr};
+};
+Controls::Grid BuildVehicleFilters(bool Chinese, VehicleFilterControls& Filters,
+								   std::function<void()> Changed, bool Sidebar = false);
+VehicleFilter ReadVehicleFilter(VehicleFilterControls const& Filters);
 Controls::ListViewItem ListRow(winrt::hstring const& Text);
 void SetListRows(Controls::ListView const& List, std::vector<winrt::hstring> const& Rows);
 void ArrangeGridColumns(Controls::Grid const& Grid, int Columns);

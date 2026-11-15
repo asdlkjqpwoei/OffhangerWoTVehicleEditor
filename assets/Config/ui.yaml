@@ -78,9 +78,6 @@ strings:
   Save.AddVehicles:
     zh: "添加车辆"
     en: "Add vehicles"
-  Save.UniqueAndThemedCrew:
-    zh: "专属与主题乘员"
-    en: "Unique and themed crew"
   Save.AllSaveFields:
     zh: "完整存档字段"
     en: "All save fields"
@@ -99,27 +96,12 @@ strings:
   Save.DeleteSelected:
     zh: "删除选中车辆"
     en: "Delete selected"
-  Save.CloneVehicleAndCrew:
-    zh: "复制车辆与乘员"
-    en: "Clone vehicle and crew"
   Save.VehicleXp:
     zh: "车辆经验"
     en: "Vehicle XP"
   Save.UpdateVehicleXp:
     zh: "更新车辆经验"
     en: "Update vehicle XP"
-  Save.PreviewDeduplication:
-    zh: "预览去重"
-    en: "Preview deduplication"
-  Save.PreviewInvalidVehicles:
-    zh: "预览无效车辆"
-    en: "Preview invalid vehicles"
-  Save.PreviewSpecialModeVehicles:
-    zh: "预览非标准车辆"
-    en: "Preview special mode vehicles"
-  Save.PreviewRentalDemo:
-    zh: "预览租赁 / 演示车"
-    en: "Preview rental / demo"
   Save.VehicleNameCodeOrTags:
     zh: "车辆名称、代号或标签"
     en: "Vehicle name, code or tags"
@@ -132,24 +114,6 @@ strings:
   Save.AllClasses:
     zh: "全部车型"
     en: "All classes"
-  Save.AllVehicles:
-    zh: "全部车辆"
-    en: "All vehicles"
-  Save.NotOwned:
-    zh: "未拥有"
-    en: "Not owned"
-  Save.Owned:
-    zh: "已拥有"
-    en: "Owned"
-  Save.Hidden:
-    zh: "隐藏车辆"
-    en: "Hidden"
-  Save.GarageAvailable:
-    zh: "车库可用"
-    en: "Garage available"
-  Save.ExtensionsMods:
-    zh: "扩展 / Mod"
-    en: "Extensions / Mods"
   Save.IncludeCrew:
     zh: "同时添加乘员"
     en: "Include crew"
@@ -159,27 +123,6 @@ strings:
   Save.AddSelectedVehicles:
     zh: "添加选中车辆"
     en: "Add selected vehicles"
-  Save.FilterByNationThemeOrTags:
-    zh: "按国家、主题名称或标签筛选"
-    en: "Filter by nation, theme or tags"
-  Save.AssignToSelectedVehiclesGarage:
-    zh: "指配到选中车辆 / 全车库"
-    en: "Assign to selected vehicles / garage"
-  Save.RestoreVehicleSpecificCrew:
-    zh: "恢复车辆专属车组"
-    en: "Restore vehicle-specific crew"
-  Save.RecruitsPerGroup0All:
-    zh: "每组招募人数（0 = 全部）"
-    en: "Recruits per group (0 = all)"
-  Save.RecruitSelectedGroups:
-    zh: "招募选中组到兵营"
-    en: "Recruit selected groups"
-  Save.RecruitAllThemes:
-    zh: "招募全部主题组"
-    en: "Recruit all themes"
-  Save.CombineMultipleThemesWithNoVehicleSelectionAssignment:
-    zh: "可多选主题进行组合。未选车时指配到全车库的在车乘员，保留技能与经验。招募时跳过存档中已有的成员。"
-    en: "Combine multiple themes. With no vehicle selection, assignment covers mounted garage crew and preserves skills and XP. Recruitment skips members already in the account."
   Save.SearchAllSaveFieldPaths:
     zh: "搜索完整存档字段路径"
     en: "Search all save field paths"
@@ -228,27 +171,9 @@ strings:
   Save.VehiclesAddedToTheOpenAccountNotSaved:
     zh: "车辆已加入当前编辑中的存档，尚未保存"
     en: "Vehicles added to the open account; not saved yet"
-  Save.ThemedCrewAssignmentPreview:
-    zh: "主题乘员指配预览"
-    en: "Themed crew assignment preview"
-  Save.CrewIdentitiesWillChangeExistingSkillsAndXp:
-    zh: " 名乘员将更新身份，原有技能与经验保留。"
-    en: " crew identities will change; existing skills and XP are preserved."
-  Save.RecruitThemedCrew:
-    zh: "主题乘员招募"
-    en: "Recruit themed crew"
-  Save.GroupsWillBeRecruitedToTheBarracksExisting:
-    zh: " 个组将发往兵营。已有成员会跳过，"
-    en: " groups will be recruited to the barracks. Existing members are skipped. "
   Save.NewCrewAddedToTheBarracksNotSaved:
     zh: " 名新成员已加入兵营，尚未保存"
     en: " new crew added to the barracks; not saved yet"
-  Save.VehicleWillBeAddedFirst:
-    zh: "（会先添加车辆）"
-    en: " (vehicle will be added first)"
-  Save.SelectVehiclesExistingCrewRetainSkillsAndXp:
-    zh: "选择车辆。已在库的乘员保留技能与经验，未拥有的车辆将连同乘员一起加入。"
-    en: "Select vehicles. Existing crew retain skills and XP. Missing vehicles are added with crew."
   Save.ApplyToOpenAccount:
     zh: "应用到当前存档"
     en: "Apply to open account"
@@ -624,3 +549,174 @@ strings:
 
 
 
+  Barracks.Title:
+    zh: "兵营"
+    en: "Barracks"
+  Barracks.Owned:
+    zh: "玩家已拥有乘员"
+    en: "Owned crew"
+  Barracks.Pending:
+    zh: "待招募乘员"
+    en: "Recruitable crew"
+  Barracks.Theme:
+    zh: "活动或主题"
+    en: "Event or theme"
+  Barracks.AllThemes:
+    zh: "全部活动或主题"
+    en: "All events or themes"
+  Barracks.Nation:
+    zh: "服役国家"
+    en: "Service nation"
+  Barracks.Class:
+    zh: "服役车型"
+    en: "Vehicle class"
+  Barracks.Vehicle:
+    zh: "具体服役车辆"
+    en: "Training vehicle"
+  Barracks.Role:
+    zh: "主职务"
+    en: "Primary role"
+  Barracks.AllRoles:
+    zh: "全部职务"
+    en: "All roles"
+  Barracks.Commander:
+    zh: "车长"
+    en: "Commander"
+  Barracks.Gunner:
+    zh: "炮手"
+    en: "Gunner"
+  Barracks.Driver:
+    zh: "驾驶员"
+    en: "Driver"
+  Barracks.Loader:
+    zh: "装填手"
+    en: "Loader"
+  Barracks.Radioman:
+    zh: "通讯兵"
+    en: "Radio operator"
+  Barracks.Unknown:
+    zh: "未知"
+    en: "Unknown"
+  Barracks.Ordinary:
+    zh: "普通乘员"
+    en: "Ordinary crew"
+  Barracks.HolidayOps:
+    zh: "假日行动 "
+    en: "Holiday Ops "
+  Barracks.Standby:
+    zh: "在兵营中待命"
+    en: "Standing by in barracks"
+  Barracks.Mounted:
+    zh: "在车辆上服役："
+    en: "Serving on: "
+  Barracks.Experience:
+    zh: "可用乘员经验"
+    en: "Available crew XP"
+  Barracks.SetExperience:
+    zh: "修改选中乘员经验"
+    en: "Update selected crew XP"
+  Barracks.ExperienceHelp:
+    zh: "仅修改选中乘员的可用经验，保留熟练度和已有技能。范围：0–4,000,000,000。"
+    en: "Updates available XP for the selected crew member while preserving proficiency and skills. Range: 0–4,000,000,000."
+  Barracks.ExperienceRange:
+    zh: "乘员经验必须为 0 至 4,000,000,000 之间的整数。"
+    en: "Crew XP must be an integer between 0 and 4,000,000,000."
+  Barracks.MoveToBarracks:
+    zh: "从车辆移至兵营"
+    en: "Move to barracks"
+  Barracks.RemoveFromAccount:
+    zh: "从账户移除乘员"
+    en: "Remove crew from account"
+  Barracks.DetachWarning:
+    zh: "将解除此乘员的车辆服役关联并移至兵营，保留其车辆专精、技能和经验。"
+    en: "Detaches this crew member from all vehicle seats and moves them to barracks, preserving training, skills and XP."
+  Barracks.RemoveWarning:
+    zh: "将从账户永久移除此乘员的数据，并清除所有车辆中的服役关联；保存存档后生效。"
+    en: "Removes this crew member’s record and all vehicle seat references. Takes effect when the save is written."
+  Barracks.RoleRestriction:
+    zh: "招募职位限制"
+    en: "Recruitment role restriction"
+  Barracks.NationRestriction:
+    zh: "招募国家限制"
+    en: "Recruitment nation restriction"
+  Barracks.Unrestricted:
+    zh: "无限制"
+    en: "Unrestricted"
+  Barracks.Recruit:
+    zh: "招募选中乘员至兵营"
+    en: "Recruit selected crew to barracks"
+  Barracks.RecruitHelp:
+    zh: "须完整指定国家、车型、车辆及主职务；附赠100%熟练度的兄弟连技能。"
+    en: "Specify nation, class, vehicle and primary role. A fully trained, free Brothers in Arms skill is included."
+  Barracks.LegacyUnsupported:
+    zh: "0.9.22 存档将乘员嵌入车辆记录，没有独立兵营，无法招募至兵营或移入兵营。"
+    en: "0.9.22 embeds crew in vehicle records and has no independent barracks inventory."
+  Save.DeleteUnavailable:
+    zh: "删除无法正常获取的车辆"
+    en: "Delete vehicles not normally obtainable"
+  Save.DeleteInvalid:
+    zh: "删除无效车辆"
+    en: "Delete invalid vehicles"
+  Save.DeleteVehicleData:
+    zh: "将删除下列车辆的整条库存记录（包括所列装备、弹药、外观及配置数据）。关联乘员移至兵营；账户级经验及研发记录保留。"
+    en: "Deletes each listed vehicle inventory record, including its equipment, ammunition, appearance and configuration fields. Attached crew move to barracks; account XP and research records are retained."
+  Save.DeleteLegacyData:
+    zh: "将删除下列车辆的整条记录及其嵌入的乘员数据。此旧版存档没有独立兵营；账户级经验及研发记录保留。"
+    en: "Deletes the listed vehicle records and their embedded crew. This legacy format has no independent barracks; account XP and research records are retained."
+  Save.MovedCrewIds:
+    zh: "移至兵营的乘员库存编号："
+    en: "Crew inventory IDs moving to barracks:"
+  Save.Reason.invalid_inventory_key:
+    zh: "原因：车辆库存键无效"
+    en: "Reason: invalid vehicle inventory key"
+  Save.Reason.invalid_descriptor:
+    zh: "原因：车辆描述数据无效"
+    en: "Reason: invalid vehicle descriptor"
+  Save.Reason.missing_vehicle:
+    zh: "原因：游戏中找不到该车型"
+    en: "Reason: vehicle type is absent from the game"
+  Save.Reason.missing_registration:
+    zh: "原因：车辆注册缺失、禁用或冲突"
+    en: "Reason: missing, disabled or conflicting vehicle registration"
+  Save.Reason.missing_definition:
+    zh: "原因：车辆定义数据缺失"
+    en: "Reason: missing vehicle definition data"
+  Save.Reason.unavailable:
+    zh: "原因：无法正常获取的车辆或副本"
+    en: "Reason: vehicle or copy not normally obtainable"
+  Barracks.OrdinaryMale:
+    zh: "普通男性乘员"
+    en: "Ordinary male crew"
+  Barracks.OrdinaryFemale:
+    zh: "普通女性乘员"
+    en: "Ordinary female crew"
+  Barracks.GirlsUndPanzer:
+    zh: "少女与战车"
+    en: "Girls und Panzer"
+  Barracks.Sabaton:
+    zh: "Sabaton 乐队"
+    en: "Sabaton"
+  Barracks.Offspring:
+    zh: "The Offspring 乐队"
+    en: "The Offspring"
+  Barracks.TheBoys:
+    zh: "黑袍纠察队"
+    en: "The Boys"
+  Barracks.Waffentrager:
+    zh: "猎杀“百运”"
+    en: "Waffenträger"
+  Barracks.BattlePass:
+    zh: "战斗通行证 · 赛季 "
+    en: "Battle Pass · Season "
+  Barracks.BattlePassSpecial:
+    zh: "战斗通行证 · 特殊章节 "
+    en: "Battle Pass · Special chapter "
+  Barracks.Halloween:
+    zh: "万圣节活动 "
+    en: "Halloween "
+  Barracks.TeamClash:
+    zh: "主播活动 "
+    en: "Team Clash "
+  Barracks.Racing:
+    zh: "竞速活动 "
+    en: "Racing "

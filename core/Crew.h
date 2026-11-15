@@ -16,6 +16,8 @@ struct CrewInfo
 	uint32_t EfficiencyXp{}, FreeXp{};
 	Passport Passport;
 	size_t PassportOffset{};
+	std::vector<uint8_t> Skills;
+	uint8_t LastSkillLevel{}, FreeSkills{};
 };
 CrewInfo ParseCrew(Bytes const& Descriptor, bool Legacy922 = false);
 Bytes BuildCrew(int Nation, uint16_t Vehicle, int Role, Passport Passport, bool Female = false,
@@ -32,15 +34,27 @@ struct CrewGroup
 	std::vector<int> MemberRoles;
 	std::vector<std::string> BoundVehicles;
 	uint16_t RecruitmentVehicle{};
+	std::string Theme, ThemeLabel;
+	std::vector<std::string> MemberNames;
+	std::vector<int> AllowedRoles;
 };
 class CrewCatalog
 {
+	std::unordered_map<uint64_t, size_t> PassportGroups;
+	std::unordered_map<uint32_t, std::vector<size_t>> IconGroups;
+	std::unordered_map<uint32_t, std::string> FirstNames, LastNames;
+
   public:
 	std::vector<CrewGroup> Groups;
 	void Scan(Catalog const& Catalog);
 	CrewGroup const* Ordinary(int Nation, bool Female) const;
 	bool IsSpecial(CrewInfo const& Info) const;
+	CrewGroup const* GroupFor(CrewInfo const& Info) const;
+	std::string NameFor(CrewInfo const& Info) const;
+	uint8_t BrotherhoodSkill{};
 };
+int CrewRoleId(std::string_view Name);
+int CrewRoleOrder(int Role);
 struct CrewSlot
 {
 	int64_t InventoryId{}, VehicleId{};

@@ -17,13 +17,17 @@ FileSystem::path ApplicationFolder()
 }
 namespace
 {
-YAML::Node UiStrings;
+std::unordered_map<std::string, std::array<hstring, 2>> UiStrings;
 }
 void Settings::Load()
 {
 	DataFolder = ApplicationFolder();
 	CacheFolder = DataFolder / L"Cache";
-	UiStrings = ReadYaml(DataFolder / L"Config/ui.yaml")["strings"];
+	UiStrings.clear();
+	for (auto Entry : ReadYaml(DataFolder / L"Config/ui.yaml")["strings"])
+		UiStrings.emplace(Entry.first.as<std::string>(),
+						  std::array<hstring, 2>{HString(Entry.second["zh"].as<std::string>()),
+												 HString(Entry.second["en"].as<std::string>())});
 	Chinese = PRIMARYLANGID(GetUserDefaultUILanguage()) == LANG_CHINESE;
 	auto Path = DataFolder / L"settings.yaml";
 	if (!FileSystem::is_regular_file(Path))
@@ -112,10 +116,10 @@ void UiPerformance::Flush(FileSystem::path const& Target) const noexcept
 }
 hstring Translate(bool Chinese, char const* Key)
 {
-	auto Item = UiStrings[Key];
-	if (!Item)
+	auto Item = UiStrings.find(Key);
+	if (Item == UiStrings.end())
 		throw std::runtime_error(std::string("Missing UI YAML key: ") + Key);
-	return HString(Item[Chinese ? "zh" : "en"].as<std::string>());
+	return Item->second[Chinese ? 0 : 1];
 }
 hstring HString(std::string const& Utf8)
 {
@@ -184,6 +188,67 @@ void SetListRows(Controls::ListView const& List, std::vector<hstring> const& Row
 	for (auto const& Text : Rows)
 		Items.push_back(make<ListText>(Text));
 	List.ItemsSource(single_threaded_observable_vector<IInspectable>(std::move(Items)));
+}
+Controls::Grid BuildVehicleFilters(bool Chinese, VehicleFilterControls& Filters,
+								   std::function<void()> Changed, bool Sidebar)
+{
+	auto Tr = [Chinese](char const* Key) { return Translate(Chinese, Key); };
+	auto Page = Rows(Sidebar ? std::initializer_list<Xaml::GridLength>{Auto(), Auto(), Auto(), Auto()}
+							 : std::initializer_list<Xaml::GridLength>{Auto(), Auto()});
+	Filters.Search = Controls::TextBox();
+	Filters.Search.PlaceholderText(Tr("Vehicle.Search"));
+	Page.Children().Append(Filters.Search);
+	Filters.Nation = Combo({Tr("Filter.AllNations"), L"ussr", L"germany", L"usa", L"china", L"france", L"uk",
+							L"japan", L"czech", L"sweden", L"poland", L"italy"});
+	std::vector<winrt::hstring> Tiers{Tr("Filter.AllTiers")};
+	for (int Tier = 1; Tier <= 11; ++Tier)
+		Tiers.push_back(HString(std::to_string(Tier)));
+	Filters.Tier = Combo(Tiers);
+	Filters.Class = Combo({Tr("Filter.AllClasses"), Tr("Filter.Light"), Tr("Filter.Medium"),
+						   Tr("Filter.Heavy"), Tr("Filter.Td"), Tr("Filter.Spg")});
+	Filters.Kind = Combo({Tr("Filter.Regular"), Tr("Filter.Gold"), Tr("Filter.Silver"), Tr("Filter.Reward"),
+						  Tr("Filter.Unavailable")});
+	Filters.Sort = Combo({Tr("Filter.Name"), Tr("Filter.TierAscending"), Tr("Filter.TierDescending")});
+	auto AddChoices = [&](std::initializer_list<Controls::ComboBox> Items, int Row)
+	{
+		auto Choices = Columns({});
+		Choices.RowSpacing(10);
+		for (auto const& Item : Items)
+			Choices.Children().Append(Item);
+		ArrangeGridColumns(Choices, int(Items.size()));
+		Controls::Grid::SetRow(Choices, Row);
+		Page.Children().Append(Choices);
+		return Choices;
+	};
+	if (Sidebar)
+	{
+		AddChoices({Filters.Nation, Filters.Tier}, 1);
+		AddChoices({Filters.Class, Filters.Kind}, 2);
+		Controls::Grid::SetRow(Filters.Sort, 3);
+		Page.Children().Append(Filters.Sort);
+	}
+	else
+	{
+		auto Choices =
+			AddChoices({Filters.Nation, Filters.Tier, Filters.Class, Filters.Kind, Filters.Sort}, 1);
+		Choices.SizeChanged(
+			[](auto const& Sender, Xaml::SizeChangedEventArgs const& Event)
+			{
+				ArrangeGridColumns(Sender.template as<Controls::Grid>(),
+								   Event.NewSize().Width >= 760 ? 5 : 3);
+			});
+	}
+	Filters.Search.TextChanged([Changed](auto&&, auto&&) { Changed(); });
+	for (auto const& Filter : {Filters.Nation, Filters.Tier, Filters.Class, Filters.Kind, Filters.Sort})
+		Filter.SelectionChanged([Changed](auto&&, auto&&) { Changed(); });
+	return Page;
+}
+VehicleFilter ReadVehicleFilter(VehicleFilterControls const& Filters)
+{
+	static char const* Kinds[] = {"", "gold", "silver", "reward", "unavailable"};
+	return {Lower(String(Filters.Search.Text())),		Kinds[std::clamp(Filters.Kind.SelectedIndex(), 0, 4)],
+			Filters.Nation.SelectedIndex() - 1,			std::max(0, Filters.Tier.SelectedIndex()),
+			std::max(0, Filters.Class.SelectedIndex()), std::max(0, Filters.Sort.SelectedIndex())};
 }
 void ArrangeGridColumns(Controls::Grid const& Grid, int Count)
 {

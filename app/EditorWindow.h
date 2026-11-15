@@ -1,6 +1,7 @@
 #pragma once
 #include "ModelViewport.h"
 #include "UiCommon.h"
+#include "Barracks.h"
 #include <atomic>
 #include <array>
 namespace OffHanger::Ui
@@ -54,9 +55,8 @@ class EditorWindow : public std::enable_shared_from_this<EditorWindow>
 	Controls::ProgressBar WorkProgress{nullptr};
 	Controls::Pivot VehicleTabs{nullptr};
 	Controls::PivotItem ParameterItem{nullptr}, XmlItem{nullptr}, ArmorItem{nullptr};
-	Controls::TextBox VehicleSearch{nullptr};
-	Controls::ComboBox VehicleNation{nullptr}, VehicleTier{nullptr}, VehicleClass{nullptr},
-		VehicleSort{nullptr}, VehicleKind{nullptr};
+	VehicleFilterControls VehicleFilters, GarageFilters, AddFilters;
+	VehicleListIndex VehicleListings;
 	Controls::ListView VehicleList{nullptr};
 	Controls::TextBlock VehicleTitle{nullptr};
 	std::vector<size_t> VehicleRows;
@@ -89,16 +89,25 @@ class EditorWindow : public std::enable_shared_from_this<EditorWindow>
 	std::map<uint32_t, VehicleValue> ArmorFields;
 	bool UpdatingArmor{};
 	Controls::TextBlock SavePath{nullptr};
-	Controls::ListView GarageList{nullptr}, AddList{nullptr}, CrewList{nullptr}, SaveFieldList{nullptr};
-	Controls::TextBox GarageSearch{nullptr}, AddSearch{nullptr}, CrewSearch{nullptr},
-		SaveFieldSearch{nullptr};
-	Controls::ComboBox AddNation{nullptr}, AddTier{nullptr}, AddClass{nullptr}, AddCategory{nullptr},
-		GarageSort{nullptr};
+	Controls::ListView GarageList{nullptr}, AddList{nullptr}, OwnedCrewList{nullptr}, RecruitList{nullptr},
+		SaveFieldList{nullptr};
+	Controls::TextBox SaveFieldSearch{nullptr}, CrewXp{nullptr};
+	Controls::Pivot BarracksTabs{nullptr};
+	Controls::ComboBox OwnedTheme{nullptr}, OwnedNation{nullptr}, OwnedClass{nullptr}, OwnedRole{nullptr},
+		RecruitTheme{nullptr}, RecruitNation{nullptr}, RecruitRole{nullptr};
+	std::vector<std::string> OwnedThemes, RecruitThemes;
+	std::vector<OwnedCrew> Roster;
+	std::vector<RecruitCandidate> Candidates;
+	std::set<std::string> RecruitedKeys;
+	std::vector<size_t> OwnedCrewRows, RecruitRows;
+	std::vector<OwnedVehicle> GarageInventory;
+	uint64_t InventoryRevision = UINT64_MAX, RosterRevision = UINT64_MAX;
+	bool BuildingBarracks{};
 	Controls::CheckBox AddWithCrew{nullptr};
-	Controls::TextBox XpValue{nullptr}, RecruitCount{nullptr}, SaveFieldValue{nullptr};
+	Controls::TextBox XpValue{nullptr}, SaveFieldValue{nullptr};
 	std::map<std::string, Controls::TextBox> CurrencyInputs;
 	std::vector<OwnedVehicle> GarageRows;
-	std::vector<size_t> AddRows, CrewRows;
+	std::vector<size_t> AddRows;
 	std::vector<SaveProperty> SaveFields;
 	winrt::hstring Tr(char const* Key) const;
 	Controls::Button Button(char const* Key, std::function<void()> Action);
@@ -160,6 +169,16 @@ class EditorWindow : public std::enable_shared_from_this<EditorWindow>
 	void RefreshGarage();
 	void RefreshAdd();
 	void RefreshCrew();
+	void RefreshOwnedCrew();
+	void RefreshRecruits();
+	winrt::hstring CrewTheme(std::string const& Theme, std::string const& Label) const;
+	winrt::hstring CrewRole(int Role) const;
+	winrt::hstring CrewClass(int Class) const;
+	winrt::fire_and_forget RemoveCrew(bool FromAccount);
+	winrt::fire_and_forget RecruitSelectedCrew();
+	void EnsureVehicleListings();
+	void EnsureGarageInventory();
+	winrt::hstring DeletionPreview(std::vector<SaveIssue> const& Plan) const;
 	void RefreshSaveFields();
 	std::set<int64_t> SelectedGarage() const;
 	std::vector<size_t> SelectedIndices(Controls::ListView const& List) const;
@@ -168,9 +187,6 @@ class EditorWindow : public std::enable_shared_from_this<EditorWindow>
 	winrt::fire_and_forget DeleteSelected();
 	winrt::fire_and_forget Cleanup(CleanupKind Kind);
 	winrt::fire_and_forget AddSelected();
-	winrt::fire_and_forget AssignCrew();
-	winrt::fire_and_forget RestoreUniqueCrew();
-	winrt::fire_and_forget RecruitThemes(bool All);
 
   public:
 	explicit EditorWindow(Settings Input) : Preferences(std::move(Input)) {}

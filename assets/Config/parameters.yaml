@@ -590,7 +590,9 @@ taxonomy:
   other:
     name_suffixes: [_bob]
     name_contains: [_igr, _training, _test, _bot]
-    tag_contains: [testvehicle, bob]
+    tag_contains: [bob, observer, event_battles, battle_royale]
+    # Playable extension ports can retain test flags from their original client.
+    base_tag_contains: [testvehicle, testtank]
 
 
 field_overrides:

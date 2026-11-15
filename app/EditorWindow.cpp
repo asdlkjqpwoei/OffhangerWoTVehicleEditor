@@ -360,7 +360,16 @@ void EditorWindow::ResetPageCache()
 	SaveTabs = nullptr;
 	SaveTabDirty.fill(true);
 	SavePath = nullptr;
-	GarageList = AddList = CrewList = SaveFieldList = nullptr;
+	GarageList = AddList = OwnedCrewList = RecruitList = SaveFieldList = nullptr;
+	BarracksTabs = nullptr;
+	VehicleListings.Invalidate();
+	InventoryRevision = RosterRevision = UINT64_MAX;
+	GarageInventory.clear();
+	Roster.clear();
+	Candidates.clear();
+	VehicleFilters = {};
+	GarageFilters = {};
+	AddFilters = {};
 	CurrencyInputs.clear();
 	VehicleTabs = nullptr;
 	ParameterItem = XmlItem = ArmorItem = nullptr;

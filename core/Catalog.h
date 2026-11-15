@@ -60,6 +60,7 @@ class Catalog
 
   private:
 	std::unordered_map<std::string, size_t> NameIndex;
+	std::unordered_map<uint32_t, size_t> CdIndex;
 	std::map<std::string, std::map<std::string, std::string>> Translations;
 	void LoadTranslations();
 };
