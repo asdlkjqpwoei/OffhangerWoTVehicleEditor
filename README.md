@@ -1,5 +1,7 @@
 # OffHanger WoT Offline Vehicle Editor
 
+AI generated Editor
+
 ## 编译环境要求
 
 - Windows x64。
